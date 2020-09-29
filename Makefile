@@ -14,8 +14,9 @@ SYSDIRS= util-lib testutils runtime runtime_fat base pa_unmatched_vala \
 	pa_deriving pa_deriving.plugins pa_import \
 	protobuf_runtime
 
-TESTDIRS= tests-ounit2 our-tests-inline tests-deriving-protobuf \
-	 tests-inline tests-expect
+TESTDIRS= tests-ounit2 our-tests-inline tests-deriving-protobuf
+
+EXTRATESTDIRS = tests-inline tests-expect
 
 PACKAGES := pa_ppx_utils
 PACKAGES := $(PACKAGES),pa_ppx_base
@@ -50,6 +51,9 @@ doc: all
 	rm -rf docs
 	tools/make-docs pa_ppx docs
 	make -C doc html
+
+test-everything: all
+	set -e; for i in $(TESTDIRS) $(EXTRATESTDIRS); do cd $$i; $(MAKE) test; cd ..; done
 
 test: all
 	set -e; for i in $(TESTDIRS); do cd $$i; $(MAKE) test; cd ..; done
@@ -116,7 +120,7 @@ uninstall:
 
 clean::
 	set -e; for i in $(SYSDIRS) $(TESTDIRS); do cd $$i; $(MAKE) clean; cd ..; done
-	rm -rf docs local-install
+	rm -rf docs local-install $(BATCHTOP) META
 
 depend:
 	set -e; for i in $(SYSDIRS) $(TESTDIRS); do cd $$i; $(MAKE) depend; cd ..; done

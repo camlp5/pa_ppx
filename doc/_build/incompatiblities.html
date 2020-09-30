@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Search &mdash; Pa_ppx  documentation</title>
+  <title>Incompatibilities Between pa_ppx PPX Rewriters and the “standard” ones &mdash; Pa_ppx  documentation</title>
   
 
   
@@ -34,7 +34,6 @@
         <script type="text/javascript" src="_static/jquery.js"></script>
         <script type="text/javascript" src="_static/underscore.js"></script>
         <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/searchtools.js"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -44,7 +43,7 @@
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="#" /> 
+    <link rel="search" title="Search" href="search.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -71,7 +70,7 @@
 
           
 <div role="search">
-  <form id="rtd-search-form" class="wy-form" action="#" method="get">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
@@ -94,7 +93,6 @@
 <li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
 <li class="toctree-l1"><a class="reference internal" href="builtins.html">Built-in PPX Rewriters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="build-systems.html">Using <cite>pa_ppx</cite> with Common Build-Systems for OCaml</a></li>
-<li class="toctree-l1"><a class="reference internal" href="incompatibilities.html">Incompatibilities Between <cite>pa_ppx</cite> PPX Rewriters and the “standard” ones</a></li>
 <li class="toctree-l1"><a class="reference internal" href="faq.html">Frequently Asked Questions</a></li>
 </ul>
 
@@ -141,14 +139,14 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>Search</li>
+      <li>Incompatibilities Between <cite>pa_ppx</cite> PPX Rewriters and the “standard” ones</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
             
-              <a href="https://github.com/camlp5/camlp5/blob/master/docsearch" class="fa fa-github"> Edit on GitHub</a>
+              <a href="https://github.com/camlp5/camlp5/blob/master/docincompatiblities.rst" class="fa fa-github"> Edit on GitHub</a>
             
           
         
@@ -162,19 +160,42 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <noscript>
-  <div id="fallback" class="admonition warning">
-    <p class="last">
-      Please activate JavaScript to enable the search
-      functionality.
-    </p>
-  </div>
-  </noscript>
+  <div class="section" id="incompatibilities-between-pa-ppx-ppx-rewriters-and-the-standard-ones">
+<h1>Incompatibilities Between <cite>pa_ppx</cite> PPX Rewriters and the “standard” ones<a class="headerlink" href="#incompatibilities-between-pa-ppx-ppx-rewriters-and-the-standard-ones" title="Permalink to this headline">¶</a></h1>
+<p>As much as possible, we’ve tried to ensure that <cite>pa_ppx</cite>
+implementations of PPX rewriters stay faithful to the behaviour of the
+ones we’ve reverse-engineered.  There are some places where this was
+either not easy, or where deviation was valuable, and I’ll try to
+document them here.</p>
+<div class="section" id="pa-ppx-import">
+<h2><cite>pa_ppx.import</cite><a class="headerlink" href="#pa-ppx-import" title="Permalink to this headline">¶</a></h2>
+<p><cite>pa_ppx.import</cite> has a few incompatibilites with <cite>ppx_import</cite> (as we
+understand its behaviour) and a bunch of extra features.</p>
+<div class="section" id="incompatibilities">
+<h3>Incompatibilities<a class="headerlink" href="#incompatibilities" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="automatic-renaming-during-import-of-recursive-types">
+<h4>Automatic renaming during import of recursive types<a class="headerlink" href="#automatic-renaming-during-import-of-recursive-types" title="Permalink to this headline">¶</a></h4>
+<p>When <cite>ppx_import</cite> imports a type, viz.:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="nb">type</span> <span class="n">longident</span> <span class="o">=</span> <span class="p">[</span><span class="o">%</span><span class="kn">import</span> <span class="nn">Longident.t</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>it automatically renames the instances of <cite>t</cite> in the body of the
+type-definition.  But if the <em>intent</em> of the import was to reuse that
+type-definition and modify it somehow (for instance, to introduce an
+intermediary type for the purpose of hash-consing) then this is
+defeated by this automatic renaming.  Furthermore, there is an
+<em>extension</em> in <cite>pa_ppx.import</cite> to import entire typedecl-groups, that
+can be used to get this same behaviour:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="o">%%</span><span class="kn">import</span> <span class="nn">Longident.t</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>though admittedly, it doesn’t rename the members of the group.</p>
+<p>Here’s an example of a behaviour</p>
+</div>
+</div>
+</div>
+</div>
 
-  
-  <div id="search-results">
-  
-  </div>
 
            </div>
            
@@ -212,14 +233,7 @@
   
   
     
-  
-  <script type="text/javascript">
-    jQuery(function() { Search.loadIndex("searchindex.js"); });
-  </script>
-  
-  <script type="text/javascript" id="searchindexloader"></script>
    
-
 
 </body>
 </html>

@@ -358,11 +358,6 @@ value import_type arg (newtname,new_formals) t =
           [ (fid, a) :: renmap ]
         | _ -> renmap
         ]) renmap formals actuals in
-    let oldtname = uv (snd (uv td.tdNam)) in
-    let newtname = uv (snd newtname)in
-    let renmap = if oldtname = newtname then
-        renmap
-      else [ (<:ctyp< $lid:oldtname$ >>, <:ctyp< $lid:newtname$ >>) :: renmap ] in
     let tk = match td.tdDef with [
       <:ctyp< $_$ == $t$ >> -> t
     | t -> t

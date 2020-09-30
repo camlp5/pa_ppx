@@ -1,4 +1,22 @@
 
+pa_ppx Version 0.04
+-------------------
+
+* [30 Sep 2020] change pa_ppx.import so that it doesn't automatically
+  rename types when importing recursive types.  E.g. in
+
+  type longident = [%import: Longident.t]
+
+  it will not rename instances of "t" in the imported definition to
+  "longident".  To recover this behaviour, just change the above to
+
+  type longident = [%import: Longident.t
+    [@with t := longident]
+  ]
+
+  This allows much greater flexibility in using pa_ppx.import to
+  manipulate collections of recursive types.
+
 pa_ppx Version 0.03
 -------------------
 

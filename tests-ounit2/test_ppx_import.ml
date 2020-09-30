@@ -40,7 +40,9 @@ module Test_optional : S_optional = struct
     ignore opt
 end
 
-type longident = [%import: Longident.t] [@@deriving show]
+type longident = [%import: Longident.t
+  [@with t := longident]
+] [@@deriving show]
 
 type package_type =
 [%import: Parsetree.package_type
@@ -66,6 +68,13 @@ end
 let test_self_import_module_type _ctxt =
   let m = (module Self_M : Self_S)
   in Test_self_import.validate_module_type m
+
+type u1 = [%import: Stuff.w1
+             [@with w2 := u2]
+          ]
+and u2 = [%import: Stuff.w2
+             [@with w1 := u1]
+         ]
 
 let suite = "Test ppx_import" >::: [
     "test_constr"                  >:: test_constr;

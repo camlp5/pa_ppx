@@ -67,4 +67,5 @@ thesis:
    tutorial
    builtins
    build-systems
+   incompatibilities
    faq

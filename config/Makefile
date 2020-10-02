@@ -38,7 +38,7 @@ top: all
 	$(OCAMLFIND) ocamlc $(OCAMLCFLAGS) -package $(PACKAGES),pa_ppx_dock -syntax $(SYNTAX) -bin-annot -c $< -o .cmt/$*.cmi
 	cp .cmt/$*.cmti $*.cmti
 
-.SUFFIXES: .cmo .cmi .ml .mli .cmx .cma .cmxa .cmt .cmti
+.SUFFIXES: .cmo .cmi .ml .mli .cmx .cma .cmxa .cmt .cmti .byte .opt
 
 clean::
 	$(RM) -rf *.cm* *.o *.a *.byte *.log *.cache *.ppo *.ppo.ml _build/* .cmt *.odoc

@@ -16,10 +16,20 @@ module Ploc =
     value pp ppf x =
       if pp_loc_verbose.val then pp0_loc ppf x else pp1_loc ppf x
     ;
+    value equal (x : t) y = x = y;
     type vala α =
       Ploc.vala α ==
         [ VaAnt of string
-        | VaVal of α ][@@"deriving_inline" show;]
+        | VaVal of α ][@@"deriving_inline" (show, eq);]
+    ;
+    value rec equal_vala : ! α . (α → α → Stdlib.Bool.t) → vala α → vala α → Stdlib.Bool.t =
+      fun (type a) (tp_0 : a → a → Stdlib.Bool.t) arg1 arg2 →
+        (fun a b →
+           (match (a, b) with
+            [ (VaAnt a_0, VaAnt b_0) → (fun a b → a = b) a_0 b_0
+            | (VaVal a_0, VaVal b_0) → tp_0 a_0 b_0
+            | _ → False ])[@"ocaml.warning" "-4";][@"ocaml.warning" "-11";])
+          arg1 arg2[@@"ocaml.warning" "-39";] [@@"ocaml.warning" "-33";]
     ;
     value rec pp_vala : ! α . Fmt.t α → Fmt.t (vala α) =
       fun (type a) (tp_0 : Fmt.t a) (ofmt : Format.formatter) arg →

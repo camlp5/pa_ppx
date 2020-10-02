@@ -28,7 +28,9 @@ let pp ppf x =
   else
     pp1_loc ppf x
 
-type 'a vala = [%import: 'a Ploc.vala] [@@deriving show]
+let equal (x : t) y = x = y
+
+type 'a vala = [%import: 'a Ploc.vala] [@@deriving show,eq]
 end
 
 type loc = [%import: MLast.loc] [@@deriving show]

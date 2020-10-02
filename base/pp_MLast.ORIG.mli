@@ -8,7 +8,8 @@ include (module type of Ploc with type t = Ploc.t)
 
 val pp_loc_verbose : bool ref
 val pp : t Fmt.t
-type 'a vala = [%import: 'a Ploc.vala] [@@deriving show]
+val equal : t -> t -> bool
+type 'a vala = [%import: 'a Ploc.vala] [@@deriving show,eq]
 end
 
 type loc = [%import: MLast.loc] [@@deriving show]

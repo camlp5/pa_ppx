@@ -211,8 +211,115 @@ value str_item_gen_params0 arg td =
   str_item_funs arg td
 ;
 
+value expr_as_patt loc s =
+  Pcaml.handle_patt_quotation loc ("expr@", s)
+;
+
+value patt_as_patt loc s =
+  Pcaml.handle_patt_quotation loc ("patt@", s)
+;
+
 value generate_param_parser arg ty =
   let rec genrec = fun [
+    <:ctyp:< int >> ->
+      let p = expr_as_patt loc "$int:i$" in
+    <:expr< fun [ $p$ → int_of_string i ] >>
+  | <:ctyp:< bool >> ->
+      let true_patt = expr_as_patt loc "True" in
+      let false_patt = expr_as_patt loc "False" in
+    <:expr< fun [ $true_patt$ → True | $false_patt$ → False ] >>
+  | <:ctyp:< lident >> ->
+      let p = expr_as_patt loc "$lid:lid$" in
+    <:expr< fun [ $p$ →  lid ] >>
+  | <:ctyp:< uident >> ->
+      let p = expr_as_patt loc "$uid:uid$" in
+    <:expr< fun [ $p$ →  uid ] >>
+  | <:ctyp:< expr >> ->
+    <:expr< fun [ e →  e ] >>
+  | <:ctyp:< ctyp >> ->
+      let p = expr_as_patt loc "[%typ: $type:t$]" in
+    <:expr< fun [ $p$ →  t ] >>
+
+  | <:ctyp:< longid >> ->
+    <:expr< fun [ e → Pa_ppx_base.Ppxutil.longid_of_expr e  ] >>
+
+  | <:ctyp:< $lid:id$ >> ->
+      <:expr< $lid:params_fname arg id$ >>
+
+  | <:ctyp:< $longid:li$ . $lid:id$ >> ->
+      let e1 = expr_of_longid li in
+      let e2 = <:expr< $lid:params_fname arg id$ >> in
+      <:expr< $e1$ . $e2$ >>
+
+  | <:ctyp:< { $list:ltl$ } >> ->
+    let label_ty_optional_defaults = List.map (fun (_, na, _, ty, al) ->
+          match Ctyp.wrap_attrs ty (uv al) with [
+            <:ctyp< option $t$ >> -> (na, t, True, None)
+          | <:ctyp< $t$ [@default $exp:d$ ;] >> -> (na, t, False, Some d)
+          | t -> (na, t, False, None)
+          ]) ltl in
+    let consfields = List.map (fun (na, _, _, _) ->
+        (<:patt< $lid:na$ >>, <:expr< $lid:na$ >>))
+        label_ty_optional_defaults in
+    let consrhs = <:expr< { $list:consfields$ } >> in
+    let one_field_binding (na, ty, optional, default) =
+      match (optional, default) with [
+        (True, None) ->
+        (<:patt< $lid:na$ >>, <:expr< match List.assoc $str:na$ __alist__ with [
+                          x -> Some ($genrec ty$ x)
+                        | exception Not_found -> None
+                        ] >>, <:vala< [] >>)
+      | (False, None) ->
+        (<:patt< $lid:na$ >>, <:expr< match List.assoc $str:na$ __alist__ with [
+                          x -> $genrec ty$ x
+                        | exception Not_found ->
+                          Ploc.raise loc
+                            (Failure (Printf.sprintf "field %s is not optional" $str:na$)) 
+                        ] >>, <:vala< [] >>)
+      | (False, Some d) ->
+        (<:patt< $lid:na$ >>, <:expr< match List.assoc $str:na$ __alist__ with [
+                          x -> $genrec ty$ x
+                        | exception Not_found -> $d$
+                        ] >>, <:vala< [] >>)
+      ]
+    in
+    let field_bindings = List.map one_field_binding label_ty_optional_defaults in
+    let recpat = expr_as_patt loc "{ $list:__lel__$ }" in
+    let p = patt_as_patt loc "$lid:fld$" in
+    <:expr< fun $recpat$ -> 
+            let __alist__ = List.map (fun [ ($p$, e) -> (fld, e) 
+                                          | _ ->
+                                            Ploc.raise loc
+                                              (Failure "fields must be named by lidents")
+                                          ]) __lel__ in
+            let $list:field_bindings$ in
+            $consrhs$ >>
+
+  | <:ctyp:< alist lident $rngty$ >> ->
+    let lid_patt = patt_as_patt loc "$lid:k$" in
+    let full_body = <:expr<
+      List.map (fun ($lid_patt$, e) -> (k, $genrec rngty$ e)) __lel__
+    >> in         
+    let recpat = expr_as_patt loc "{ $list:__lel__$ }" in
+    let unitpat = expr_as_patt loc "()" in
+    <:expr< fun [ $unitpat$ -> []
+                | $recpat$ -> $full_body$ ] >>
+
+  | <:ctyp:< list $ty$ >> ->
+    <:expr< Pa_ppx_base.Ppxutil.convert_down_list_expr $genrec ty$ >>
+
+  | <:ctyp:< ( $list:l$ ) >> ->
+    let vars_types = List.mapi (fun i ty -> (Printf.sprintf "v_%d" i, ty)) l in
+    let varantis = List.map (fun (v, _) -> Printf.sprintf "$%s$" v) vars_types in
+    let tuplepatt = expr_as_patt loc (Printf.sprintf "(%s)" (String.concat ", " varantis)) in
+    let l = List.map (fun (v, t) -> <:expr< $genrec t$ $lid:v$ >>) vars_types in
+    <:expr< fun $tuplepatt$ -> ( $list:l$ ) >>
+
+  | <:ctyp:< $t$ [@convert ( [%typ: $type:srct$], $convf$ );] >> ->
+    <:expr< fun __x__ -> $convf$ ($genrec srct$ __x__) >>
+
+  | t -> Ploc.raise (loc_of_ctyp t) (Failure Fmt.(str "generate_param_parser: unhandled type %a"
+                                                    Pp_MLast.pp_ctyp t))
   ] in
   match genrec ty with [
     <:expr< fun [ $list:_$ ] >> as z -> z
@@ -220,10 +327,16 @@ value generate_param_parser arg ty =
   ]
 ;
 
+value generate_param_binding arg td =
+ let loc = loc_of_type_decl td in
+ let name = td.tdNam |> uv |> snd |> uv in
+ (<:patt< $lid:params_fname arg name$ >>, generate_param_parser arg td.tdDef, <:vala< [] >>)
+;
+
 value str_item_gen_params name arg = fun [
   <:str_item:< type $_flag:_$ $list:tdl$ >> ->
     let loc = loc_of_type_decl (List.hd tdl) in
-  let l = List.concat (List.map (str_item_gen_params0 arg) tdl) in
+  let l = List.map (generate_param_binding arg) tdl in
   <:str_item< value rec $list:l$ >>
 | _ -> assert False ]
 ;

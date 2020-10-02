@@ -198,4 +198,19 @@ package "protobuf" (
   requires = "pa_ppx_runtime,pa_ppx_protobuf_runtime"
 )
 
+package "params" (
+  requires(toploop) = "camlp5,pa_ppx_deriving,pa_ppx_base,camlp5.parser_quotations"
+  archive(toploop) = "pa_deriving_params.cmo"
+
+    requires(syntax,preprocessor) = "camlp5,pa_ppx_deriving,pa_ppx_base.link,camlp5.parser_quotations"
+    archive(syntax,preprocessor,-native) = "pa_deriving_params.cmo"
+    archive(syntax,preprocessor,native) = "pa_deriving_params.cmx"
+
+  package "link" (
+  requires(byte) = "camlp5,pa_ppx_deriving.link,pa_ppx_base.link,camlp5.parser_quotations.link"
+  archive(byte) = "pa_deriving_params.cmo"
+  )
+  requires = "pa_ppx_runtime,pa_ppx_base,camlp5.parser_quotations"
+)
+
 EOF

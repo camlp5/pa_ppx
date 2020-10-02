@@ -46,6 +46,39 @@ value module_expr_of_longident li =
   ] in
   crec li
 ;
+value string_list_of_expr e =
+  let rec lrec = fun [
+    <:expr< $uid:uid$ >> -> [uid]
+  | <:expr< $e1$ . $e2$ >> -> (lrec e1)@(lrec e2)
+  | e -> Ploc.raise (loc_of_expr e) (Failure "string_list_of_expr: unexpected expr")
+  ] in
+  lrec e
+;
+value longid_of_expr e =
+  let l = string_list_of_expr e in
+  Asttools.longident_of_string_list (loc_of_expr e) l
+;
+
+value expr_of_longid li =
+  let rec erec = fun [
+    <:longident:< $uid:uid$ >> -> <:expr< $uid:uid$ >>
+  | <:longident:< $longid:li$ . $uid:uid$ >> ->
+    <:expr< $erec li$ . $uid:uid$ >>
+  ] in
+  erec li
+;
+
+value convert_down_list_expr f e =
+  let rec crec acc = fun [
+    <:expr< [] >> -> List.rev acc
+  | <:expr< [ $h$ :: $tl$ ] >> ->
+    crec [ f h :: acc ] tl
+  | _ -> Ploc.raise (loc_of_expr e) (Failure Fmt.(str "convert_down_list_expr: malformed list-expression %a"
+                                                    Pp_MLast.pp_expr e))
+  ] in
+  crec [] e
+;
+
 module Env = struct
 type t 'a = list (string * 'a) ;
 

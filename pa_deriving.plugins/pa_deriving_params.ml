@@ -310,7 +310,6 @@ value generate_param_parser arg ty =
     <:expr< fun [ $unitpat$ -> []
                 | $recpat$ -> $full_body$ ] >>
 
-
   | <:ctyp:< alist longid_lident $rngty$ >> ->
     let lid_patt = patt_as_patt loc "$lid:lid$" in
     let longlid_patt = patt_as_patt loc "$longid:li$ . $lid:lid$" in
@@ -319,6 +318,16 @@ value generate_param_parser arg ty =
                     | ($longlid_patt$, e) -> ((Some (Ploc.VaVal li), Ploc.VaVal lid), $genrec rngty$ e)
                     ]) __lel__
     >> in
+    let recpat = expr_as_patt loc "{ $list:__lel__$ }" in
+    let unitpat = expr_as_patt loc "()" in
+    <:expr< fun [ $unitpat$ -> []
+                | $recpat$ -> $full_body$ ] >>
+
+  | <:ctyp:< alist ctyp $rngty$ >> ->
+    let ctyp_patt = patt_as_patt loc "[%typ: $type:t$]" in
+    let full_body = <:expr<
+      List.map (fun ($ctyp_patt$, e) -> (t, $genrec rngty$ e)) __lel__
+    >> in         
     let recpat = expr_as_patt loc "{ $list:__lel__$ }" in
     let unitpat = expr_as_patt loc "()" in
     <:expr< fun [ $unitpat$ -> []

@@ -282,6 +282,32 @@ value test ctxt =
 end
 ;
 
+module QAST = struct
+type t = {
+  data_source_module : expr
+; quotation_source_module : option expr
+; expr_meta_module : option expr
+; patt_meta_module : option expr
+; external_types : (alist ctyp expr) [@default [];]
+; hashconsed : bool [@default False;]
+} [@@deriving (params, eq);]
+;
+
+value test ctxt =
+  let got =
+    {foo|
+      {
+    data_source_module = Debruijn_hashcons.OK
+  ; expr_meta_module = MetaE
+  ; patt_meta_module = MetaP
+  }
+    |foo}
+    |> parse_expr |> params in
+  ()
+;
+end
+;
+
 value suite = "Test deriving(params)" >::: [
     "test_simple"           >:: test_simple
   ; "test_a12"              >:: test_a12
@@ -290,6 +316,7 @@ value suite = "Test deriving(params)" >::: [
   ; "Hashcons.test_external_funs_t"    >:: Hashcons.test_external_funs_t
   ; "Hashcons.test_pertype_customization_t"    >:: Hashcons.test_pertype_customization_t
   ; "Hashcons.test"    >:: Hashcons.test
+  ; "QAST.test"    >:: QAST.test
   ]
 ;
 

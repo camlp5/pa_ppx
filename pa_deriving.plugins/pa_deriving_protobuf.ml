@@ -2,9 +2,6 @@
 (* pa_deriving_protobuf.ml,v *)
 (* Copyright (c) INRIA 2007-2017 *)
 
-#load "q_MLast.cmo";
-#load "pa_extfun.cmo";
-
 open Asttools;
 open MLast;
 open Pa_ppx_utils ;
@@ -946,7 +943,7 @@ value str_item_funs arg td = do {
   let to_e = fmt_to_top arg ~{coercion=coercion} ~{field_name=tyname} param_map tk in
   let to_e = <:expr< let open! $runtime_module$ in let open! Stdlib in $to_e$ >> in
   let paramfun_patts = List.map (PM.arg_patt ~{mono=True} loc) param_map in
-  let paramtype_patts = List.map (fun p -> <:patt< (type $PM.type_id p$) >>) param_map in
+  let paramtype_patts = List.map (fun p -> <:patt< (type $lid:PM.type_id p$) >>) param_map in
   let (_, fty) = sig_item_fun0 arg td in
   let fty = PM.quantify_over_ctyp param_map fty in
   let argexp =
@@ -1598,7 +1595,7 @@ value str_item_funs arg td = do {
   let tyname = uv tyname in
   let of_protobuffname = of_protobuf_fname arg tyname in
   let paramfun_patts = List.map (PM.arg_patt ~{mono=True} loc) param_map in
-  let paramtype_patts = List.map (fun p -> <:patt< (type $PM.type_id p$) >>) param_map in
+  let paramtype_patts = List.map (fun p -> <:patt< (type $lid:PM.type_id p$) >>) param_map in
   let paramfun_exprs = List.map (PM.arg_expr loc) param_map in
   let body = fmt_of_top arg ~{field_name=tyname} param_map ty in
   let e = 
@@ -1657,7 +1654,7 @@ value expr_protobuf arg = fun [
     let e = To.fmt_to_top arg ~{coercion=coercion} ~{field_name="to_protobuf"} param_map ty in
     let e = <:expr< let open! $runtime_module$ in let open! Stdlib in $e$ >> in
     let parampats = List.map (To.PM.arg_patt ~{mono=True} loc) param_map in
-    let paramtype_patts = List.map (fun p -> <:patt< (type $To.PM.type_id p$) >>) param_map in
+    let paramtype_patts = List.map (fun p -> <:patt< (type $lid:To.PM.type_id p$) >>) param_map in
     Expr.abstract_over (paramtype_patts@parampats) e
 
 | <:expr:< [% $attrid:(_, id)$: $type:ty$ ] >> when id = "of_protobuf" || id = "derive.of_protobuf" ->
@@ -1667,7 +1664,7 @@ value expr_protobuf arg = fun [
     let e = Of.fmt_of_top ~{field_name="of_protobuf"} arg param_map ty in
     let e = <:expr< let open! $runtime_module$ in let open! Stdlib in $e$ >> in
     let parampats = List.map (Of.PM.arg_patt ~{mono=True} loc) param_map in
-    let paramtype_patts = List.map (fun p -> <:patt< (type $Of.PM.type_id p$) >>) param_map in
+    let paramtype_patts = List.map (fun p -> <:patt< (type $lid:Of.PM.type_id p$) >>) param_map in
     Expr.abstract_over (paramtype_patts@parampats) e
 | _ -> assert False ]
 ;

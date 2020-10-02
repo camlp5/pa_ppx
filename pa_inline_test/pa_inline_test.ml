@@ -2,12 +2,6 @@
 (* pa_inline_test.ml,v *)
 (* Copyright (c) INRIA 2007-2017 *)
 
-#load "pa_extend.cmo";
-#load "q_MLast.cmo";
-#load "pa_macro.cmo";
-#load "pa_macro_gram.cmo";
-#load "pa_extfun.cmo";
-
 open Asttools;
 open MLast;
 open Pa_ppx_base ;
@@ -61,7 +55,7 @@ value module_test arg tags loc descr me =
   Ppx_inline_test_lib.Runtime.test_module ~{config=(module Inline_test_config)}
     ~{descr = $str:descr$} ~{tags = $quote_string_list loc tags$} ~{filename = $str:filename$}
     ~{line_number= $int:line_number$} ~{start_pos = $int:start_pos$} ~{end_pos = $int:end_pos$}
-     (fun () -> let module M = $mexp:me$ in ())
+     (fun () -> let module M = $me$ in ())
   >>
 ;
 
@@ -93,7 +87,7 @@ value rewrite_str_item arg fallback z =
   let descr = String.escaped (Printf.sprintf ": <<%s>>" (Expr.print e)) in
   unit_test arg [] loc descr e
 
-| <:str_item:< [%%test_module (module $mexp:me$) ; ] >> ->
+| <:str_item:< [%%test_module (module $me$) ; ] >> ->
   module_test arg [] loc "" me
 
 | <:str_item:< [%%test value $flag:False$ $list:[(p,e,_)]$ ; ] >> ->
@@ -125,7 +119,7 @@ value rewrite_str_item arg fallback z =
   | _ -> failwith "pa_inline_test.rewrite_str_item: bad lhs of let"
   ] in
   let me = match e with [
-    <:expr< (module $mexp:me$) >> -> me
+    <:expr< (module $me$) >> -> me
   | _ -> failwith "module_test without module payload" ] in
   module_test arg tags loc descr me
 ]
@@ -179,7 +173,7 @@ let ef = EF.{ (ef) with
     fun arg fallback ->
       Some (rewrite_str_item arg fallback z)
 
-  | <:str_item:< [%%test_module (module $mexp:_$) ; ] >> as z ->
+  | <:str_item:< [%%test_module (module $_$) ; ] >> as z ->
     fun arg fallback ->
       Some (rewrite_str_item arg fallback z)
 

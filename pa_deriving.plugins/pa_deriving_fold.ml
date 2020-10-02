@@ -2,12 +2,6 @@
 (* pa_deriving_fold.ml,v *)
 (* Copyright (c) INRIA 2007-2017 *)
 
-#load "pa_extend.cmo";
-#load "q_MLast.cmo";
-#load "pa_macro.cmo";
-#load "pa_macro_gram.cmo";
-#load "pa_extfun.cmo";
-
 open Asttools;
 open MLast;
 open Pa_ppx_base ;
@@ -199,7 +193,7 @@ value str_item_top_funs arg td =
   let e = fmt_top arg ~{coercion=coercion} param_map tk in
 
   let paramfun_patts = List.map (PM.arg_patt ~{naked=True} loc) param_map in
-  let paramtype_patts = List.map (fun p -> <:patt< (type $PM.type_id p$) >>) param_map in
+  let paramtype_patts = List.map (fun p -> <:patt< (type $lid:PM.type_id p$) >>) param_map in
   let argexp =
     if uv td.tdPrv && is_type_abbreviation tk then
       <:expr< ( arg : $monomorphize_ctyp ty$ :> $monomorphize_ctyp tk$ ) >>

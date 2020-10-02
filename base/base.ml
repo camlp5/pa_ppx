@@ -2,8 +2,6 @@
 (* base.ml,v *)
 (* Copyright (c) INRIA 2007-2017 *)
 
-#load "q_MLast.cmo";
-
 open MLast ;
 
 value runtime_module_path = ref "Pa_ppx_runtime" ;
@@ -22,5 +20,10 @@ value expr_runtime_module m =
   if runtime_module_path.val = "" then m
   else
     let loc = loc_of_expr m in
-    <:expr< $uid:runtime_module_path.val$ . $m$ >>
+
+(*NOTE WELL: we have to cut this quotation into two parts b/c of weaknesses in pa_r
+  grammar, which in turn are due to not redoing MLast.expr using longid properly. *)
+
+    let e1 = <:expr<  $uid:runtime_module_path.val$ >> in
+    <:expr< $e1$ . $m$ >>
 ;

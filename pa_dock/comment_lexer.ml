@@ -2,8 +2,6 @@
 (* plexer.ml,v *)
 (* Copyright (c) INRIA 2007-2017 *)
 
-#load "pa_lexer.cmo";
-
 type context =
   { simplest_raw_strings : bool ;
     line_nb : ref int ;

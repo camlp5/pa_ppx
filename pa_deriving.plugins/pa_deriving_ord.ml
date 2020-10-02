@@ -2,12 +2,6 @@
 (* pa_deriving_ord.ml,v *)
 (* Copyright (c) INRIA 2007-2017 *)
 
-#load "pa_extend.cmo";
-#load "q_MLast.cmo";
-#load "pa_macro.cmo";
-#load "pa_macro_gram.cmo";
-#load "pa_extfun.cmo";
-
 open Asttools;
 open MLast;
 open Pa_ppx_base ;
@@ -292,7 +286,7 @@ value str_item_top_funs arg td =
   let e = fmt_top arg ~{coercion=coercion} param_map tk in
 
   let paramfun_patts = List.map (PM.arg_patt ~{mono=True} loc) param_map in
-  let paramtype_patts = List.map (fun p -> <:patt< (type $PM.type_id p$) >>) param_map in
+  let paramtype_patts = List.map (fun p -> <:patt< (type $lid:PM.type_id p$) >>) param_map in
   let arg1exp =
     if uv td.tdPrv && is_type_abbreviation tk then
       <:expr< ( arg1 : $monomorphize_ctyp ty$ :> $monomorphize_ctyp tk$ ) >>
@@ -369,7 +363,7 @@ value expr_ord arg = fun [
     let coercion = monomorphize_ctyp ty in
     let e = fmt_top ~{coercion=coercion} arg param_map ty in
     let parampats = List.map (PM.arg_patt ~{mono=True} loc) param_map in
-    let paramtype_patts = List.map (fun p -> <:patt< (type $PM.type_id p$) >>) param_map in
+    let paramtype_patts = List.map (fun p -> <:patt< (type $lid:PM.type_id p$) >>) param_map in
     let e = <:expr< fun a b ->  $e$ a b >> in
     Expr.abstract_over (paramtype_patts@parampats) e
 

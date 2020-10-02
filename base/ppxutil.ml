@@ -2,11 +2,6 @@
 (* pa_passthru.ml,v *)
 (* Copyright (c) INRIA 2007-2017 *)
 
-#load "pa_extend.cmo";
-#load "q_MLast.cmo";
-#load "pa_macro.cmo";
-#load "pa_macro_gram.cmo";
-
 open Pa_ppx_utils;
 open Asttools;
 open MLast;
@@ -80,10 +75,15 @@ value to_string_list e =
   in srec e
 ;
 
+value prepend_uid loc uid e =
+  let e1 = <:expr< $uid:uid$ >> in
+  <:expr< $e1$ . $e$ >>
+;
+
 value prepend_longident li e =
   let rec prerec li e = match li with [
-    <:longident:< $uid:uid$ >> -> <:expr< $uid:uid$ . $e$ >>
-  | <:longident:< $longid:li$ . $uid:uid$ >> -> prerec li <:expr< $uid:uid$ . $e$ >>
+    <:longident:< $uid:uid$ >> -> prepend_uid loc uid e
+  | <:longident:< $longid:li$ . $uid:uid$ >> -> prerec li (prepend_uid loc uid e)
   | li -> Ploc.raise (loc_of_longid li) (Failure (Printf.sprintf "unexpected longid: %s" (Pp_MLast.show_longid li)))
   ] in
   prerec li e
@@ -277,11 +277,7 @@ value option_map f =
 ;
 
 value vala_map f =
-  IFNDEF STRICT THEN
-    fun x -> f x
-  ELSE
     fun
     [ Ploc.VaAnt s -> Ploc.VaAnt s
     | Ploc.VaVal x -> Ploc.VaVal (f x) ]
-  END
 ;

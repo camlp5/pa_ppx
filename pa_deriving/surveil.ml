@@ -2,9 +2,6 @@
 (* surveil.ml,v *)
 (* Copyright (c) INRIA 2007-2017 *)
 
-#load "q_MLast.cmo";
-#load "pa_extfun.cmo";
-
 open Asttools;
 open MLast;
 open Pa_ppx_utils ;

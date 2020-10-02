@@ -15,6 +15,7 @@ MKCAMLP5=$(LAUNCH) mkcamlp5
 PACKAGES := $(PACKAGES),pa_ppx_deriving,pa_ppx_base,pa_ppx_unmatched_vala
 
 ML=\
+	pa_deriving_params.ml \
 	pa_deriving_show.ml \
 	pa_deriving_eq.ml \
 	pa_deriving_ord.ml \

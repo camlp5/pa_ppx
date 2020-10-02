@@ -2,9 +2,6 @@
 (* pa_here.ml,v *)
 (* Copyright (c) INRIA 2007-2017 *)
 
-#load "q_MLast.cmo";
-#load "pa_extfun.cmo";
-
 open Pa_ppx_base ;
 open Pa_passthru ;
 open Ppxutil ;

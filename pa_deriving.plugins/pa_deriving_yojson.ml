@@ -2,9 +2,6 @@
 (* pa_deriving_yojson.ml,v *)
 (* Copyright (c) INRIA 2007-2017 *)
 
-#load "q_MLast.cmo";
-#load "pa_extfun.cmo";
-
 open Asttools;
 open MLast;
 open Pa_ppx_utils ;
@@ -295,7 +292,7 @@ value str_item_funs arg td = do {
   let to_e = fmt_to_top arg ~{coercion=coercion} ~{msg=Printf.sprintf "%s.%s" (Ctxt.module_path_s arg) tyname} param_map tk in
   let to_e = <:expr< let open! $runtime_module$ in let open! Stdlib in $to_e$ >> in
   let paramfun_patts = List.map (PM.arg_patt ~{mono=True} loc) param_map in
-  let paramtype_patts = List.map (fun p -> <:patt< (type $PM.type_id p$) >>) param_map in
+  let paramtype_patts = List.map (fun p -> <:patt< (type $lid:PM.type_id p$) >>) param_map in
   let (_, fty) = sig_item_fun0 arg td in
   let fty = PM.quantify_over_ctyp param_map fty in
   let argexp =
@@ -309,8 +306,8 @@ value str_item_funs arg td = do {
 ;
 
 value extend_sig_items arg si = match si with [
-  <:sig_item< type $tp:_$ $list:_$ = $priv:_$ .. $_itemattrs:_$ >>
-| <:sig_item< type $tp:_$ $list:_$ = $_$ == $priv:_$ .. $_itemattrs:_$ >> 
+  <:sig_item< type $_lid:_$ $_list:_$ = $_priv:_$ .. $_itemattrs:_$ >>
+| <:sig_item< type $_lid:_$ $_list:_$ = $_$ == $_priv:_$ .. $_itemattrs:_$ >> 
   as z ->
     let td = match z with [ <:sig_item< type $_flag:_$ $list:tdl$ >> -> List.hd tdl | _ -> assert False ] in
     let (loc, tyname) = uv td.tdNam in
@@ -331,8 +328,8 @@ value extend_sig_items arg si = match si with [
 ;
 
 value rec extend_str_items arg si = match si with [
-  <:str_item:< type $tp:_$ $list:_$ = $priv:_$ .. $_itemattrs:_$ >>
-| <:str_item:< type $tp:_$ $list:_$ = $_$ == $priv:_$ .. $_itemattrs:_$ >> 
+  <:str_item:< type $_lid:_$ $_list:_$ = $_priv:_$ .. $_itemattrs:_$ >>
+| <:str_item:< type $_lid:_$ $_list:_$ = $_$ == $_priv:_$ .. $_itemattrs:_$ >> 
  as z ->
     let td = match z with [ <:str_item< type $_flag:_$ $list:tdl$ >> -> List.hd tdl | _ -> assert False ] in
     let param_map = PM.make "yojson" loc (uv td.tdPrm) in
@@ -377,7 +374,7 @@ value rec extend_str_items arg si = match si with [
     ] in
     let paramexps = List.map (PM.arg_expr loc) param_map in
     let parampats = List.map (PM.arg_patt ~{mono=True} loc) param_map in
-    let paramtype_patts = List.map (fun p -> <:patt< (type $PM.type_id p$) >>) param_map in
+    let paramtype_patts = List.map (fun p -> <:patt< (type $lid:PM.type_id p$) >>) param_map in
     let catch_branch = (<:patt< z >>, <:vala< None >>,
                         Expr.applist <:expr< fallback >> (paramexps@[ <:expr< z >> ])) in
     let branches = branches @ [ catch_branch ] in
@@ -712,7 +709,7 @@ value str_item_funs arg td = do {
   let tyname = uv tyname in
   let of_yojsonfname = of_yojson_fname arg tyname in
   let paramfun_patts = List.map (PM.arg_patt ~{mono=True} loc) param_map in
-  let paramtype_patts = List.map (fun p -> <:patt< (type $PM.type_id p$) >>) param_map in
+  let paramtype_patts = List.map (fun p -> <:patt< (type $lid:PM.type_id p$) >>) param_map in
   let paramfun_exprs = List.map (PM.arg_expr loc) param_map in
   let body = fmt_of_top arg ~{msg=Printf.sprintf "%s.%s" (Ctxt.module_path_s arg) tyname} param_map ty in
   let (fun1, ofun2) = sig_item_fun0 arg td in
@@ -738,8 +735,8 @@ value str_item_funs arg td = do {
 ;
 
 value extend_sig_items arg si = match si with [
-  <:sig_item< type $tp:_$ $list:_$ = $priv:_$ .. $_itemattrs:_$ >>
-| <:sig_item< type $tp:_$ $list:_$ = $_$ == $priv:_$ .. $_itemattrs:_$ >> 
+  <:sig_item< type $_lid:_$ $_list:_$ = $_priv:_$ .. $_itemattrs:_$ >>
+| <:sig_item< type $_lid:_$ $_list:_$ = $_$ == $_priv:_$ .. $_itemattrs:_$ >> 
   as z ->
     let td = match z with [ <:sig_item< type $_flag:_$ $list:tdl$ >> -> List.hd tdl | _ -> assert False ] in
     let (loc, tyname) = uv td.tdNam in
@@ -760,8 +757,8 @@ value extend_sig_items arg si = match si with [
 ;
 
 value rec extend_str_items arg si = match si with [
-  <:str_item:< type $tp:_$ $list:_$ = $priv:_$ .. $_itemattrs:_$ >>
-| <:str_item:< type $tp:_$ $list:_$ = $_$ == $priv:_$ .. $_itemattrs:_$ >> 
+  <:str_item:< type $_lid:_$ $_list:_$ = $_priv:_$ .. $_itemattrs:_$ >>
+| <:str_item:< type $_lid:_$ $_list:_$ = $_$ == $_priv:_$ .. $_itemattrs:_$ >> 
    as z ->
     let td = match z with [ <:str_item< type $_flag:_$ $list:tdl$ >> -> List.hd tdl | _ -> assert False ] in
     let param_map = PM.make "yojson" loc (uv td.tdPrm) in
@@ -808,7 +805,7 @@ value rec extend_str_items arg si = match si with [
     let (_, branches) = sep_last branches in 
     let paramexps = List.map (PM.arg_expr loc) param_map in
     let parampats = List.map (PM.arg_patt ~{mono=True} loc) param_map in
-    let paramtype_patts = List.map (fun p -> <:patt< (type $PM.type_id p$) >>) param_map in
+    let paramtype_patts = List.map (fun p -> <:patt< (type $lid:PM.type_id p$) >>) param_map in
     let catch_branch = (<:patt< z >>, <:vala< None >>,
                         Expr.applist <:expr< fallback >> (paramexps @[ <:expr< z >> ])) in
     let branches = branches @ [ catch_branch ] in
@@ -866,8 +863,8 @@ value extend_str_items arg td =
 ;
 
 value str_item_gen_yojson name arg = fun [
-  <:str_item:< type $_tp:_$ $_list:_$ = $_priv:_$ .. $_itemattrs:_$ >>
-| <:str_item:< type $tp:_$ $list:_$ = $_$ == $priv:_$ .. $_itemattrs:_$ >> 
+  <:str_item:< type $_lid:_$ $_list:_$ = $_priv:_$ .. $_itemattrs:_$ >>
+| <:str_item:< type $_lid:_$ $_list:_$ = $_$ == $_priv:_$ .. $_itemattrs:_$ >> 
   as z ->
     let l = extend_str_items arg z in
     <:str_item< declare $list:l$ end >>
@@ -887,8 +884,8 @@ value str_item_gen_yojson name arg = fun [
 ;
 
 value sig_item_gen_yojson name arg = fun [
-  <:sig_item:< type $_tp:_$ $_list:_$ = $_priv:_$ .. $_itemattrs:_$ >>
-| <:sig_item:< type $tp:_$ $list:_$ = $_$ == $priv:_$ .. $_itemattrs:_$ >> 
+  <:sig_item:< type $_lid:_$ $_list:_$ = $_priv:_$ .. $_itemattrs:_$ >>
+| <:sig_item:< type $_lid:_$ $_list:_$ = $_$ == $_priv:_$ .. $_itemattrs:_$ >> 
   as z ->
     let l = extend_sig_items arg z in
     <:sig_item< declare $list:l$ end >>
@@ -912,7 +909,7 @@ value expr_yojson arg = fun [
     let e = To.fmt_to_top arg ~{coercion=coercion} ~{msg=Printf.sprintf "%s.to_yojson"  (Ctxt.module_path_s arg)} param_map ty in
     let e = <:expr< let open! $runtime_module$ in let open! Stdlib in $e$ >> in
     let parampats = List.map (To.PM.arg_patt ~{mono=True} loc) param_map in
-    let paramtype_patts = List.map (fun p -> <:patt< (type $To.PM.type_id p$) >>) param_map in
+    let paramtype_patts = List.map (fun p -> <:patt< (type $lid:To.PM.type_id p$) >>) param_map in
     Expr.abstract_over (paramtype_patts@parampats) e
 
 | <:expr:< [% $attrid:(_, id)$: $type:ty$ ] >> when id = "of_yojson" || id = "derive.of_yojson" ->
@@ -922,7 +919,7 @@ value expr_yojson arg = fun [
     let e = Of.fmt_of_top ~{msg=Printf.sprintf "%s.of_yojson"  (Ctxt.module_path_s arg)} arg param_map ty in
     let e = <:expr< let open! $runtime_module$ in let open! Stdlib in $e$ >> in
     let parampats = List.map (Of.PM.arg_patt ~{mono=True} loc) param_map in
-    let paramtype_patts = List.map (fun p -> <:patt< (type $Of.PM.type_id p$) >>) param_map in
+    let paramtype_patts = List.map (fun p -> <:patt< (type $lid:Of.PM.type_id p$) >>) param_map in
     Expr.abstract_over (paramtype_patts@parampats) e
 | _ -> assert False ]
 ;

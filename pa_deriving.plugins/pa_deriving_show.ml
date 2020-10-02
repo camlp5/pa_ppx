@@ -2,9 +2,6 @@
 (* pa_deriving_show.ml,v *)
 (* Copyright (c) INRIA 2007-2017 *)
 
-#load "q_MLast.cmo";
-#load "pa_extfun.cmo";
-
 open Asttools;
 open MLast;
 open Pa_ppx_base ;
@@ -311,7 +308,7 @@ value str_item_top_funs arg td =
   let e = fmt_top arg ~{coercion=coercion} param_map ty in
 
   let paramfun_patts = List.map (PM.arg_patt ~{mono=True} loc) param_map in
-  let paramtype_patts = List.map (fun p -> <:patt< (type $PM.type_id p$) >>) param_map in
+  let paramtype_patts = List.map (fun p -> <:patt< (type $lid:PM.type_id p$) >>) param_map in
   let paramfun_exprs = List.map (PM.arg_expr loc) param_map in
   let ppfexp = <:expr< $lid:ppfname$ >> in
 
@@ -338,8 +335,8 @@ value sig_items arg td =
 
 
 value extend_sig_items arg si = match si with [
-  <:sig_item< type $tp:_$ $list:_$ = $priv:_$ .. $_itemattrs:_$ >>
-| <:sig_item< type $tp:_$ $list:_$ = $_$ == $priv:_$ .. $_itemattrs:_$ >>
+  <:sig_item< type $_lid:_$ $_list:_$ = $_priv:_$ .. $_itemattrs:_$ >>
+| <:sig_item< type $_lid:_$ $_list:_$ = $_$ == $_priv:_$ .. $_itemattrs:_$ >>
   as z ->
     let td = match z with [ <:sig_item< type $_flag:_$ $list:tdl$ >> -> List.hd tdl | _ -> assert False ] in
     let (loc, tyname) = uv td.tdNam in
@@ -360,8 +357,8 @@ value extend_sig_items arg si = match si with [
 ;
 
 value rec extend_str_items arg si = match si with [
-  <:str_item:< type $tp:_$ $list:_$ = $priv:_$ .. $_itemattrs:_$ >>
-| <:str_item:< type $tp:_$ $list:_$ = $_$ == $priv:_$ .. $_itemattrs:_$ >>
+  <:str_item:< type $_lid:_$ $_list:_$ = $_priv:_$ .. $_itemattrs:_$ >>
+| <:str_item:< type $_lid:_$ $_list:_$ = $_$ == $_priv:_$ .. $_itemattrs:_$ >>
   as z ->
     let td = match z with [ <:str_item< type $_flag:_$ $list:tdl$ >> -> List.hd tdl | _ -> assert False ] in
     let (loc, tyname) = uv td.tdNam in
@@ -371,7 +368,7 @@ value rec extend_str_items arg si = match si with [
     let showfname = show_fname arg (uv tyname) in
     let showfexp =
       let paramfun_patts = List.map (PM.arg_patt ~{mono=True} loc) param_map in
-      let paramtype_patts = List.map (fun p -> <:patt< (type $PM.type_id p$) >>) param_map in
+      let paramtype_patts = List.map (fun p -> <:patt< (type $lid:PM.type_id p$) >>) param_map in
       let paramfun_exprs = List.map (PM.arg_expr loc) param_map in
       let ppfexp = <:expr< $uid:modname$ . f . $uid:modname$ . f >> in
       Expr.abstract_over (paramtype_patts@paramfun_patts)
@@ -416,7 +413,7 @@ value rec extend_str_items arg si = match si with [
     ] in
     let paramexps = List.map (PM.arg_expr loc) param_map in
     let parampats = List.map (PM.arg_patt ~{mono=True} loc) param_map in
-    let paramtype_patts = List.map (fun p -> <:patt< (type $PM.type_id p$) >>) param_map in
+    let paramtype_patts = List.map (fun p -> <:patt< (type $lid:PM.type_id p$) >>) param_map in
     let catch_branch = (<:patt< z >>, <:vala< None >>,
                         Expr.applist <:expr< fallback >> (paramexps @[<:expr< ofmt >> ;  <:expr< z >> ])) in
     let branches = branches @ [ catch_branch ] in
@@ -435,8 +432,8 @@ value rec extend_str_items arg si = match si with [
 ;
 
 value str_item_gen_show name arg = fun [
-  <:str_item:< type $_tp:_$ $_list:_$ = $_priv:_$ .. $_itemattrs:_$ >>
-| <:str_item:< type $tp:_$ $list:_$ = $_$ == $priv:_$ .. $_itemattrs:_$ >>
+  <:str_item:< type $_lid:_$ $_list:_$ = $_priv:_$ .. $_itemattrs:_$ >>
+| <:str_item:< type $_lid:_$ $_list:_$ = $_$ == $_priv:_$ .. $_itemattrs:_$ >>
   as z ->
     let l = extend_str_items arg z in
     <:str_item< declare $list:l$ end >>
@@ -456,8 +453,8 @@ value str_item_gen_show name arg = fun [
 ;
 
 value sig_item_gen_show name arg = fun [
-  <:sig_item:< type $_tp:_$ $_list:_$ = $_priv:_$ .. $_itemattrs:_$ >>
-| <:sig_item:< type $tp:_$ $list:_$ = $_$ == $priv:_$ .. $_itemattrs:_$ >>
+  <:sig_item:< type $_lid:_$ $_list:_$ = $_priv:_$ .. $_itemattrs:_$ >>
+| <:sig_item:< type $_lid:_$ $list:_$ = $_$ == $priv:_$ .. $_itemattrs:_$ >>
   as z ->
     let l = extend_sig_items arg z in
     <:sig_item< declare $list:l$ end >>
@@ -478,7 +475,7 @@ value expr_show arg = fun [
     let coercion = monomorphize_ctyp ty in
     let e = fmt_top arg ~{coercion=coercion} param_map ty in
     let parampats = List.map (PM.arg_patt ~{mono=True} loc) param_map in
-    let paramtype_patts = List.map (fun p -> <:patt< (type $PM.type_id p$) >>) param_map in
+    let paramtype_patts = List.map (fun p -> <:patt< (type $lid:PM.type_id p$) >>) param_map in
     let e = <:expr< fun arg -> Format.asprintf "%a" $e$ arg >> in
     Expr.abstract_over (paramtype_patts@parampats) e
 

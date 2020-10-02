@@ -93,7 +93,7 @@ test_%.byte: test_%.ml
 	-linkpkg -syntax camlp5o $<.pappx.ml -o $@
 
 test_deriving_params.byte: test_deriving_params.ml
-	$(NOT_OCAMLFIND) preprocess -package $(PACKAGES),pa_ppx_deriving_plugins.std,pa_ppx_deriving_plugins.params,camlp5.pr_r \
+	$(NOT_OCAMLFIND) preprocess -package $(PACKAGES),pa_ppx_deriving_plugins.std,pa_ppx_deriving_plugins.params,camlp5.pr_o -ppopt -sep ";;\n" \
 	-syntax camlp5r $< > $*.pappx.ppo
 	$(OCAMLFIND) ocamlc $(DEBUG) $(WARNERR) -package $(PACKAGES),camlp5.pa_r.link,pa_ppx_base.link,pa_ppx_deriving_plugins.std,pa_ppx_deriving_plugins.params \
 	-c -syntax camlp5r $*.ml

@@ -251,7 +251,7 @@ value generate_param_parser arg ty =
       let e2 = <:expr< $lid:params_fname arg id$ >> in
       <:expr< $e1$ . $e2$ >>
 
-  | <:ctyp:< { $list:ltl$ } >> ->
+  | <:ctyp:< { $list:ltl$ } >> as z ->
     let label_ty_optional_defaults = List.map (fun (_, na, _, ty, al) ->
           match Ctyp.wrap_attrs ty (uv al) with [
             <:ctyp< option $t$ >> -> (na, t, True, None)
@@ -286,20 +286,39 @@ value generate_param_parser arg ty =
     let field_bindings = List.map one_field_binding label_ty_optional_defaults in
     let recpat = expr_as_patt loc "{ $list:__lel__$ }" in
     let p = patt_as_patt loc "$lid:fld$" in
-    <:expr< fun $recpat$ -> 
+    <:expr< fun [ $recpat$ ->
             let __alist__ = List.map (fun [ ($p$, e) -> (fld, e) 
                                           | _ ->
                                             Ploc.raise loc
                                               (Failure "fields must be named by lidents")
                                           ]) __lel__ in
             let $list:field_bindings$ in
-            $consrhs$ >>
+            $consrhs$
+
+                | e -> Ploc.raise (loc_of_expr e)
+                         (Failure Fmt.(str "param did not match record-type:@ record-type: %s\n@ param: %a"
+                                           $str:String.escaped (Pp_MLast.show_ctyp z)$ Pp_MLast.pp_expr e)) 
+                ] >>
 
   | <:ctyp:< alist lident $rngty$ >> ->
     let lid_patt = patt_as_patt loc "$lid:k$" in
     let full_body = <:expr<
       List.map (fun ($lid_patt$, e) -> (k, $genrec rngty$ e)) __lel__
     >> in         
+    let recpat = expr_as_patt loc "{ $list:__lel__$ }" in
+    let unitpat = expr_as_patt loc "()" in
+    <:expr< fun [ $unitpat$ -> []
+                | $recpat$ -> $full_body$ ] >>
+
+
+  | <:ctyp:< alist longid_lident $rngty$ >> ->
+    let lid_patt = patt_as_patt loc "$lid:lid$" in
+    let longlid_patt = patt_as_patt loc "$longid:li$ . $lid:lid$" in
+    let full_body = <:expr<
+      List.map (fun [ ($lid_patt$, e) -> ((None, Ploc.VaVal lid), $genrec rngty$ e)
+                    | ($longlid_patt$, e) -> ((Some (Ploc.VaVal li), Ploc.VaVal lid), $genrec rngty$ e)
+                    ]) __lel__
+    >> in
     let recpat = expr_as_patt loc "{ $list:__lel__$ }" in
     let unitpat = expr_as_patt loc "()" in
     <:expr< fun [ $unitpat$ -> []

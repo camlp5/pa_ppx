@@ -30,6 +30,7 @@ value equal_patt = Reloc.eq_patt ;
 value equal_longid = Reloc.eq_longid ;
 
 type case_branch = (patt * Ploc.vala (option expr) * expr) [@@deriving eq;] ;
+type longid_lident = (option (Ploc.vala longid) * Ploc.vala string) [@@deriving eq;] ;
 
 type a1 = int        [@@deriving (params, eq);] ;
 type a2 = lident     [@@deriving (params, eq);] ;
@@ -40,6 +41,7 @@ type a6 = { a : int ; b : lident [@default "boo";] } [@@deriving (params, eq);] 
 type a7 = { a : int ; b : option lident } [@@deriving (params, eq);] ;
 type a8 = longid [@@deriving (params, eq);] ;
 type a9 = alist lident expr [@@deriving (params, eq);] ;
+type a9' = alist longid_lident expr [@@deriving (params, eq);] ;
 type a10 = list lident [@@deriving (params, eq);] ;
 type a11 = (int * int * int * lident)[@@deriving (params, eq);] ;
 
@@ -53,17 +55,11 @@ value extract_case_branches = fun [
 ]
 ;
 
-value equal_a9 l1 l2 =
-  List.length l1 = List.length l2 &&
-  List.for_all (fun (k, v) ->
-      match List.assoc k l2 with [
-        v' -> Reloc.eq_expr v v'
-      | exception Not_found -> False
-      ]) l1
-;
-
 value parse_expr s =  
   s |> Stream.of_string |> Grammar.Entry.parse Pcaml.expr
+;
+value parse_longident_lident s =  
+  s |> Stream.of_string |> Grammar.Entry.parse Pcaml.longident_lident
 ;
 
 value test_simple ctxt =
@@ -80,6 +76,12 @@ value test_simple ctxt =
 ; assert_equal ~{cmp=equal_a9}
     ({foo| { a = 1 ; b = foo } |foo} |> parse_expr |> params_a9)
     [("a", <:expr< 1 >>); ("b", <:expr< foo >>)]
+; assert_equal ~{cmp=equal_a9'}
+    ({foo| { a = 1 ; b = foo } |foo} |> parse_expr |> params_a9')
+    [(parse_longident_lident "a", <:expr< 1 >>); (parse_longident_lident "b", <:expr< foo >>)]
+; assert_equal ~{cmp=equal_a9'}
+    ({foo| { Foo.a = 1 ; Bar.Fuzz.b = foo } |foo} |> parse_expr |> params_a9')
+    [(parse_longident_lident "Foo.a", <:expr< 1 >>); (parse_longident_lident "Bar.Fuzz.b", <:expr< foo >>)]
 ; assert_equal ({foo| [a ; b ; c] |foo} |> parse_expr |> params_a10) ["a"; "b"; "c"]
 ; assert_equal ({foo| (1,2,3,foo) |foo} |> parse_expr |> params_a11) (1,2,3,"foo")
 }
@@ -111,91 +113,170 @@ type tyarg_t = {
 ; subs : list (ctyp * ctyp) [@default [];]
 } [@@deriving (params, eq);] ;
 type t = (alist lident tyarg_t) [@@deriving (params, eq);] ;
+
+
+value test ctxt =
+
+  let got =
+    {foo| {
+          srctype = [%typ: 'a list]
+        ; dsttype = [%typ: 'b list]
+        ; code = _migrate_list
+        ; subs = [ ([%typ: 'a], [%typ: 'b]) ]
+        } |foo}
+    |> parse_expr |> params_tyarg_t in
+  ()
+;
 end
 ;
 module Migrate = struct
 
 type t = {
-  optional : bool [@default True;]
-; inherit_type : option ctyp
-; dispatch_type_name : lident
-; dispatch_table_constructor : lident
-; dispatchers : (alist lident Dispatch1.t) [@default [];]
+ dispatchers : Dispatch1.t [@default [];]
 } [@@deriving (params, eq);] ;
-end
-;
 
-value test_dispatch1_tyarg_t ctxt =
-  let got =
-    {foo| {
-          srctype = [%typ: 'a list]
-          ; dsttype = [%typ: 'b list]
-          ; code = _migrate_list
-          ; subs = [ ([%typ: 'a], [%typ: 'b]) ]
-          } |foo}
-    |> parse_expr |> Dispatch1.params_tyarg_t in
-  ()
-;
 
-value test_migrate_t ctxt =
+value test ctxt =
   let got =
-    {foo| {
-            dispatch_type_name = dispatch_table_t
-          ; dispatch_table_constructor = make_dt
-(*
-          ; default_dispatchers = [
-          {
+    {foo| { dispatch_type = dispatch_table_t
+    ; dispatch_table_constructor = make_dt
+    ; default_dispatchers = [
+        {
           srcmod = Ex_ast.AST1
-          ; dstmod = Ex_ast.AST2
-          ; types = [
+        ; dstmod = Ex_ast.AST2
+        ; types = [
             t1
           ; pt2
           ; t4'
           ]
-          }
-          ]
-*)
-          ; dispatchers = {
-          migrate_list = {
+        }
+      ]
+    ; dispatchers = {
+        migrate_list = {
           srctype = [%typ: 'a list]
-          ; dsttype = [%typ: 'b list]
-          ; code = _migrate_list
-          ; subs = [ ([%typ: 'a], [%typ: 'b]) ]
-          }
-(*
-          ; migrate_t0 = {
+        ; dsttype = [%typ: 'b list]
+        ; code = _migrate_list
+        ; subs = [ ([%typ: 'a], [%typ: 'b]) ]
+        }
+      ; migrate_t0 = {
           srctype = [%typ: t0]
-          ; dsttype = [%typ: DST.t0]
-          ; code = fun __dt__ s ->
+        ; dsttype = [%typ: DST.t0]
+        ; code = fun __dt__ s ->
             match int_of_string s with [
               n -> n
             | exception Failure _ -> migration_error "t0" ]
-          }
-          ; migrate_t2 = {
+        }
+      ; migrate_t2 = {
           srctype = [%typ: t2]
-          ; dsttype = [%typ: DST.t2]
-          ; custom_branches_code = fun [
+        ; dsttype = [%typ: DST.t2]
+        ; custom_branches_code = fun [
               C true -> C 1
             | C false -> C 0
             | D -> migration_error "t2:D" ]
-          }
-          ; migrate_pt3 = {
+        }
+      ; migrate_pt3 = {
           srctype = [%typ: 'a pt3]
-          ; dsttype = [%typ: 'b DST.pt3]
-          ; subs = [ ([%typ: 'a], [%typ: 'b]) ]
-          ; skip_fields = [ dropped_field ]
-          ; custom_fields_code = {
+        ; dsttype = [%typ: 'b DST.pt3]
+        ; subs = [ ([%typ: 'a], [%typ: 'b]) ]
+        ; skip_fields = [ dropped_field ]
+        ; custom_fields_code = {
             new_field = extra
           }
-          }
-          ; migrate_t4 = {
+        }
+      ; migrate_t4 = {
           srctype = [%typ: t4]
-          ; dsttype = [%typ: DST.t4]
-          }
-*)
-          }
-          } |foo}
-    |> parse_expr |> Migrate.params in
+        ; dsttype = [%typ: DST.t4]
+        }
+      }
+    } |foo}
+    |> parse_expr |> params in
+  ()
+;
+end
+;
+
+end
+;
+
+module Hashcons = struct
+type external_funs_t = {
+  preeq : expr
+; prehash : expr
+} [@@deriving (params, eq);]
+;
+
+value test_external_funs_t ctxt =
+  let got =
+    {foo|
+      {
+                           preeq = (fun f x y -> match (x,y) with [
+                               (None, None) -> True
+                             | (Some x, Some y) -> f x y
+                             | _ -> False ])
+                         ; prehash = (fun f x ->
+                             Hashtbl.hash (Option.map f x))
+                         }
+    |foo}
+    |> parse_expr |> params_external_funs_t in
+  ()
+;
+
+type pertype_customization_t = {
+  hashcons_module : option uident
+; hashcons_constructor : option lident
+} [@@deriving (params, eq);]
+;
+
+value test_pertype_customization_t ctxt =
+  let got =
+    {foo|
+      {
+                           hashcons_module = Term
+                         ; hashcons_constructor = term
+                         }
+    |foo}
+    |> parse_expr |> params_pertype_customization_t in
+  ()
+;
+
+type t = {
+  hashconsed_module_name : uident
+; normal_module_name : option uident
+; memo : (alist lident ctyp) [@default [];]
+; external_types : (alist longid_lident external_funs_t) [@default [];]
+; pertype_customization : (alist lident pertype_customization_t) [@default [];]
+} [@@deriving (params, eq);]
+;
+
+value test ctxt =
+  let got =
+    {foo|
+      { hashconsed_module_name = LAM2H
+                     ; normal_module_name = LAM2
+                     ; memo = {
+                         memo_term = [%typ: term]
+                       ; memo_int_term = [%typ: (int * term)]
+                       ; memo_int = [%typ: int]
+                       }
+                     ; external_types = {
+                         Option.t = {
+                           preeq = (fun f x y -> match (x,y) with [
+                               (None, None) -> True
+                             | (Some x, Some y) -> f x y
+                             | _ -> False ])
+                         ; prehash = (fun f x ->
+                             Hashtbl.hash (Option.map f x))
+                         }
+                       }
+                     ; pertype_customization = {
+                         term = {
+                           hashcons_module = Term
+                         ; hashcons_constructor = term
+                         }
+                       }
+                     }
+    |foo}
+    |> parse_expr |> params in
   ()
 ;
 end
@@ -204,8 +285,11 @@ end
 value suite = "Test deriving(params)" >::: [
     "test_simple"           >:: test_simple
   ; "test_a12"              >:: test_a12
-  ; "MigrateParams.test_dispatch1_tyarg_t"    >:: MigrateParams.test_dispatch1_tyarg_t
-  ; "MigrateParams.test_migrate_t"    >:: MigrateParams.test_migrate_t
+  ; "MigrateParams.Dispatch1.test"    >:: MigrateParams.Dispatch1.test
+  ; "MigrateParams.Migrate.test"    >:: MigrateParams.Migrate.test
+  ; "Hashcons.test_external_funs_t"    >:: Hashcons.test_external_funs_t
+  ; "Hashcons.test_pertype_customization_t"    >:: Hashcons.test_pertype_customization_t
+  ; "Hashcons.test"    >:: Hashcons.test
   ]
 ;
 

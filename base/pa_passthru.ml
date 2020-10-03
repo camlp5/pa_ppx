@@ -125,6 +125,7 @@ and Ctxt : sig
   value set_filename : t -> string -> t ;
   value add_options : t -> list (string * expr) -> t ;
   value option : t -> string -> expr ;
+  value options : t -> list (string * expr) ;
 
   value scratchdata : t -> string -> scratchdata_t ;
   value init_scratchdata : t -> string -> scratchdata_t -> t ;
@@ -177,6 +178,7 @@ value option ctxt name =
     failwith (Printf.sprintf "Pa_passthru.Ctxt.option: option %s not found" name)
   ]
 ;
+value options ctxt = ctxt.options ;
 
 value refscratchdata ctxt name =
   if not (List.mem_assoc name ctxt.refscratch.val) then

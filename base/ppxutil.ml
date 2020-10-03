@@ -79,6 +79,10 @@ value convert_down_list_expr f e =
   crec [] e
 ;
 
+value convert_up_list_expr loc el =
+  List.fold_right (fun e rhs -> <:expr< [ $e$ :: $rhs$ ] >>) el <:expr< [] >>
+;
+
 module Env = struct
 type t 'a = list (string * 'a) ;
 

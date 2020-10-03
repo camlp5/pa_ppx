@@ -210,7 +210,7 @@ package "params" (
   requires(byte) = "fmt,camlp5,pa_ppx_deriving.link,pa_ppx_base.link,camlp5.parser_quotations.link"
   archive(byte) = "pa_deriving_params.cmo"
   )
-  requires = "fmt,pa_ppx_runtime,pa_ppx_base,camlp5.parser_quotations"
+  requires = "fmt,pa_ppx_runtime,pa_ppx_params_runtime,pa_ppx_base,camlp5.parser_quotations"
 )
 
 EOF

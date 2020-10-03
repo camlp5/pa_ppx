@@ -55,6 +55,7 @@ and Ctxt :
     value set_filename : t → string → t;
     value add_options : t → list (string * MLast.expr) → t;
     value option : t → string → MLast.expr;
+    value options : t → list (string * MLast.expr);
     value scratchdata : t → string → scratchdata_t;
     value init_scratchdata : t → string → scratchdata_t → t;
     value update_scratchdata : t → string → scratchdata_t → t;

@@ -12,7 +12,7 @@ SYSDIRS= util-lib testutils runtime runtime_fat base pa_unmatched_vala \
 	pa_dock pa_here pa_here_original pa_undo_deriving pa_assert \
 	pa_inline_test pa_expect_test pa_hashrecons \
 	pa_deriving pa_deriving.plugins pa_import \
-	protobuf_runtime
+	protobuf_runtime params_runtime
 
 TESTDIRS= tests-ounit2 our-tests-inline tests-deriving-protobuf
 

@@ -9,6 +9,7 @@ value string_list_of_expr : MLast.expr -> list string;
 value longid_of_expr : MLast.expr -> MLast.longid ;
 value expr_of_longid : MLast.longid -> MLast.expr ;
 value convert_down_list_expr : (MLast.expr -> 'a) -> MLast.expr -> list 'a ;
+value convert_up_list_expr : Ploc.t -> list MLast.expr -> MLast.expr ;
 module Env : sig
   type t 'a = list (string * 'a) ;
   value add : Ploc.t -> t 'a -> string -> 'a -> t 'a ;

@@ -24,6 +24,8 @@ our %pkgmap = (
   'pa_ppx_assert' => 'pa_ppx.assert',
   'pa_ppx_inline_test' => 'pa_ppx.inline_test',
   'pa_ppx_expect_test' => 'pa_ppx.expect_test',
+  'pa_ppx_protobuf_runtime' => 'pa_ppx.protobuf_runtime',
+  'pa_ppx_params_runtime' => 'pa_ppx.params_runtime',
   
     );
 
@@ -44,6 +46,8 @@ our %pkgmap = (
   my $assertmeta = indent(2, fixdeps(capturex("./pa_assert/META.pl"))) ;
   my $inlmeta = indent(2, fixdeps(capturex("./pa_inline_test/META.pl"))) ;
   my $expmeta = indent(2, fixdeps(capturex("./pa_expect_test/META.pl"))) ;
+  my $pbrmeta = indent(2, fixdeps(capturex("./protobuf_runtime/META.pl"))) ;
+  my $parmeta = indent(2, fixdeps(capturex("./params_runtime/META.pl"))) ;
 
   print <<"EOF";
 version = "$Version::version"
@@ -98,6 +102,12 @@ $inlmeta
 )
 package "expect_test" (
 $expmeta
+)
+package "protobuf_runtime" (
+$pbrmeta
+)
+package "params_runtime" (
+$parmeta
 )
 
 EOF

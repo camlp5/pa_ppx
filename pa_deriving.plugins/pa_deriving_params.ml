@@ -23,7 +23,7 @@ value patt_as_patt loc s =
   Pcaml.handle_patt_quotation loc ("patt@", s)
 ;
 
-value generate_param_parser arg ty =
+value generate_param_parser_expression arg ty =
   let rec genrec = fun [
     <:ctyp:< int >> ->
       let p = expr_as_patt loc "$int:i$" in
@@ -35,6 +35,9 @@ value generate_param_parser arg ty =
   | <:ctyp:< lident >> ->
       let p = expr_as_patt loc "$lid:lid$" in
     <:expr< fun [ $p$ →  lid ] >>
+  | <:ctyp:< string >> ->
+      let p = expr_as_patt loc "$str:s$" in
+    <:expr< fun [ $p$ →  s ] >>
   | <:ctyp:< uident >> ->
       let p = expr_as_patt loc "$uid:uid$" in
     <:expr< fun [ $p$ →  uid ] >>
@@ -56,7 +59,11 @@ value generate_param_parser arg ty =
       <:expr< $e1$ . $e2$ >>
 
   | <:ctyp:< { $list:ltl$ } >> as z ->
-    let label_ty_notoutput_optional_default_computeds = List.map (fun (_, na, _, ty, al) ->
+    let label_ty_optional_default_computeds = List.map (fun (_, na, _, ty, al) ->
+        let fieldname = match List.find_map (fun a -> if attr_id a = "name" then Some (uv a) else None) (uv al) with [
+          Some <:attribute_body< "name" $lid:fieldname$ ; >> -> fieldname
+        | None -> na
+        ] in
         let default = match List.find_map (fun a -> if attr_id a = "default" then Some (uv a) else None) (uv al) with [
           Some <:attribute_body< "default" $exp:d$ ; >> -> Some d
         | None -> None
@@ -65,44 +72,43 @@ value generate_param_parser arg ty =
           Some <:attribute_body< "computed" $exp:d$ ; >> -> Some d
         | None -> None
         ] in
-        let notoutput = match List.find_map (fun a -> if attr_id a = "notoutput" then Some (uv a) else None) (uv al) with [
-          Some <:attribute_body< "notoutput" >> -> True
-        | None -> False
-        ] in
         let (ty, optional) = match ty with [
             <:ctyp< option $t$ >> -> (t, True)
           | t -> (t, False)
           ] in
-        (na, ty, notoutput, optional, default, computed)
+        ((na,fieldname), ty, optional, default, computed)
       ) ltl in
-    let consfields = List.map (fun (na, _, False, _, _, _) ->
+    let consfields = List.map (fun ((na,fieldname), _, _, _, _) ->
         (<:patt< $lid:na$ >>, <:expr< $lid:na$ >>))
-        label_ty_notoutput_optional_default_computeds in
+        label_ty_optional_default_computeds in
     let consrhs = <:expr< { $list:consfields$ } >> in
-    let one_field_binding (na, ty, notoutput, optional, default, computed) =
+    let one_field_binding ((na,fieldname), ty, optional, default, computed) =
       match (optional, default, computed) with [
-        (True, None, None) ->
-        (<:patt< $lid:na$ >>, <:expr< match List.assoc $str:na$ __alist__ with [
+        (_, _, Some e) ->
+        (<:patt< $lid:na$ >>, e, <:vala< [] >>)
+
+      | (True, None, None) ->
+        (<:patt< $lid:na$ >>, <:expr< match List.assoc $str:fieldname$ __alist__ with [
                           x -> Some ($genrec ty$ x)
                         | exception Not_found -> None
                         ] >>, <:vala< [] >>)
+
       | (False, None, None) ->
-        (<:patt< $lid:na$ >>, <:expr< match List.assoc $str:na$ __alist__ with [
+        (<:patt< $lid:na$ >>, <:expr< match List.assoc $str:fieldname$ __alist__ with [
                           x -> $genrec ty$ x
                         | exception Not_found ->
                           Ploc.raise loc
                             (Failure (Printf.sprintf "field %s is not optional" $str:na$)) 
                         ] >>, <:vala< [] >>)
+
       | (False, Some d, None) ->
-        (<:patt< $lid:na$ >>, <:expr< match List.assoc $str:na$ __alist__ with [
+        (<:patt< $lid:na$ >>, <:expr< match List.assoc $str:fieldname$ __alist__ with [
                           x -> $genrec ty$ x
                         | exception Not_found -> $d$
                         ] >>, <:vala< [] >>)
-      | (False, None, Some e) ->
-        (<:patt< $lid:na$ >>, e, <:vala< [] >>)
       ]
     in
-    let field_bindings = List.map one_field_binding label_ty_notoutput_optional_default_computeds in
+    let field_bindings = List.map one_field_binding label_ty_optional_default_computeds in
     let full_rhs = List.fold_right (fun b e -> <:expr< let $list:[b]$ in $e$ >>) field_bindings consrhs in
     let recpat = expr_as_patt loc "{ $list:__lel__$ }" in
     let p = patt_as_patt loc "$lid:fld$" in
@@ -165,7 +171,13 @@ value generate_param_parser arg ty =
   | <:ctyp:< $t$ [@convert ( [%typ: $type:srct$], $convf$ );] >> ->
     <:expr< fun __x__ -> $convf$ ($genrec srct$ __x__) >>
 
-  | t -> Ploc.raise (loc_of_ctyp t) (Failure Fmt.(str "generate_param_parser: unhandled type %a"
+  | <:ctyp:< $t$ [@computed $exp:e$;] >> -> e
+
+  | <:ctyp:< $t$ [@actual_args $exp:e$;] >> ->
+      let args = convert_down_list_expr (fun x -> x) e in
+      Expr.applist <:expr< $genrec t$ >> args
+
+  | t -> Ploc.raise (loc_of_ctyp t) (Failure Fmt.(str "generate_param_parser_expression: unhandled type@ %a"
                                                     Pp_MLast.pp_ctyp t))
   ] in
   match genrec ty with [
@@ -174,10 +186,38 @@ value generate_param_parser arg ty =
   ]
 ;
 
+value generate_param_parser arg name ty =
+  let loc = loc_of_ctyp ty in
+  let formal_args = match Ctxt.option arg "formal_args" with [
+    <:expr< () >> -> []
+  | <:expr< { $list:lel$ } >> -> lel
+  | e -> Ploc.raise (loc_of_expr e)
+      (Failure Fmt.(str "generate_param_parser: malformed \"formal_args\" option@ %a"
+                      Pp_MLast.pp_expr e))
+  ] in
+  let listexp_opt = List.find_map (fun [
+      (<:patt< $lid:name'$ >>, listexp) when name = name' -> Some listexp
+    | _ -> None
+    ]) formal_args in
+  let formals = match listexp_opt with [
+    None -> []
+  | Some listexp ->
+    convert_down_list_expr (fun [
+        <:expr< $lid:lid$ >> -> lid
+      | e -> Ploc.raise (loc_of_expr e)
+          (Failure Fmt.(str "generate_param_parser: malformed \"formal_args\" list member@ %a"
+                          Pp_MLast.pp_expr e))
+      ]) listexp
+  ] in
+  Expr.abstract_over
+    (List.map (fun lid -> <:patt< $lid:lid$ >>) formals)
+    (generate_param_parser_expression arg ty)
+;
+
 value generate_param_binding arg td =
  let loc = loc_of_type_decl td in
  let name = td.tdNam |> uv |> snd |> uv in
- (<:patt< $lid:params_fname arg name$ >>, generate_param_parser arg td.tdDef, <:vala< [] >>)
+ (<:patt< $lid:params_fname arg name$ >>, generate_param_parser arg name td.tdDef, <:vala< [] >>)
 ;
 
 value str_item_gen_params name arg = fun [

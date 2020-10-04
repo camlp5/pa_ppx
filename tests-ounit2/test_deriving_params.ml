@@ -14,6 +14,7 @@ type a3 = uident     [@@deriving (params, eq);] ;
 type a4 = ctyp       [@@deriving (params, eq);] ;
 type a5 = expr       [@@deriving (params, eq);] ;
 type a6 = { a : int ; b : lident [@default "boo";] } [@@deriving (params, eq);] ;
+type a6' = { a' : int ; b' : lident [@default "boo";][@name c;] } [@@deriving (params, eq);] ;
 type a7 = { a : int ; b : option lident } [@@deriving (params, eq);] ;
 type a8 = longid [@@deriving (params, eq);] ;
 type a9 = alist lident expr [@@deriving (params, eq);] ;
@@ -46,6 +47,7 @@ value test_simple ctxt =
 ; assert_equal ~{cmp=Reloc.eq_ctyp} ({foo| [%typ: 'a list] |foo} |> parse_expr |> params_a4) <:ctyp< 'a list >>
 ; assert_equal ~{cmp=Reloc.eq_expr} ({foo| 1 |foo} |> parse_expr |> params_a5) <:expr< 1 >>
 ; assert_equal ({foo| {a = 1 ; b = foo} |foo} |> parse_expr |> params_a6) { a = 1 ; b = "foo" }
+; assert_equal ({foo| {a' = 1 ; c = foo} |foo} |> parse_expr |> params_a6') { a' = 1 ; b' = "foo" }
 ; assert_equal ({foo| {a = 1 } |foo} |> parse_expr |> params_a6) { a = 1 ; b = "boo" }
 ; assert_equal ({foo| {a = 1 } |foo} |> parse_expr |> params_a7) { a = 1 ; b = None }
 ; assert_equal ({foo| {a = 1 ; b = foo} |foo} |> parse_expr |> params_a7) { a = 1 ; b = Some "foo" }
@@ -74,6 +76,32 @@ value test_a12 ctxt =
                     custom_branches_code = fun [ None -> e1 | Some x -> e2 ] } |foo}
           |> parse_expr |> params_a12 in
   ()
+;
+
+type a13 = { a : int
+           ; b : string [@computed b;]
+           }
+[@@deriving (params { formal_args = { a13 = [ b ] } },
+             eq);] ;
+
+value test_a13 ctxt =
+  assert_equal ({foo| { a = 1  } |foo} |> parse_expr |> params_a13 "boo") { a = 1 ; b = "boo" }
+;
+
+type a14 = { a : int
+           ; c : (aux [@actual_args [b];])
+           }
+and aux = { e : bool ; d : string [@computed b';] }
+[@@deriving (params { formal_args = {
+    a14 = [ b ]
+  ; aux = [ b' ]
+  } },
+             eq);] ;
+
+value test_a14 ctxt =
+  assert_equal
+    ({foo| { a = 1 ; c = { e  = True } } |foo} |> parse_expr |> params_a14 "boo")
+    { a = 1 ; c =  { e = True ; d = "boo" } }
 ;
 
 module MigrateParams = struct
@@ -703,6 +731,8 @@ end
 value suite = "Test deriving(params)" >::: [
     "test_simple"           >:: test_simple
   ; "test_a12"              >:: test_a12
+  ; "test_a13"              >:: test_a13
+  ; "test_a14"              >:: test_a14
   ; "MigrateParams.Dispatch1.test"    >:: MigrateParams.Dispatch1.test
   ; "MigrateParams.Migrate.test"    >:: MigrateParams.Migrate.test
   ; "Hashcons.test_external_funs_t"    >:: Hashcons.test_external_funs_t

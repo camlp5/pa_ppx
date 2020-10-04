@@ -22,12 +22,13 @@ type a10 = list lident [@@deriving (params, eq);] ;
 type a11 = (int * int * int * lident)[@@deriving (params, eq);] ;
 
 value extract_case_branches = fun [
-  <:expr< fun [ $list:l$ ] >> ->
-    List.map (fun (p,wheno,e) ->
-        match Patt.unapplist p with [
-          (<:patt< $uid:uid$ >>, _) -> (uid, (p, wheno, e))
-        | _ -> Ploc.raise (loc_of_patt p) (Failure "extract_case_branches: case-branches must start with a UIDENT")
-        ]) l
+  None -> []
+| Some <:expr< fun [ $list:l$ ] >> ->
+  List.map (fun (p,wheno,e) ->
+      match Patt.unapplist p with [
+        (<:patt< $uid:uid$ >>, _) -> (uid, (p, wheno, e))
+      | _ -> Ploc.raise (loc_of_patt p) (Failure "extract_case_branches: case-branches must start with a UIDENT")
+      ]) l
 ]
 ;
 
@@ -63,9 +64,10 @@ value test_simple ctxt =
 }
 ;
 
-type a12 = { srctype : ctyp ; dsttype : ctyp ;
-             custom_branches_code : (alist lident case_branch) [@convert ([%typ: expr], extract_case_branches);][@default [];] }
-           [@@deriving (params, eq);] ;
+type a12 = { srctype : ctyp ; dsttype : ctyp
+           ; custom_branches_code : option expr 
+           ; custom_branches : (alist lident case_branch) [@computed extract_case_branches custom_branches_code;]
+           } [@@deriving (params, eq);] ;
 
 value test_a12 ctxt =
   let got = {foo| { srctype = [%typ: bool]; dsttype = [%typ: int] } ;
@@ -83,7 +85,8 @@ type tyarg_t = {
 ; dstmodule : option longid
 ; inherit_code : option expr
 ; code : option expr
-; custom_branches_code : (alist lident case_branch) [@convert ([%typ: expr], extract_case_branches);][@default [];]
+; custom_branches_code : option expr 
+; custom_branches : (alist lident case_branch) [@computed extract_case_branches custom_branches_code;]
 ; custom_fields_code : (alist lident expr) [@default [];]
 ; skip_fields : list lident [@default [];]
 ; subs : list (ctyp * ctyp) [@default [];]

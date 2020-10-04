@@ -252,38 +252,54 @@ value generate_param_parser arg ty =
       <:expr< $e1$ . $e2$ >>
 
   | <:ctyp:< { $list:ltl$ } >> as z ->
-    let label_ty_optional_defaults = List.map (fun (_, na, _, ty, al) ->
-          match Ctyp.wrap_attrs ty (uv al) with [
-            <:ctyp< option $t$ >> -> (na, t, True, None)
-          | <:ctyp< $t$ [@default $exp:d$ ;] >> -> (na, t, False, Some d)
-          | t -> (na, t, False, None)
-          ]) ltl in
-    let consfields = List.map (fun (na, _, _, _) ->
+    let label_ty_notoutput_optional_default_computeds = List.map (fun (_, na, _, ty, al) ->
+        let default = match List.find_map (fun a -> if attr_id a = "default" then Some (uv a) else None) (uv al) with [
+          Some <:attribute_body< "default" $exp:d$ ; >> -> Some d
+        | None -> None
+        ] in
+        let computed = match List.find_map (fun a -> if attr_id a = "computed" then Some (uv a) else None) (uv al) with [
+          Some <:attribute_body< "computed" $exp:d$ ; >> -> Some d
+        | None -> None
+        ] in
+        let notoutput = match List.find_map (fun a -> if attr_id a = "notoutput" then Some (uv a) else None) (uv al) with [
+          Some <:attribute_body< "notoutput" >> -> True
+        | None -> False
+        ] in
+        let (ty, optional) = match ty with [
+            <:ctyp< option $t$ >> -> (t, True)
+          | t -> (t, False)
+          ] in
+        (na, ty, notoutput, optional, default, computed)
+      ) ltl in
+    let consfields = List.map (fun (na, _, False, _, _, _) ->
         (<:patt< $lid:na$ >>, <:expr< $lid:na$ >>))
-        label_ty_optional_defaults in
+        label_ty_notoutput_optional_default_computeds in
     let consrhs = <:expr< { $list:consfields$ } >> in
-    let one_field_binding (na, ty, optional, default) =
-      match (optional, default) with [
-        (True, None) ->
+    let one_field_binding (na, ty, notoutput, optional, default, computed) =
+      match (optional, default, computed) with [
+        (True, None, None) ->
         (<:patt< $lid:na$ >>, <:expr< match List.assoc $str:na$ __alist__ with [
                           x -> Some ($genrec ty$ x)
                         | exception Not_found -> None
                         ] >>, <:vala< [] >>)
-      | (False, None) ->
+      | (False, None, None) ->
         (<:patt< $lid:na$ >>, <:expr< match List.assoc $str:na$ __alist__ with [
                           x -> $genrec ty$ x
                         | exception Not_found ->
                           Ploc.raise loc
                             (Failure (Printf.sprintf "field %s is not optional" $str:na$)) 
                         ] >>, <:vala< [] >>)
-      | (False, Some d) ->
+      | (False, Some d, None) ->
         (<:patt< $lid:na$ >>, <:expr< match List.assoc $str:na$ __alist__ with [
                           x -> $genrec ty$ x
                         | exception Not_found -> $d$
                         ] >>, <:vala< [] >>)
+      | (False, None, Some e) ->
+        (<:patt< $lid:na$ >>, e, <:vala< [] >>)
       ]
     in
-    let field_bindings = List.map one_field_binding label_ty_optional_defaults in
+    let field_bindings = List.map one_field_binding label_ty_notoutput_optional_default_computeds in
+    let full_rhs = List.fold_right (fun b e -> <:expr< let $list:[b]$ in $e$ >>) field_bindings consrhs in
     let recpat = expr_as_patt loc "{ $list:__lel__$ }" in
     let p = patt_as_patt loc "$lid:fld$" in
     <:expr< fun [ $recpat$ ->
@@ -292,8 +308,7 @@ value generate_param_parser arg ty =
                                             Ploc.raise loc
                                               (Failure "fields must be named by lidents")
                                           ]) __lel__ in
-            let $list:field_bindings$ in
-            $consrhs$
+            $full_rhs$
 
                 | e -> Ploc.raise (loc_of_expr e)
                          (Failure Fmt.(str "param did not match record-type:@ record-type: %s\n@ param: %a"

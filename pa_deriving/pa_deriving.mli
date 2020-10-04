@@ -22,10 +22,8 @@ module PI :
         default_options : list (string * MLast.expr) }
     ;
     value attributes : t → list string;
-    value is_medium_form_attribute :
-      t → Ploc.vala (Ploc.vala (α * string) * β) → bool;
-    value is_long_form_attribute :
-      t → Ploc.vala (Ploc.vala (α * string) * β) → bool;
+    value is_medium_form_attribute : t → MLast.attribute → bool;
+    value is_long_form_attribute : t → MLast.attribute → bool;
     value medium_form_attributes : t → list string;
     value long_form_attributes : t → list string;
   end

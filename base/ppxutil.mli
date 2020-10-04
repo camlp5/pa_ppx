@@ -3,7 +3,7 @@ value with_buffer_formatter : (Format.formatter → α → β) → α → string
 value duplicated : list string → bool;
 value filter_split : (α → bool) → list α → (list α * list α);
 value count : (α → bool) → list α → int;
-value attr_id : Ploc.vala (Ploc.vala (α * β) * γ) → β;
+value attr_id : MLast.attribute → string;
 value module_expr_of_longident : MLast.longid → MLast.module_expr;
 value string_list_of_expr : MLast.expr -> list string;
 value longid_of_expr : MLast.expr -> MLast.longid ;

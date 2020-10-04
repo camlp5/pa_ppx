@@ -27,7 +27,7 @@ module DerivingConfig :
     value dump : Fmt.t t;
     value allowed_attribute : t → string → string → option string;
     value is_allowed_attribute :
-      t → string → string → Ploc.vala (Ploc.vala (α * string) * β) → bool;
+      t → string → string → MLast.attribute → bool;
   end
 ;
 module alias DC = DerivingConfig;

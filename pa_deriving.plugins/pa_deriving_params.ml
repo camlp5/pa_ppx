@@ -125,7 +125,7 @@ value generate_param_parser_expression arg ty =
                                            $str:String.escaped (Pp_MLast.show_ctyp z)$ Pp_MLast.pp_expr e)) 
                 ] >>
 
-  | <:ctyp:< alist lident $rngty$ >> ->
+  | <:ctyp:< alist lident $rngty$ >> as z ->
     let lid_patt = patt_as_patt loc "$lid:k$" in
     let full_body = <:expr<
       List.map (fun ($lid_patt$, e) -> (k, $genrec rngty$ e)) __lel__
@@ -133,9 +133,13 @@ value generate_param_parser_expression arg ty =
     let recpat = expr_as_patt loc "{ $list:__lel__$ }" in
     let unitpat = expr_as_patt loc "()" in
     <:expr< fun [ $unitpat$ -> []
-                | $recpat$ -> $full_body$ ] >>
+                | $recpat$ -> $full_body$
+                | e -> Ploc.raise (loc_of_expr e)
+                         (Failure Fmt.(str "param did not match alist-type:@ alist-type: %s\n@ param: %a"
+                                           $str:String.escaped (Pp_MLast.show_ctyp z)$ Pp_MLast.pp_expr e)) 
+                ] >>
 
-  | <:ctyp:< alist longid_lident $rngty$ >> ->
+  | <:ctyp:< alist longid_lident $rngty$ >> as z ->
     let lid_patt = patt_as_patt loc "$lid:lid$" in
     let longlid_patt = patt_as_patt loc "$longid:li$ . $lid:lid$" in
     let full_body = <:expr<
@@ -146,9 +150,13 @@ value generate_param_parser_expression arg ty =
     let recpat = expr_as_patt loc "{ $list:__lel__$ }" in
     let unitpat = expr_as_patt loc "()" in
     <:expr< fun [ $unitpat$ -> []
-                | $recpat$ -> $full_body$ ] >>
+                | $recpat$ -> $full_body$
+                | e -> Ploc.raise (loc_of_expr e)
+                         (Failure Fmt.(str "param did not match alist-type:@ alist-type: %s\n@ param: %a"
+                                           $str:String.escaped (Pp_MLast.show_ctyp z)$ Pp_MLast.pp_expr e)) 
+                ] >>
 
-  | <:ctyp:< alist ctyp $rngty$ >> ->
+  | <:ctyp:< alist ctyp $rngty$ >> as z ->
     let ctyp_patt = patt_as_patt loc "[%typ: $type:t$]" in
     let full_body = <:expr<
       List.map (fun ($ctyp_patt$, e) -> (t, $genrec rngty$ e)) __lel__
@@ -156,7 +164,11 @@ value generate_param_parser_expression arg ty =
     let recpat = expr_as_patt loc "{ $list:__lel__$ }" in
     let unitpat = expr_as_patt loc "()" in
     <:expr< fun [ $unitpat$ -> []
-                | $recpat$ -> $full_body$ ] >>
+                | $recpat$ -> $full_body$
+                | e -> Ploc.raise (loc_of_expr e)
+                         (Failure Fmt.(str "param did not match alist-type:@ alist-type: %s\n@ param: %a"
+                                           $str:String.escaped (Pp_MLast.show_ctyp z)$ Pp_MLast.pp_expr e)) 
+                ] >>
 
   | <:ctyp:< list $ty$ >> ->
     <:expr< Pa_ppx_base.Ppxutil.convert_down_list_expr $genrec ty$ >>

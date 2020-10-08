@@ -27,25 +27,43 @@ value generate_param_parser_expression arg ty =
   let rec genrec = fun [
     <:ctyp:< int >> ->
       let p = expr_as_patt loc "$int:i$" in
-    <:expr< fun [ $p$ → int_of_string i ] >>
+    <:expr< fun [ $p$ → int_of_string i
+                | e -> Ploc.raise (loc_of_expr e)
+                            (Failure (Fmt.str "param should be integer: %a" Pp_MLast.pp_expr e))
+                ] >>
   | <:ctyp:< bool >> ->
       let true_patt = expr_as_patt loc "True" in
       let false_patt = expr_as_patt loc "False" in
-    <:expr< fun [ $true_patt$ → True | $false_patt$ → False ] >>
+    <:expr< fun [ $true_patt$ → True | $false_patt$ → False
+                | e -> Ploc.raise (loc_of_expr e)
+                            (Failure (Fmt.str "param should be bool: %a" Pp_MLast.pp_expr e))
+                ] >>
   | <:ctyp:< lident >> ->
       let p = expr_as_patt loc "$lid:lid$" in
-    <:expr< fun [ $p$ →  lid ] >>
+    <:expr< fun [ $p$ →  lid
+                | e -> Ploc.raise (loc_of_expr e)
+                            (Failure (Fmt.str "param should be LIDENT: %a" Pp_MLast.pp_expr e))
+                ] >>
   | <:ctyp:< string >> ->
       let p = expr_as_patt loc "$str:s$" in
-    <:expr< fun [ $p$ →  s ] >>
+    <:expr< fun [ $p$ →  s
+                | e -> Ploc.raise (loc_of_expr e)
+                            (Failure (Fmt.str "param should be string: %a" Pp_MLast.pp_expr e))
+                ] >>
   | <:ctyp:< uident >> ->
       let p = expr_as_patt loc "$uid:uid$" in
-    <:expr< fun [ $p$ →  uid ] >>
+    <:expr< fun [ $p$ →  uid
+                | e -> Ploc.raise (loc_of_expr e)
+                            (Failure (Fmt.str "param should be UIDENT: %a" Pp_MLast.pp_expr e))
+                ] >>
   | <:ctyp:< expr >> ->
     <:expr< fun [ e →  e ] >>
   | <:ctyp:< ctyp >> ->
       let p = expr_as_patt loc "[%typ: $type:t$]" in
-    <:expr< fun [ $p$ →  t ] >>
+    <:expr< fun [ $p$ →  t
+                | e -> Ploc.raise (loc_of_expr e)
+                            (Failure (Fmt.str "param should be of the form [%%typ: <type>]: %a" Pp_MLast.pp_expr e))
+                ] >>
 
   | <:ctyp:< longid >> ->
     <:expr< fun [ e → Pa_ppx_base.Ppxutil.longid_of_expr e  ] >>
@@ -108,18 +126,23 @@ value generate_param_parser_expression arg ty =
                         ] >>, <:vala< [] >>)
       ]
     in
+    let fieldnames = List.map (fun ((_,n), _, _, _, _) -> <:expr< $str:n$ >>) label_ty_optional_default_computeds in
+    let fieldnames_expr = Ppxutil.convert_up_list_expr loc fieldnames in
     let field_bindings = List.map one_field_binding label_ty_optional_default_computeds in
     let full_rhs = List.fold_right (fun b e -> <:expr< let $list:[b]$ in $e$ >>) field_bindings consrhs in
     let recpat = expr_as_patt loc "{ $list:__lel__$ }" in
     let p = patt_as_patt loc "$lid:fld$" in
-    <:expr< fun [ $recpat$ ->
+    <:expr< fun [ $recpat$ as z ->
             let __alist__ = List.map (fun [ ($p$, e) -> (fld, e) 
                                           | _ ->
                                             Ploc.raise loc
                                               (Failure "fields must be named by lidents")
                                           ]) __lel__ in
-            $full_rhs$
-
+            let superfluous_fields = Pa_ppx_utils.Std.subtract (List.map fst __alist__) $fieldnames_expr$ in
+            if [] = superfluous_fields then
+              $full_rhs$
+            else Ploc.raise (loc_of_expr z)
+              (Failure Fmt.(str "superfluous (not-allowed) fields: %a" (list string) superfluous_fields))
                 | e -> Ploc.raise (loc_of_expr e)
                          (Failure Fmt.(str "param did not match record-type:@ record-type: %s\n@ param: %a"
                                            $str:String.escaped (Pp_MLast.show_ctyp z)$ Pp_MLast.pp_expr e)) 
@@ -128,7 +151,10 @@ value generate_param_parser_expression arg ty =
   | <:ctyp:< alist lident $rngty$ >> as z ->
     let lid_patt = patt_as_patt loc "$lid:k$" in
     let full_body = <:expr<
-      List.map (fun ($lid_patt$, e) -> (k, $genrec rngty$ e)) __lel__
+      List.map (fun [ ($lid_patt$, e) -> (k, $genrec rngty$ e)
+                    | (p, _) -> Ploc.raise (loc_of_patt p)
+                            (Failure (Fmt.str "key should be of the form LIDENT: %a" Pp_MLast.pp_patt p))
+                    ]) __lel__
     >> in         
     let recpat = expr_as_patt loc "{ $list:__lel__$ }" in
     let unitpat = expr_as_patt loc "()" in
@@ -145,6 +171,8 @@ value generate_param_parser_expression arg ty =
     let full_body = <:expr<
       List.map (fun [ ($lid_patt$, e) -> ((None, Ploc.VaVal lid), $genrec rngty$ e)
                     | ($longlid_patt$, e) -> ((Some (Ploc.VaVal li), Ploc.VaVal lid), $genrec rngty$ e)
+                    | (p, _) -> Ploc.raise (loc_of_patt p)
+                            (Failure (Fmt.str "key should be of the form [longid.]LIDENT: %a" Pp_MLast.pp_patt p))
                     ]) __lel__
     >> in
     let recpat = expr_as_patt loc "{ $list:__lel__$ }" in
@@ -159,7 +187,12 @@ value generate_param_parser_expression arg ty =
   | <:ctyp:< alist ctyp $rngty$ >> as z ->
     let ctyp_patt = patt_as_patt loc "[%typ: $type:t$]" in
     let full_body = <:expr<
-      List.map (fun ($ctyp_patt$, e) -> (t, $genrec rngty$ e)) __lel__
+      List.map (fun [
+                      ($ctyp_patt$, e) -> (t, $genrec rngty$ e)
+                    | (p, _) -> Ploc.raise (loc_of_patt p)
+                            (Failure (Fmt.str "key should be of the form [%%typ: <type>]: %a" Pp_MLast.pp_patt p))
+
+                    ]) __lel__
     >> in         
     let recpat = expr_as_patt loc "{ $list:__lel__$ }" in
     let unitpat = expr_as_patt loc "()" in
@@ -173,12 +206,17 @@ value generate_param_parser_expression arg ty =
   | <:ctyp:< list $ty$ >> ->
     <:expr< Pa_ppx_base.Ppxutil.convert_down_list_expr $genrec ty$ >>
 
-  | <:ctyp:< ( $list:l$ ) >> ->
+  | <:ctyp:< ( $list:l$ ) >> as z ->
     let vars_types = List.mapi (fun i ty -> (Printf.sprintf "v_%d" i, ty)) l in
     let varantis = List.map (fun (v, _) -> Printf.sprintf "$%s$" v) vars_types in
     let tuplepatt = expr_as_patt loc (Printf.sprintf "(%s)" (String.concat ", " varantis)) in
     let l = List.map (fun (v, t) -> <:expr< $genrec t$ $lid:v$ >>) vars_types in
-    <:expr< fun $tuplepatt$ -> ( $list:l$ ) >>
+    <:expr< fun [
+                  $tuplepatt$ -> ( $list:l$ )
+                | e -> Ploc.raise (loc_of_expr e)
+                         (Failure Fmt.(str "param must be a tuple of type: %s\n@ param: %a"
+                                           $str:String.escaped (Pp_MLast.show_ctyp z)$ Pp_MLast.pp_expr e)) 
+                ] >>
 
   | <:ctyp:< $t$ [@convert ( [%typ: $type:srct$], $convf$ );] >> ->
     <:expr< fun __x__ -> $convf$ ($genrec srct$ __x__) >>

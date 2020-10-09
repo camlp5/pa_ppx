@@ -190,7 +190,7 @@ value generate_param_parser_expression arg ty =
       List.map (fun [
                       ($ctyp_patt$, e) -> (t, $genrec rngty$ e)
                     | (p, _) -> Ploc.raise (loc_of_patt p)
-                            (Failure (Fmt.str "key should be of the form [%%typ: <type>]: %a" Pp_MLast.pp_patt p))
+                            (Failure (Fmt.str "key should be of the form [longid.]LIDENT: %a" Pp_MLast.pp_patt p))
 
                     ]) __lel__
     >> in         

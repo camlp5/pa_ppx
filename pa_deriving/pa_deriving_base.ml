@@ -103,6 +103,7 @@ value monomorphize_ctyp cty =
       let ltl = List.map (fun (loc, na, b, ty, al) -> (loc, na, b, mrec ty, al)) ltl in
       <:ctyp:< { $list:ltl$ } >>
   | <:ctyp:< $t1$ == $t2$ >> -> <:ctyp:< $mrec t1$ == $mrec t2$ >>
+  | <:ctyp:< $t1$ -> $t2$ >> -> <:ctyp:< $mrec t1$ -> $mrec t2$ >>
   | ty -> ty
   ]
   in mrec cty

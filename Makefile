@@ -8,10 +8,12 @@ WD=$(shell pwd)
 DESTDIR=
 RM=rm
 
-SYSDIRS= util-lib testutils runtime runtime_fat base pa_unmatched_vala \
+PRESYSDIRS= util-lib testutils runtime runtime_fat base pa_unmatched_vala \
 	pa_dock pa_here pa_here_original pa_undo_deriving pa_assert \
 	pa_inline_test pa_expect_test pa_hashrecons \
-	pa_deriving pa_deriving.plugins pa_import \
+	pa_deriving pa_deriving.plugins pa_import
+
+SYSDIRS= $(PRESYSDIRS) \
 	protobuf_runtime params_runtime
 
 TESTDIRS= tests-ounit2 our-tests-inline tests-deriving-protobuf
@@ -45,6 +47,9 @@ $(BATCHTOP): plugins
 
 plugins: prereqs
 	set -e; for i in $(SYSDIRS); do cd $$i; $(MAKE) all; cd ..; done
+
+presys: prereqs
+	set -e; for i in $(PRESYSDIRS); do cd $$i; $(MAKE) all; cd ..; done
 
 doc: all
 	set -e; for i in $(SYSDIRS); do cd $$i; $(MAKE) doc; cd ..; done

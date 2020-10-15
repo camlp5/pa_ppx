@@ -23,6 +23,8 @@ val show_longid_lident : MLast.longid_lident -> string
 val pp_longid_lident : MLast.longid_lident Fmt.t
 val show_ctyp : MLast.ctyp -> string
 val pp_ctyp : MLast.ctyp Fmt.t
+val show_expr : MLast.expr -> string
+val pp_expr : MLast.expr Fmt.t
 val pp_attribute : MLast.attribute Fmt.t
 END
 

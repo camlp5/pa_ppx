@@ -30,7 +30,7 @@ opam switch $VERS
   ( \
    make clean && \
    make initialize && \
-   make sys && \
+   make presys && \
    make bootstrap && \
    make clean && \
    make sys && \

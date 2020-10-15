@@ -44,6 +44,8 @@ let show_longid_lident _ = "<longid_lident>"
 let pp_longid_lident pps x = Fmt.(pf pps "<longid_lident>")
 let show_ctyp _ = "<ctyp>"
 let pp_ctyp pps x = Fmt.(pf pps "<ctyp>")
+let show_expr _ = "<expr>"
+let pp_expr pps x = Fmt.(pf pps "<expr>")
 let pp_attribute pps x = Fmt.(pf pps "<attribute>")
 
 END

@@ -3,11 +3,14 @@ module Ploc :
     include module type of Ploc with type t = Ploc.t;
     value pp_loc_verbose : ref bool;
     value pp : Fmt.t t;
+    value equal : t → t → bool;
     type vala α =
       Ploc.vala α ==
         [ VaAnt of string
-        | VaVal of α ][@@"deriving_inline" show;]
+        | VaVal of α ][@@"deriving_inline" (show, eq);]
     ;
+    value equal_vala :
+      (α → α → Stdlib.Bool.t) → vala α → vala α → Stdlib.Bool.t;
     value pp_vala : Fmt.t α → Fmt.t (vala α);
     value show_vala : Fmt.t α → vala α → Stdlib.String.t;
     [@@@"end"];

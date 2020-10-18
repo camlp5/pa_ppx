@@ -16,14 +16,9 @@ value module_expr_runtime_module m =
     <:module_expr< $uid:runtime_module_path.val$ . $m$ >>
 ;
 
-value expr_runtime_module m =
+value longident_runtime_module m =
   if runtime_module_path.val = "" then m
   else
-    let loc = loc_of_expr m in
-
-(*NOTE WELL: we have to cut this quotation into two parts b/c of weaknesses in pa_r
-  grammar, which in turn are due to not redoing MLast.expr using longid properly. *)
-
-    let e1 = <:expr<  $uid:runtime_module_path.val$ >> in
-    <:expr< $e1$ . $m$ >>
+    let loc = loc_of_longid m in
+    Asttools.longid_concat <:longident< $uid:runtime_module_path.val$ >> m
 ;

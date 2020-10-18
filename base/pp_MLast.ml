@@ -178,7 +178,9 @@ and patt =
     | PaExten of loc and attribute ]
 and expr =
   MLast.expr ==
-    [ ExAcc of loc and expr and expr
+    [ ExLong of loc and longid
+    | ExOpen of loc and longid and expr
+    | ExFle of loc and expr and Ploc.vala longid_lident
     | ExAnt of loc and expr
     | ExApp of loc and expr and expr
     | ExAre of loc and Ploc.vala string and expr and Ploc.vala (list expr)
@@ -222,7 +224,6 @@ and expr =
     | ExTry of loc and expr and Ploc.vala (list case_branch)
     | ExTup of loc and Ploc.vala (list expr)
     | ExTyc of loc and expr and ctyp
-    | ExUid of loc and Ploc.vala string
     | ExVrn of loc and Ploc.vala string
     | ExWhi of loc and expr and Ploc.vala (list expr)
     | ExXtr of loc and string and option (Ploc.vala expr)
@@ -964,10 +965,18 @@ and pp_expr : Fmt.t expr =
   fun (ofmt : Format.formatter) arg →
     (fun ofmt →
        fun
-       [ ExAcc v0 v1 v2 →
+       [ ExLong v0 v1 →
            let open Pa_ppx_runtime.Runtime.Fmt in
-           pf ofmt "(@[<2>MLast.ExAcc@ (@,%a,@ %a,@ %a@,))@]" pp_loc v0
-             pp_expr v1 pp_expr v2
+           pf ofmt "(@[<2>MLast.ExLong@ (@,%a,@ %a@,))@]" pp_loc v0 pp_longid
+             v1
+       | ExOpen v0 v1 v2 →
+           let open Pa_ppx_runtime.Runtime.Fmt in
+           pf ofmt "(@[<2>MLast.ExOpen@ (@,%a,@ %a,@ %a@,))@]" pp_loc v0
+             pp_longid v1 pp_expr v2
+       | ExFle v0 v1 v2 →
+           let open Pa_ppx_runtime.Runtime.Fmt in
+           pf ofmt "(@[<2>MLast.ExFle@ (@,%a,@ %a,@ %a@,))@]" pp_loc v0
+             pp_expr v1 (Ploc.pp_vala pp_longid_lident) v2
        | ExAnt v0 v1 →
            let open Pa_ppx_runtime.Runtime.Fmt in
            pf ofmt "(@[<2>MLast.ExAnt@ (@,%a,@ %a@,))@]" pp_loc v0 pp_expr v1
@@ -1313,13 +1322,6 @@ and pp_expr : Fmt.t expr =
            let open Pa_ppx_runtime.Runtime.Fmt in
            pf ofmt "(@[<2>MLast.ExTyc@ (@,%a,@ %a,@ %a@,))@]" pp_loc v0
              pp_expr v1 pp_ctyp v2
-       | ExUid v0 v1 →
-           let open Pa_ppx_runtime.Runtime.Fmt in
-           pf ofmt "(@[<2>MLast.ExUid@ (@,%a,@ %a@,))@]" pp_loc v0
-             (Ploc.pp_vala
-                (fun ofmt arg →
-                   let open Pa_ppx_runtime.Runtime.Fmt in pf ofmt "%S" arg))
-             v1
        | ExVrn v0 v1 →
            let open Pa_ppx_runtime.Runtime.Fmt in
            pf ofmt "(@[<2>MLast.ExVrn@ (@,%a,@ %a@,))@]" pp_loc v0

@@ -72,9 +72,7 @@ value generate_param_parser_expression arg ty =
       <:expr< $lid:params_fname arg id$ >>
 
   | <:ctyp:< $longid:li$ . $lid:id$ >> ->
-      let e1 = expr_of_longid li in
-      let e2 = <:expr< $lid:params_fname arg id$ >> in
-      <:expr< $e1$ . $e2$ >>
+      <:expr< $longid:li$ . $lid:params_fname arg id$ >>
 
   | <:ctyp:< { $list:ltl$ } >> as z ->
     let label_ty_optional_default_computeds = List.map (fun (_, na, _, ty, al) ->

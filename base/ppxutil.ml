@@ -46,27 +46,14 @@ value module_expr_of_longident li =
   ] in
   crec li
 ;
-value string_list_of_expr e =
-  let rec lrec = fun [
-    <:expr< $uid:uid$ >> -> [uid]
-  | <:expr< $e1$ . $e2$ >> -> (lrec e1)@(lrec e2)
-  | e -> Ploc.raise (loc_of_expr e) (Failure "string_list_of_expr: unexpected expr")
-  ] in
-  lrec e
-;
-value longid_of_expr e =
-  let l = string_list_of_expr e in
-  Asttools.longident_of_string_list (loc_of_expr e) l
+value longid_of_expr = fun [
+  <:expr< $longid:li$ >> -> li
+]
 ;
 
 value expr_of_longid li =
-  let rec erec = fun [
-    <:longident:< $uid:uid$ >> -> <:expr< $uid:uid$ >>
-  | <:longident:< $longid:li$ . $uid:uid$ >> ->
-    <:expr< $erec li$ . $uid:uid$ >>
-  ] in
-  erec li
-;
+  let loc = loc_of_longid li in
+  <:expr< $longid:li$ >> ;
 
 value convert_down_list_expr f e =
   let rec crec acc = fun [
@@ -105,16 +92,16 @@ value print e =
 
 value to_string_list e =
   let rec srec = fun [
-    <:expr< $lid:i$ >> -> [i]
-  | <:expr< $uid:i$ >> -> [i]
-  | <:expr< $e1$ . $e2$ >> -> (srec e1) @ (srec e2)
+    <:expr< $longid:li$ >> -> Asttools.string_list_of_longident li
+  | <:expr< $e$ . $lilongid:lili$ >> -> (srec e)@(Asttools.string_list_of_longident_lident lili)
+  | <:expr< $lid:i$ >> -> [i]
+  | e -> Ploc.raise (loc_of_expr e) (Failure "Expr.to_string_list: invalid expr")
   ]
   in srec e
 ;
 
 value prepend_uid loc uid e =
-  let e1 = <:expr< $uid:uid$ >> in
-  <:expr< $e1$ . $e$ >>
+  Asttools.expr_concat <:expr< $uid:uid$ >> e
 ;
 
 value prepend_longident li e =

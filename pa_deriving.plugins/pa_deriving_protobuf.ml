@@ -523,7 +523,9 @@ value bare_to_expression arg ~{field_name} ty0 =
 value to_expression arg ?{coercion} ~{field_name} param_map ty0 =
   let runtime_module =
     let loc = loc_of_ctyp ty0 in
-    Base.expr_runtime_module <:expr< Runtime >> in
+    let li = Base.longident_runtime_module <:longident< Runtime >> in
+    <:expr< $longid:li$ >> in
+
   let rec fmtrec ?{coercion} ~{attrmod} = fun [
 
   <:ctyp:< $lid:lid$ >> when attrmod.bare ->
@@ -1160,7 +1162,9 @@ value trace_after_fmtrec (attrmod : attrmod_t) (ty : MLast.ctyp) (rv : (attrmod_
 value of_expression arg ~{attrmod} param_map ty0 =
   let runtime_module =
     let loc = loc_of_ctyp ty0 in
-    Base.expr_runtime_module <:expr< Runtime >> in
+    let li = Base.longident_runtime_module <:longident< Runtime >> in
+    <:expr< $longid:li$ >> in
+
   let rec fmtrec ~{attrmod} ty = do {
     trace_before_fmtrec attrmod ty ;
     let rv = obs_fmtrec ~{attrmod=attrmod} ty in do {

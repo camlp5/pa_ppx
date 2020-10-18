@@ -59,7 +59,8 @@ value to_yojson_fname arg tyname =
 value to_expression arg ?{coercion} ~{msg} param_map ty0 =
   let runtime_module =
     let loc = loc_of_ctyp ty0 in
-    Base.expr_runtime_module <:expr< Runtime >> in
+    Base.longident_runtime_module <:longident< Runtime >> in
+
   let rec fmtrec ?{coercion} ?{attrmod=None} = fun [
 
   <:ctyp:< $lid:lid$ >> when attrmod = Some Nobuiltin ->
@@ -68,29 +69,29 @@ value to_expression arg ?{coercion} ~{msg} param_map ty0 =
 
 | <:ctyp:< _ >> -> failwith "cannot derive yojson for type <<_>>"
 | <:ctyp:< Yojson.Safe.t >> -> <:expr< fun x -> x >>
-| <:ctyp:< unit >> -> <:expr< $runtime_module$.Yojson.unit_to_yojson >>
-| <:ctyp:< int >> -> <:expr< $runtime_module$.Yojson.int_to_yojson >>
-| <:ctyp:< bool >> -> <:expr< $runtime_module$.Yojson.bool_to_yojson >>
-| <:ctyp:< int32 >> | <:ctyp:< Int32.t >> -> <:expr< $runtime_module$.Yojson.int32_to_yojson >>
-| <:ctyp:< int64 >> | <:ctyp:< Int64.t >> -> <:expr< $runtime_module$.Yojson.int64_to_yojson >>
+| <:ctyp:< unit >> -> <:expr< $longid:runtime_module$.Yojson.unit_to_yojson >>
+| <:ctyp:< int >> -> <:expr< $longid:runtime_module$.Yojson.int_to_yojson >>
+| <:ctyp:< bool >> -> <:expr< $longid:runtime_module$.Yojson.bool_to_yojson >>
+| <:ctyp:< int32 >> | <:ctyp:< Int32.t >> -> <:expr< $longid:runtime_module$.Yojson.int32_to_yojson >>
+| <:ctyp:< int64 >> | <:ctyp:< Int64.t >> -> <:expr< $longid:runtime_module$.Yojson.int64_to_yojson >>
 | <:ctyp:< int64 [@ $attrid:(_, id)$ `string ; ] >> |
   <:ctyp:< Int64.t [@ $attrid:(_, id)$ `string ; ] >>
   when Some id = DC.allowed_attribute (DC.get arg) "yojson" "encoding" ->
-    <:expr< fun x -> $runtime_module$.Yojson.string_to_yojson (Int64.to_string x) >>
+    <:expr< fun x -> $longid:runtime_module$.Yojson.string_to_yojson (Int64.to_string x) >>
 
 | (<:ctyp:< string >> | <:ctyp:< Stdlib.String.t >> | <:ctyp:< String.t >>) ->
-  <:expr< $runtime_module$.Yojson.string_to_yojson >>
-| <:ctyp:< bytes >> -> <:expr< fun x -> $runtime_module$.Yojson.string_to_yojson (Bytes.to_string x) >>
-| <:ctyp:< char >> -> <:expr< fun x -> $runtime_module$.Yojson.string_to_yojson (String.make 1 x) >>
-| <:ctyp:< nativeint >> | <:ctyp:< Nativeint.t >> -> <:expr< $runtime_module$.Yojson.nativeint_to_yojson >>
+  <:expr< $longid:runtime_module$.Yojson.string_to_yojson >>
+| <:ctyp:< bytes >> -> <:expr< fun x -> $longid:runtime_module$.Yojson.string_to_yojson (Bytes.to_string x) >>
+| <:ctyp:< char >> -> <:expr< fun x -> $longid:runtime_module$.Yojson.string_to_yojson (String.make 1 x) >>
+| <:ctyp:< nativeint >> | <:ctyp:< Nativeint.t >> -> <:expr< $longid:runtime_module$.Yojson.nativeint_to_yojson >>
 | <:ctyp:< nativeint [@ $attrid:(_, id)$ `string ; ] >> |
   <:ctyp:< Nativeint.t [@ $attrid:(_, id)$ `string ; ] >>
   when Some id = DC.allowed_attribute (DC.get arg) "yojson" "encoding" ->
-    <:expr< fun x -> $runtime_module$.Yojson.string_to_yojson (Nativeint.to_string x) >>
-| <:ctyp:< float >> -> <:expr< $runtime_module$.Yojson.float_to_yojson >>
+    <:expr< fun x -> $longid:runtime_module$.Yojson.string_to_yojson (Nativeint.to_string x) >>
+| <:ctyp:< float >> -> <:expr< $longid:runtime_module$.Yojson.float_to_yojson >>
 
 | <:ctyp:< Hashtbl.t >> ->
-  <:expr< $runtime_module$.Yojson.hashtbl_to_yojson >>
+  <:expr< $longid:runtime_module$.Yojson.hashtbl_to_yojson >>
 
 | <:ctyp:< $t$ [@ $attrid:(_, id)$ ] >> when Some id = DC.allowed_attribute (DC.get arg) "yojson" "nobuiltin" ->
     fmtrec ~{attrmod=Some Nobuiltin} t
@@ -102,19 +103,19 @@ value to_expression arg ?{coercion} ~{msg} param_map ty0 =
 
 | <:ctyp:< list $ty$ >> ->
   let fmt1 = fmtrec ty in
-  <:expr< $runtime_module$.Yojson.list_to_yojson $fmt1$ >>
+  <:expr< $longid:runtime_module$.Yojson.list_to_yojson $fmt1$ >>
 
 | <:ctyp:< array $ty$ >> ->
   let fmt1 = fmtrec ty in
-  <:expr< $runtime_module$.Yojson.array_to_yojson $fmt1$ >>
+  <:expr< $longid:runtime_module$.Yojson.array_to_yojson $fmt1$ >>
 
 | (<:ctyp:< ref $ty$ >> | <:ctyp:< Pervasives.ref $ty$ >>) ->
   let fmt1 = fmtrec ty in
-  <:expr< $runtime_module$.Yojson.ref_to_yojson $fmt1$ >>
+  <:expr< $longid:runtime_module$.Yojson.ref_to_yojson $fmt1$ >>
 
 | <:ctyp:< option $ty$ >> ->
   let fmt1 = fmtrec ty in
-  <:expr< $runtime_module$.Yojson.option_to_yojson $fmt1$ >>
+  <:expr< $longid:runtime_module$.Yojson.option_to_yojson $fmt1$ >>
 
 | <:ctyp:< $t1$ $t2$ >> -> <:expr< $fmtrec t1$ $fmtrec t2$ >>
 
@@ -409,7 +410,8 @@ value of_yojson_fname arg tyname =
 value of_expression arg ~{msg} param_map ty0 =
   let runtime_module =
     let loc = loc_of_ctyp ty0 in
-    Base.expr_runtime_module <:expr< Runtime >> in
+    Base.longident_runtime_module <:longident< Runtime >> in
+
   let rec fmtrec ?{attrmod=None} = fun [
 
   <:ctyp:< $lid:lid$ >> when attrmod = Some Nobuiltin ->
@@ -417,11 +419,11 @@ value of_expression arg ~{msg} param_map ty0 =
   <:expr< $lid:fname$ >>
 
 | <:ctyp:< Yojson.Safe.t >> -> <:expr< fun x -> Result.Ok x >>
-| <:ctyp:< unit >> -> <:expr< $runtime_module$.Yojson.unit_of_yojson $str:msg$ >>
-| <:ctyp:< int >> -> <:expr< $runtime_module$.Yojson.int_of_yojson $str:msg$ >>
-| <:ctyp:< bool >> -> <:expr< $runtime_module$.Yojson.bool_of_yojson $str:msg$ >>
-| <:ctyp:< int32 >> | <:ctyp:< Int32.t >> -> <:expr< $runtime_module$.Yojson.int32_of_yojson $str:msg$ >>
-| <:ctyp:< int64 >> | <:ctyp:< Int64.t >> -> <:expr< $runtime_module$.Yojson.int64_of_yojson $str:msg$ >>
+| <:ctyp:< unit >> -> <:expr< $longid:runtime_module$.Yojson.unit_of_yojson $str:msg$ >>
+| <:ctyp:< int >> -> <:expr< $longid:runtime_module$.Yojson.int_of_yojson $str:msg$ >>
+| <:ctyp:< bool >> -> <:expr< $longid:runtime_module$.Yojson.bool_of_yojson $str:msg$ >>
+| <:ctyp:< int32 >> | <:ctyp:< Int32.t >> -> <:expr< $longid:runtime_module$.Yojson.int32_of_yojson $str:msg$ >>
+| <:ctyp:< int64 >> | <:ctyp:< Int64.t >> -> <:expr< $longid:runtime_module$.Yojson.int64_of_yojson $str:msg$ >>
 | <:ctyp:< int64 [@ $attrid:(_, id)$ `string ; ] >> |
   <:ctyp:< Int64.t [@ $attrid:(_, id)$ `string ; ] >>
   when Some id = DC.allowed_attribute (DC.get arg) "yojson" "encoding" ->
@@ -429,7 +431,7 @@ value of_expression arg ~{msg} param_map ty0 =
         `String x -> Result.Ok (Int64.of_string x)
       | _ -> Result.Error $str:msg$ ] >>
 | (<:ctyp:< string >> | <:ctyp:< Stdlib.String.t >> | <:ctyp:< String.t >>) ->
-  <:expr< $runtime_module$.Yojson.string_of_yojson $str:msg$ >>
+  <:expr< $longid:runtime_module$.Yojson.string_of_yojson $str:msg$ >>
 | <:ctyp:< bytes >> -> <:expr< fun [
         `String x -> Result.Ok (Bytes.of_string x)
       | _ -> Result.Error $str:msg$ ] >>
@@ -438,16 +440,16 @@ value of_expression arg ~{msg} param_map ty0 =
           then Result.Ok (x.[0])
           else Result.Error $str:msg$
       | _ -> Result.Error $str:msg$ ] >>
-| <:ctyp:< nativeint >> | <:ctyp:< Nativeint.t >> -> <:expr< $runtime_module$.Yojson.nativeint_of_yojson $str:msg$ >>
+| <:ctyp:< nativeint >> | <:ctyp:< Nativeint.t >> -> <:expr< $longid:runtime_module$.Yojson.nativeint_of_yojson $str:msg$ >>
 | <:ctyp:< nativeint [@ $attrid:(_, id)$ `string ; ] >> |
   <:ctyp:< Nativeint.t [@ $attrid:(_, id)$ `string ; ] >>
   when Some id = DC.allowed_attribute (DC.get arg) "yojson" "encoding" -> <:expr< fun [
         `String x -> Result.Ok (Nativeint.of_string x)
       | _ -> Result.Error $str:msg$ ] >>
-| <:ctyp:< float >> -> <:expr< $runtime_module$.Yojson.float_of_yojson $str:msg$ >>
+| <:ctyp:< float >> -> <:expr< $longid:runtime_module$.Yojson.float_of_yojson $str:msg$ >>
 
 | <:ctyp:< Hashtbl.t >> ->
-  <:expr< $runtime_module$.Yojson.hashtbl_of_yojson >>
+  <:expr< $longid:runtime_module$.Yojson.hashtbl_of_yojson >>
 
 | <:ctyp:< $t$ [@ $attrid:(_, id)$ ] >> when Some id = DC.allowed_attribute (DC.get arg) "yojson" "nobuiltin" ->
     fmtrec ~{attrmod=Some Nobuiltin} t
@@ -459,19 +461,19 @@ value of_expression arg ~{msg} param_map ty0 =
 
 | <:ctyp:< list $ty$ >> ->
   let fmt1 = fmtrec ty in
-  <:expr< $runtime_module$.Yojson.list_of_yojson $str:msg$ $fmt1$ >>
+  <:expr< $longid:runtime_module$.Yojson.list_of_yojson $str:msg$ $fmt1$ >>
 
 | <:ctyp:< array $ty$ >> ->
   let fmt1 = fmtrec ty in
-  <:expr< $runtime_module$.Yojson.array_of_yojson $str:msg$ $fmt1$ >>
+  <:expr< $longid:runtime_module$.Yojson.array_of_yojson $str:msg$ $fmt1$ >>
 
 | (<:ctyp:< ref $ty$ >> | <:ctyp:< Pervasives.ref $ty$ >>) ->
   let fmt1 = fmtrec ty in
-  <:expr< $runtime_module$.Yojson.ref_of_yojson $fmt1$ >>
+  <:expr< $longid:runtime_module$.Yojson.ref_of_yojson $fmt1$ >>
 
 | <:ctyp:< option $ty$ >> ->
   let fmt1 = fmtrec ty in
-  <:expr< $runtime_module$.Yojson.option_of_yojson $fmt1$ >>
+  <:expr< $longid:runtime_module$.Yojson.option_of_yojson $fmt1$ >>
 
 | <:ctyp:< $t1$ $t2$ >> -> <:expr< $fmtrec t1$ $fmtrec t2$ >>
 

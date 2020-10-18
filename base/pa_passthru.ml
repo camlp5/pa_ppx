@@ -376,8 +376,16 @@ and expr0 arg =
     fun
     [ ExAtt loc e attr ->
        ExAtt loc (self e) (attribute arg attr)
-    | ExAcc loc x1 x2 →
-        ExAcc loc (self x1) (self x2)
+
+    | ExLong loc x1 →
+        ExLong loc (longid arg x1)
+
+    | ExOpen loc x1 x2 →
+        ExOpen loc (longid arg x1) (self x2)
+
+    | ExFle loc x1 x2 →
+        ExFle loc (self x1) (vala_map (longid_lident arg) x2)
+
     | ExAnt loc x1 → assert False
     | ExApp loc x1 x2 →
         ExApp loc (self x1) (self x2)
@@ -458,8 +466,6 @@ and expr0 arg =
         ExTup loc (vala_map (List.map self) x1)
     | ExTyc loc x1 x2 →
         ExTyc loc (self x1) (ctyp arg x2)
-    | ExUid loc x1 →
-        ExUid loc x1
     | ExVrn loc x1 →
         ExVrn loc x1
     | ExWhi loc x1 x2 →

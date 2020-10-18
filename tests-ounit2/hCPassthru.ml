@@ -203,8 +203,16 @@ and expr0 arg =
     fun
     [ ExAtt loc e attr[@hashrecons z;] ->
        ExAtt loc (self e) (attribute arg attr)[@hashrecons z;]
-    | ExAcc loc x1 x2[@hashrecons z;] →
-        ExAcc loc (self x1) (self x2)[@hashrecons z;]
+
+    | ExLong loc x1[@hashrecons z;] →
+        ExLong loc (longid arg x1)[@hashrecons z;]
+
+    | ExOpen loc x1 x2[@hashrecons z;] →
+        ExOpen loc (longid arg x1) (self x2)[@hashrecons z;]
+
+    | ExFle loc x1 x2[@hashrecons z;] →
+        ExFle loc (self x1) (vala_map (longid_lident arg) x2)[@hashrecons z;]
+
     | ExAnt loc x1 → assert False
     | ExApp loc x1 x2[@hashrecons z;] →
         ExApp loc (self x1) (self x2)[@hashrecons z;]
@@ -285,8 +293,6 @@ and expr0 arg =
         ExTup loc (vala_map (List.map self) x1)[@hashrecons z;]
     | ExTyc loc x1 x2[@hashrecons z;] →
         ExTyc loc (self x1) (ctyp arg x2)[@hashrecons z;]
-    | ExUid loc x1[@hashrecons z;] →
-        ExUid loc x1[@hashrecons z;]
     | ExVrn loc x1[@hashrecons z;] →
         ExVrn loc x1[@hashrecons z;]
     | ExWhi loc x1 x2[@hashrecons z;] →

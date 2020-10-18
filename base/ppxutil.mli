@@ -5,7 +5,6 @@ value filter_split : (α → bool) → list α → (list α * list α);
 value count : (α → bool) → list α → int;
 value attr_id : MLast.attribute → string;
 value module_expr_of_longident : MLast.longid → MLast.module_expr;
-value string_list_of_expr : MLast.expr -> list string;
 value longid_of_expr : MLast.expr -> MLast.longid ;
 value expr_of_longid : MLast.longid -> MLast.expr ;
 value convert_down_list_expr : (MLast.expr -> 'a) -> MLast.expr -> list 'a ;

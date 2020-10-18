@@ -109,7 +109,9 @@ and patt =
     | PaExten of loc and attribute ]
 and expr =
   MLast.expr ==
-    [ ExAcc of loc and expr and expr
+    [ ExLong of loc and longid
+    | ExOpen of loc and longid and expr
+    | ExFle of loc and expr and Ploc.vala longid_lident
     | ExAnt of loc and expr
     | ExApp of loc and expr and expr
     | ExAre of loc and Ploc.vala string and expr and Ploc.vala (list expr)
@@ -153,7 +155,6 @@ and expr =
     | ExTry of loc and expr and Ploc.vala (list case_branch)
     | ExTup of loc and Ploc.vala (list expr)
     | ExTyc of loc and expr and ctyp
-    | ExUid of loc and Ploc.vala string
     | ExVrn of loc and Ploc.vala string
     | ExWhi of loc and expr and Ploc.vala (list expr)
     | ExXtr of loc and string and option (Ploc.vala expr)

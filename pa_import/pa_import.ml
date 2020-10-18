@@ -246,34 +246,18 @@ value substitute_ctyp renmap t =
   in subrec t
 ;
 
-value string_list_of_expr e =
-  let rec srec = fun [
-    <:expr< $lid:i$ >> -> [i]
-  | <:expr< $uid:i$ >> -> [i]
-  | <:expr< $e1$ . $e2$ >> -> (srec e1) @ (srec e2)
-  ]
-  in srec e
-;
-
-value expr_to_ctyp0 loc e = do {
-  let l = string_list_of_expr e in
-  let (last,l) = sep_last l in
-  assert (last = String.uncapitalize_ascii last) ;
-  match l with [
-    [] -> <:ctyp< $lid:last$ >>
-  | [h::t] ->
-    let li = List.fold_left (fun li i -> <:longident< $longid:li$ . $uid:i$ >>)
-        <:longident< $uid:h$ >> t in
-    <:ctyp< $longid:li$ . $lid:last$ >>
-  ]}
+value expr_to_ctyp0 = fun [
+  <:expr:< $longid:li$ . $lid:id$ >> -> <:ctyp< $longid:li$ . $lid:id$ >>
+| <:expr:< $lid:id$ >> -> <:ctyp< $lid:id$ >>
+]
 ;
 
 value expr_to_ctyp loc e =
   match e with [
     <:expr:< $e$ [@ $attribute:a$ ] >> ->
-    let ct = expr_to_ctyp0 loc e in
+    let ct = expr_to_ctyp0 e in
     <:ctyp:< $ct$ [@ $attribute:a$ ] >>
-  | e -> expr_to_ctyp0 loc e
+  | e -> expr_to_ctyp0 e
   ]
 ;
 

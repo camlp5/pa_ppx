@@ -257,9 +257,22 @@ value generate_param_parser arg name ty =
                           Pp_MLast.pp_expr e))
       ]) listexp
   ] in
+  let ppexp = generate_param_parser_expression arg ty in
+  let validator = match Ctxt.option arg "validator" with [
+    e -> e
+  | exception Not_found ->
+      Ploc.raise (loc_of_ctyp ty)
+        (Failure Fmt.(str "internal error: generate_param_parser: missing validator option:@ %a"
+                        Pp_MLast.pp_ctyp ty))
+  ] in
+  let ppexp = <:expr< fun __arg__ ->
+                      let __e__ = $ppexp$ __arg__ in
+                      if not ($validator$ __e__) then
+                        Ploc.raise (MLast.loc_of_expr __arg__) (Failure "params failed validation check")
+                      else __e__ >> in
   Expr.abstract_over
     (List.map (fun lid -> <:patt< $lid:lid$ >>) formals)
-    (generate_param_parser_expression arg ty)
+    ppexp
 ;
 
 value generate_param_binding arg td =
@@ -279,10 +292,12 @@ value str_item_gen_params name arg = fun [
 Pa_deriving.(Registry.add PI.{
   name = "params"
 ; alternates = []
-; options = ["optional"; "formal_args"]
+; options = ["optional"; "formal_args";"validator"]
 ; default_options = let loc = Ploc.dummy in [
     ("optional", <:expr< False >>)
-  ; ("formal_args", <:expr< () >>)]
+  ; ("formal_args", <:expr< () >>)
+  ; ("validator", <:expr< fun _ -> True >>)
+  ]
 ; alg_attributes = []
 ; expr_extensions = []
 ; ctyp_extensions = []

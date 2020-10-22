@@ -9,6 +9,7 @@ open Pa_ppx_runtime.Exceptions ;
 open Pa_ppx_params.Runtime ;
 open Pa_ppx_testutils ;
 
+type a0 = bool        [@@deriving (params { validator = fun x -> x }, eq);] ;
 type a1 = int        [@@deriving (params, eq);] ;
 type a2 = lident     [@@deriving (params, eq);] ;
 type a3 = uident     [@@deriving (params, eq);] ;
@@ -43,7 +44,8 @@ value parse_longident_lident s =
 
 value test_simple ctxt =
   let loc = Ploc.dummy in do {
-  assert_equal ({foo| 1 |foo} |> parse_expr |> params_a1) 1
+  assert_equal ({foo| True |foo} |> parse_expr |> params_a0) True
+; assert_equal ({foo| 1 |foo} |> parse_expr |> params_a1) 1
 ; assert_equal ({foo| foo |foo} |> parse_expr |> params_a2) "foo"
 ; assert_equal ~{cmp=Reloc.eq_ctyp} ({foo| [%typ: 'a list] |foo} |> parse_expr |> params_a4) <:ctyp< 'a list >>
 ; assert_equal ~{cmp=Reloc.eq_expr} ({foo| 1 |foo} |> parse_expr |> params_a5) <:expr< 1 >>
@@ -79,6 +81,9 @@ value assert_raises_exn_pattern pattern f =
 value test_errors ctxt =
   let loc = Ploc.dummy in do {
     ()
+  ; assert_raises_exn_pattern "params failed validation check"
+      (fun () ->
+         ignore ({foo| False |foo} |> parse_expr |> params_a0))
   ; assert_raises_exn_pattern "superfluous (not-allowed) fields: c"
       (fun () ->
          ignore ({foo| {a = 1; c = 3 } |foo} |> parse_expr |> params_a6))

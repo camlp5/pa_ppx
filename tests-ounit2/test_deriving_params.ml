@@ -9,7 +9,8 @@ open Pa_ppx_runtime.Exceptions ;
 open Pa_ppx_params.Runtime ;
 open Pa_ppx_testutils ;
 
-type a0 = bool        [@@deriving (params { validator = fun x -> x }, eq);] ;
+type a0 = bool        [@@deriving (params { validator = fun x -> Result.Ok x }, eq);] ;
+type a0' = bool        [@@deriving (params { validator = fun x -> if x then Result.Ok x else Result.Error "message" }, eq);] ;
 type a1 = int        [@@deriving (params, eq);] ;
 type a2 = lident     [@@deriving (params, eq);] ;
 type a3 = uident     [@@deriving (params, eq);] ;
@@ -69,10 +70,17 @@ value test_simple ctxt =
 }
 ;
 
+value matches ~{pattern} text =
+  match Str.search_forward (Str.regexp pattern) text 0 with [
+    _ -> True
+  | exception Not_found -> False
+  ]
+;
+
 value assert_raises_exn_pattern pattern f =
   Testutil.assert_raises_exn_pred
     (fun [
-           Ploc.Exc _ (Failure msg) when Str.string_match (Str.regexp pattern) msg 0 -> True
+           Ploc.Exc _ (Failure msg) when matches ~{pattern} msg -> True
          | _ -> False
          ])
       f
@@ -84,6 +92,9 @@ value test_errors ctxt =
   ; assert_raises_exn_pattern "params failed validation check"
       (fun () ->
          ignore ({foo| False |foo} |> parse_expr |> params_a0))
+  ; assert_raises_exn_pattern "message"
+      (fun () ->
+         ignore ({foo| False |foo} |> parse_expr |> params_a0'))
   ; assert_raises_exn_pattern "superfluous (not-allowed) fields: c"
       (fun () ->
          ignore ({foo| {a = 1; c = 3 } |foo} |> parse_expr |> params_a6))

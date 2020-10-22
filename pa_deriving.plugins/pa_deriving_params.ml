@@ -267,9 +267,14 @@ value generate_param_parser arg name ty =
   ] in
   let ppexp = <:expr< fun __arg__ ->
                       let __e__ = $ppexp$ __arg__ in
-                      if not ($validator$ __e__) then
-                        Ploc.raise (MLast.loc_of_expr __arg__) (Failure "params failed validation check")
-                      else __e__ >> in
+                      match ($validator$ __e__) with [
+                        Result.Error msg ->
+                        Ploc.raise (MLast.loc_of_expr __arg__)
+                          (Failure (Printf.sprintf "params failed validation check: %s" msg))
+                      | Result.Ok False ->
+                        Ploc.raise (MLast.loc_of_expr __arg__)
+                          (Failure (Printf.sprintf "params failed validation check"))
+                      | Result.Ok True -> __e__ ] >> in
   Expr.abstract_over
     (List.map (fun lid -> <:patt< $lid:lid$ >>) formals)
     ppexp
@@ -296,7 +301,7 @@ Pa_deriving.(Registry.add PI.{
 ; default_options = let loc = Ploc.dummy in [
     ("optional", <:expr< False >>)
   ; ("formal_args", <:expr< () >>)
-  ; ("validator", <:expr< fun _ -> True >>)
+  ; ("validator", <:expr< fun _ -> Result.Ok True >>)
   ]
 ; alg_attributes = []
 ; expr_extensions = []

@@ -9,8 +9,8 @@ open Pa_ppx_runtime.Exceptions ;
 open Pa_ppx_params.Runtime ;
 open Pa_ppx_testutils ;
 
-type a0 = bool        [@@deriving (params { validator = fun x -> Result.Ok x }, eq);] ;
-type a0' = bool        [@@deriving (params { validator = fun x -> if x then Result.Ok x else Result.Error "message" }, eq);] ;
+type a0 = bool        [@@deriving (params { validators = { a0 = fun x -> Result.Ok x } }, eq);] ;
+type a0' = bool        [@@deriving (params { validators = { a0' = fun x -> if x then Result.Ok x else Result.Error "message" } }, eq);] ;
 type a1 = int        [@@deriving (params, eq);] ;
 type a2 = lident     [@@deriving (params, eq);] ;
 type a3 = uident     [@@deriving (params, eq);] ;

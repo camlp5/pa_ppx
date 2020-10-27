@@ -1,4 +1,15 @@
 
+pa_ppx Version 0.07
+-------------------
+
+* [27 Oct 2020] updated to compat with camlp5 8.00~alpha07.  Not
+  compatible with previous versions (b/c significant changes to
+  Camlp5's AST).
+
+  added `pa_ppx.deriving_plugins.params` providing support for
+  demarshaling from OCaml expressions into data-types, hence for
+  automating demarshaling of options for PPX rewriters.
+
 pa_ppx Version 0.04
 -------------------
 

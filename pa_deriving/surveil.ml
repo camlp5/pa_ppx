@@ -95,12 +95,25 @@ value legitimate_plugin_reference dc (na, options) =
   ]
 ;
 
+value superfluous_options dc (na, options) =
+  match Registry.get na with [
+    pi ->
+    Std.subtract (List.map fst options) pi.PI.options
+  | exception Not_found ->
+    List.map fst options
+  ]
+;
+
 value start_decl loc dc plugins = do {
   assert ([] = dc.current_plugins.val) ;
   assert ([] = dc.current_attributes.val) ;
   List.iter (fun ((na, _) as r) ->
       if not (legitimate_plugin_reference dc r) then
-        Ploc.raise loc (Failure (Printf.sprintf "ill-formed plugin reference %s" na))
+        let msg = match Registry.get na with [
+          _ -> Fmt.(str "superfluous options %a" (list string) (superfluous_options dc r))
+        | exception Not_found -> Fmt.(str "unrecognized plugin %s" na)
+        ] in
+        Ploc.raise loc (Failure (Printf.sprintf "ill-formed plugin reference %s: %s" na msg))
       else ()) plugins ;
   let plugins = Std.filter (fun (na,_) -> Registry.mem na) plugins in
   dc.current_plugins.val := List.map fst plugins ;

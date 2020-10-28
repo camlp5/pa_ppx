@@ -126,7 +126,7 @@ value unapplist e =
   | t -> (t,acc)
   ] in unrec [] e
 ;
-
+value tuple loc l = if List.length l = 1 then List.hd l else <:expr< ( $list:l$ ) >> ;
 end ;
 
 module Patt = struct
@@ -155,7 +155,7 @@ value unwrap_attrs e =
   | t -> (t,acc)
   ] in unrec [] e
 ;
-
+value tuple loc l = if List.length l = 1 then List.hd l else <:patt< ( $list:l$ ) >> ;
 end ;
 
 module Ctyp = struct
@@ -216,7 +216,7 @@ value rec subst rho = fun [
 | z -> Ploc.raise (loc_of_ctyp z) (Failure Fmt.(str "Ctyp.subst: unhandled type: %a\n%!" Pp_MLast.pp_ctyp z))
 ]
 ;
-
+value tuple loc l = if List.length l = 1 then List.hd l else <:ctyp< ( $list:l$ ) >> ;
 end ;
 
 module Longid = struct

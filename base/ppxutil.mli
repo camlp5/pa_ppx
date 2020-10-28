@@ -23,6 +23,7 @@ module Expr :
     value abstract_over : list MLast.patt → MLast.expr → MLast.expr;
     value applist : MLast.expr → list MLast.expr → MLast.expr;
     value unapplist : MLast.expr → (MLast.expr * list MLast.expr);
+    value tuple : MLast.loc -> list MLast.expr -> MLast.expr ;
   end
 ;
 module Patt :
@@ -31,6 +32,7 @@ module Patt :
     value unapplist : MLast.patt → (MLast.patt * list MLast.patt);
     value wrap_attrs : MLast.patt → list MLast.attribute → MLast.patt;
     value unwrap_attrs : MLast.patt → (MLast.patt * list MLast.attribute);
+    value tuple : MLast.loc -> list MLast.patt -> MLast.patt ;
   end
 ;
 module Ctyp :
@@ -41,6 +43,7 @@ module Ctyp :
     value unwrap_attrs : MLast.ctyp → (MLast.ctyp * list MLast.attribute);
     value applist : MLast.ctyp → list MLast.ctyp → MLast.ctyp;
     value unapplist : MLast.ctyp → (MLast.ctyp * list MLast.ctyp);
+    value tuple : MLast.loc -> list MLast.ctyp -> MLast.ctyp ;
 
     type rho = Env.t MLast.ctyp ;
     value subst : rho -> MLast.ctyp -> MLast.ctyp;

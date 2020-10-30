@@ -8,6 +8,8 @@ val dfs :
   ('a -> 'b visit_type -> unit) ->
   'b list -> 'b hash_adj_t -> 'a -> 'b list option -> unit
 
+val nodes : ('a * 'a) list -> 'a list
+
 val mkadj : ('a * 'a) list -> 'a hash_adj_t
 
 val cycles :

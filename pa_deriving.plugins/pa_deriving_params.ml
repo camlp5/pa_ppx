@@ -25,9 +25,10 @@ value patt_as_patt loc s =
 
 value generate_param_parser_expression arg ty =
   let rec genrec = fun [
-    <:ctyp:< int >> ->
-      let p = expr_as_patt loc "$int:i$" in
-    <:expr< fun [ $p$ → int_of_string i
+      <:ctyp< $_$ == $t$ >> -> genrec t
+    | <:ctyp:< int >> ->
+        let p = expr_as_patt loc "$int:i$" in
+        <:expr< fun [ $p$ → int_of_string i
                 | e -> Ploc.raise (loc_of_expr e)
                             (Failure (Fmt.str "param should be integer: %a" Pp_MLast.pp_expr e))
                 ] >>

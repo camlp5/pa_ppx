@@ -181,6 +181,16 @@ value test_a16 ctxt = do {
 }
 ;
 
+type a18 = Stuff.a == [ A1 | A2 of string ] [@@deriving (params, eq);] ;
+value test_a18 ctxt =
+  assert_equal
+    ({foo| A1 |foo} |> parse_expr |> params_a18) 
+    A1
+; assert_equal
+    ({foo| A2 "foo" |foo} |> parse_expr |> params_a18) 
+    (A2 "foo")
+;
+
 module MigrateParams = struct
 
 module Dispatch1 = struct
@@ -813,6 +823,7 @@ value suite = "Test deriving(params)" >::: [
   ; "test_a14"              >:: test_a14
   ; "test_a15"              >:: test_a15
   ; "test_a16"              >:: test_a16
+  ; "test_a18"              >:: test_a18
   ; "MigrateParams.Dispatch1.test"    >:: MigrateParams.Dispatch1.test
   ; "MigrateParams.Migrate.test"    >:: MigrateParams.Migrate.test
   ; "Hashcons.test_external_funs_t"    >:: Hashcons.test_external_funs_t

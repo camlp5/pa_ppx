@@ -157,6 +157,30 @@ value test_a14 ctxt =
     { a = 1 ; c =  { e = True ; d = "boo" } }
 ;
 
+type a15 = [ A | B ] [@@deriving (params, eq);] ;
+value test_a15 ctxt = do {
+  assert_equal
+    ({foo| A |foo} |> parse_expr |> params_a15) A
+; assert_equal
+    ({foo| B |foo} |> parse_expr |> params_a15) B
+}
+;
+
+type a16 = [ C of int and bool | D of string and float ] [@@deriving (params, eq);] ;
+type a17 = { it : a16 } [@@deriving (params, eq);] ;
+value test_a16 ctxt = do {
+  assert_equal
+    ({foo| C 1 False |foo} |> parse_expr |> params_a16) 
+    (C 1 False)
+; assert_equal
+    ({foo| D "foo" 1.0 |foo} |> parse_expr |> params_a16)
+    (D "foo" 1.0)
+; assert_equal
+    ({foo| { it = D "foo" 1.0 } |foo} |> parse_expr |> params_a17)
+    { it = (D "foo" 1.0) }
+}
+;
+
 module MigrateParams = struct
 
 module Dispatch1 = struct
@@ -787,6 +811,8 @@ value suite = "Test deriving(params)" >::: [
   ; "test_a12"              >:: test_a12
   ; "test_a13"              >:: test_a13
   ; "test_a14"              >:: test_a14
+  ; "test_a15"              >:: test_a15
+  ; "test_a16"              >:: test_a16
   ; "MigrateParams.Dispatch1.test"    >:: MigrateParams.Dispatch1.test
   ; "MigrateParams.Migrate.test"    >:: MigrateParams.Migrate.test
   ; "Hashcons.test_external_funs_t"    >:: Hashcons.test_external_funs_t

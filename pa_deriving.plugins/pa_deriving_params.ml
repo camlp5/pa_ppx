@@ -31,6 +31,14 @@ value generate_param_parser_expression arg ty =
                 | e -> Ploc.raise (loc_of_expr e)
                             (Failure (Fmt.str "param should be integer: %a" Pp_MLast.pp_expr e))
                 ] >>
+
+  | <:ctyp:< float >> ->
+      let p = expr_as_patt loc "$flo:i$" in
+    <:expr< fun [ $p$ → float_of_string i
+                | e -> Ploc.raise (loc_of_expr e)
+                            (Failure (Fmt.str "param should be float: %a" Pp_MLast.pp_expr e))
+                ] >>
+
   | <:ctyp:< bool >> ->
       let true_patt = expr_as_patt loc "True" in
       let false_patt = expr_as_patt loc "False" in
@@ -203,6 +211,27 @@ value generate_param_parser_expression arg ty =
 
   | <:ctyp:< list $ty$ >> ->
     <:expr< Pa_ppx_base.Ppxutil.convert_down_list_expr $genrec ty$ >>
+
+  | <:ctyp:< [ $list:branches$ ] >> as z ->
+      let branches =
+        branches |> List.map (fun [
+            <:constructor< $uid:ci$ of $list:tl$ $algattrs:_$ >> ->
+            let vars_types = List.mapi (fun i ty -> (Printf.sprintf "v_%d" i, ty)) tl in
+            let varantis = List.map (fun (v, _) -> Printf.sprintf "$%s$" v) vars_types in
+            let conspatt = expr_as_patt loc (Printf.sprintf "%s %s" ci (String.concat " " varantis)) in
+            let l = List.map (fun (v, t) -> <:expr< $genrec t$ $lid:v$ >>) vars_types in
+            (conspatt, <:vala< None >>,
+             Expr.applist <:expr< $uid:ci$ >> l)
+          ]) in
+      let branches = branches @ [
+          (<:patt< e >>, <:vala< None >>,
+           <:expr< Ploc.raise (loc_of_expr e)
+                         (Failure Fmt.(str "param must be a constructor of type: %s\n@ param: %a"
+                                           $str:String.escaped (Pp_MLast.show_ctyp z)$ Pp_MLast.pp_expr e)) 
+           >>)
+        ] in
+      <:expr< fun [ $list:branches$ ] >>
+
 
   | <:ctyp:< ( $list:l$ ) >> as z ->
     let vars_types = List.mapi (fun i ty -> (Printf.sprintf "v_%d" i, ty)) l in

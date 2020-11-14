@@ -46,6 +46,17 @@ let show_ctyp _ = "<ctyp>"
 let pp_ctyp pps x = Fmt.(pf pps "<ctyp>")
 let show_expr _ = "<expr>"
 let pp_expr pps x = Fmt.(pf pps "<expr>")
+let show_patt _ = "<patt>"
+let pp_patt pps x = Fmt.(pf pps "<patt>")
 let pp_attribute pps x = Fmt.(pf pps "<attribute>")
 
 END
+
+let open Pp_debug.Pp_MLast in
+ref_show_longid := show_longid ;
+ref_show_longid_lident := show_longid_lident ;
+ref_show_ctyp := show_ctyp ;
+ref_show_expr := show_expr ;
+ref_show_patt := show_patt ;
+()
+;;

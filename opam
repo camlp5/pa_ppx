@@ -78,7 +78,7 @@ depexts: [
 available: [ os != "macos" ]
 build: [
   [make "get-generated"]
-  [make "sys"]
-  [make "test"] {with-test}
+  [make "DEBUG=-g" "sys"]
+  [make "DEBUG=-g" "test"] {with-test}
 ]
 install: [make "install"]

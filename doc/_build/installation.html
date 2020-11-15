@@ -1,8 +1,7 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
@@ -12,36 +11,29 @@
   
 
   
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
   
   
   
 
   
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
-      <script type="text/javascript">
-          var DOCUMENTATION_OPTIONS = {
-              URL_ROOT:'./',
-              VERSION:'',
-              LANGUAGE:'None',
-              COLLAPSE_INDEX:false,
-              FILE_SUFFIX:'.html',
-              HAS_SOURCE:  true,
-              SOURCELINK_SUFFIX: '.txt'
-          };
-      </script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Tutorial" href="tutorial.html" />
@@ -59,7 +51,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> Pa_ppx
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> Pa_ppx
           
 
           
@@ -82,6 +74,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -99,12 +92,14 @@
 <li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
 <li class="toctree-l1"><a class="reference internal" href="builtins.html">Built-in PPX Rewriters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="build-systems.html">Using <cite>pa_ppx</cite> with Common Build-Systems for OCaml</a></li>
+<li class="toctree-l1"><a class="reference internal" href="incompatibilities.html">Incompatibilities Between <cite>pa_ppx</cite> PPX Rewriters and the “standard” ones</a></li>
 <li class="toctree-l1"><a class="reference internal" href="faq.html">Frequently Asked Questions</a></li>
 </ul>
 
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -143,7 +138,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html">Docs</a> &raquo;</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
       <li>Installation</li>
     
@@ -171,13 +166,13 @@
 <div class="section" id="prerequisites">
 <h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h2>
 <ol class="arabic simple">
-<li>Ocaml</li>
+<li><p>Ocaml</p></li>
 </ol>
-<p>To install <code class="docutils literal"><span class="pre">pa_ppx</span></code> you’ll need Ocaml (version &gt;= 4.10.0) and Camlp5
+<p>To install <code class="docutils literal notranslate"><span class="pre">pa_ppx</span></code> you’ll need Ocaml (version &gt;= 4.10.0) and Camlp5
 (version 8.00).  You can install Ocaml in the usual way, typically via
-<code class="docutils literal"><span class="pre">opam</span></code>.</p>
+<code class="docutils literal notranslate"><span class="pre">opam</span></code>.</p>
 <ol class="arabic simple" start="2">
-<li>Camlp5</li>
+<li><p>Camlp5</p></li>
 </ol>
 <p>To install Camlp5, for now you’ll need to get <a class="reference external" href="https://github.com/camlp5/camlp5/tree/pre-8.00">a
 development version (pre-8.00)</a>.</p>
@@ -185,49 +180,50 @@ development version (pre-8.00)</a>.</p>
 point, you’ll be able to install it with opam.  For now, you need
 to build it in the usual way on the commandline
 (documented over at that camlp5 repo, but here’s a quick synopsis):</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>make clean &amp;&amp; ./configure -libdir `dirname $(ocamlc -where)` &amp;&amp; make -j32 all
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>make clean &amp;&amp; ./configure -libdir `dirname $(ocamlc -where)` &amp;&amp; make -j32 all
 make install
 </pre></div>
 </div>
 <ol class="arabic simple" start="3">
-<li><code class="docutils literal"><span class="pre">ocamlfind</span></code> and <code class="docutils literal"><span class="pre">not-ocamlfind</span></code></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ocamlfind</span></code> and <code class="docutils literal notranslate"><span class="pre">not-ocamlfind</span></code></p></li>
 </ol>
-<p><code class="docutils literal"><span class="pre">ocamlfind</span></code> is unavoidable, and I’ve written a little wrapper, <a class="reference external" href="https://github.com/chetmurthy/not-ocamlfind">not-ocamlfind</a> that provides some useful extra commands, which I’ll refer to throughout this documentation:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">opam</span> <span class="n">install</span> <span class="n">ocamlfind</span> <span class="ow">not</span><span class="o">-</span><span class="n">ocamlfind</span>
+<p><code class="docutils literal notranslate"><span class="pre">ocamlfind</span></code> is unavoidable, and I’ve written a little wrapper, <a class="reference external" href="https://github.com/chetmurthy/not-ocamlfind">not-ocamlfind</a> that provides some useful extra commands, which I’ll refer to throughout this documentation:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">opam</span> <span class="n">install</span> <span class="n">ocamlfind</span> <span class="ow">not</span><span class="o">-</span><span class="n">ocamlfind</span>
 </pre></div>
 </div>
 <ol class="arabic simple" start="4">
-<li>Various other ocaml packages:</li>
+<li><p>Various other ocaml packages:</p></li>
 </ol>
-<p><code class="docutils literal"><span class="pre">pa_ppx</span></code> has tests to verify that things work with both <code class="docutils literal"><span class="pre">pa_ppx</span></code>
+<p><code class="docutils literal notranslate"><span class="pre">pa_ppx</span></code> has tests to verify that things work with both <code class="docutils literal notranslate"><span class="pre">pa_ppx</span></code>
 and the standard PPX rewriters, so there are a ton of extra
 packages needed:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">opam</span> <span class="n">install</span> <span class="n">rresult</span> <span class="n">fmt</span> <span class="n">ounit2</span> <span class="n">pcre</span> <span class="n">core_kernel</span> <span class="n">ppx_deriving</span> \
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">opam</span> <span class="n">install</span> <span class="n">rresult</span> <span class="n">fmt</span> <span class="n">ounit2</span> <span class="n">pcre</span> <span class="n">core_kernel</span> <span class="n">ppx_deriving</span> \
      <span class="n">ppx_deriving_yojson</span> <span class="n">ppx_import</span> <span class="n">ppx_here</span> <span class="n">sexplib</span> <span class="n">bos</span> \
      <span class="n">expect_test_helpers</span> <span class="n">ppx_expect</span>
 </pre></div>
 </div>
 <ol class="arabic simple" start="5">
-<li>A few Perl packages</li>
+<li><p>A few Perl packages</p></li>
 </ol>
 <blockquote>
 <div><ul class="simple">
-<li><code class="docutils literal"><span class="pre">IPC::System::Simple</span></code></li>
-<li><code class="docutils literal"><span class="pre">String::ShellQuote</span></code></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">IPC::System::Simple</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">String::ShellQuote</span></code></p></li>
 </ul>
 <blockquote>
-<div>On Debian/Ubuntu systems, these can be installed with:</div></blockquote>
+<div><p>On Debian/Ubuntu systems, these can be installed with:</p>
+</div></blockquote>
 <p>apt-get install libstring-shellquote-perl libipc-system-simple-perl</p>
 </div></blockquote>
 </div>
 <div class="section" id="building-and-installing">
 <h2>Building and Installing<a class="headerlink" href="#building-and-installing" title="Permalink to this headline">¶</a></h2>
-<p>Once having installed camlp5, you can build and install <code class="docutils literal"><span class="pre">pa_ppx</span></code> via:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="o">&amp;&amp;</span> <span class="n">make</span> <span class="n">install</span>
+<p>Once having installed camlp5, you can build and install <code class="docutils literal notranslate"><span class="pre">pa_ppx</span></code> via:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="o">&amp;&amp;</span> <span class="n">make</span> <span class="n">install</span>
 </pre></div>
 </div>
 <p>and you can run (copious) tests (some of which fail – I’m working on that!):</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="o">-</span><span class="n">k</span> <span class="n">test</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="o">-</span><span class="n">k</span> <span class="n">test</span>
 </pre></div>
 </div>
 </div>
@@ -253,11 +249,19 @@ packages needed:</p>
 
   <div role="contentinfo">
     <p>
+        
         &copy; Copyright 2020, Chet Murthy. All rights reserved.
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -268,7 +272,6 @@ packages needed:</p>
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {

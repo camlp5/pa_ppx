@@ -14,9 +14,9 @@ PRESYSDIRS= util-lib testutils runtime runtime_fat base pa_unmatched_vala \
 	pa_deriving pa_deriving.plugins pa_import
 
 SYSDIRS= $(PRESYSDIRS) \
-	protobuf_runtime params_runtime
+	params_runtime
 
-TESTDIRS= tests-ounit2 our-tests-inline tests-deriving-protobuf
+TESTDIRS= tests-ounit2 our-tests-inline
 
 EXTRATESTDIRS = tests-inline tests-expect
 

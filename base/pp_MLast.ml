@@ -2588,3 +2588,8 @@ and show_attributes : attributes → Stdlib.String.t =
   fun arg → Format.asprintf "%a" pp_attributes arg[@@"ocaml.warning" "-39";] [@@"ocaml.warning" "-33";]
 ;
 [@@@"end"];
+Pp_debug.Pp_MLast.ref_show_longid.val := show_longid;
+Pp_debug.Pp_MLast.ref_show_longid_lident.val := show_longid_lident;
+Pp_debug.Pp_MLast.ref_show_ctyp.val := show_ctyp;
+Pp_debug.Pp_MLast.ref_show_expr.val := show_expr;
+Pp_debug.Pp_MLast.ref_show_patt.val := show_patt;

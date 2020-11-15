@@ -18,7 +18,6 @@ quickly, ``pa_ppx`` provides implementations of
 6. ``ppx_expect_test``: ``pa_ppx.expect_test``
 7. ``ppx_assert``: ``pa_ppx.assert``
 8. ``ppx_here``: ``pa_ppx.here``
-9. ``ppx_deriving_protobuf``: ``pa_ppx.deriving_plugins.protobuf``
 
 and a few other experimental PPX rewriters.  For many of the
 re-implementations, there are extensions beyond what the original

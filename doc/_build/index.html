@@ -1,8 +1,7 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
@@ -12,36 +11,29 @@
   
 
   
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
   
   
   
 
   
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
-      <script type="text/javascript">
-          var DOCUMENTATION_OPTIONS = {
-              URL_ROOT:'./',
-              VERSION:'',
-              LANGUAGE:'None',
-              COLLAPSE_INDEX:false,
-              FILE_SUFFIX:'.html',
-              HAS_SOURCE:  true,
-              SOURCELINK_SUFFIX: '.txt'
-          };
-      </script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Introduction" href="intro.html" /> 
@@ -58,7 +50,7 @@
           
 
           
-            <a href="#" class="icon icon-home"> Pa_ppx
+            <a href="#" class="icon icon-home" alt="Documentation Home"> Pa_ppx
           
 
           
@@ -81,6 +73,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -101,6 +94,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -139,7 +133,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="#">Docs</a> &raquo;</li>
+      <li><a href="#" class="icon icon-home"></a> &raquo;</li>
         
       <li>Pa_ppx Documentation</li>
     
@@ -166,18 +160,17 @@
 <h1>Pa_ppx Documentation<a class="headerlink" href="#pa-ppx-documentation" title="Permalink to this headline">¶</a></h1>
 <p>This is the documentation for the <a class="reference external" href="https://github.com/chetmurthy/pa_ppx">pa_ppx</a> project, a re-implementation
 of many “standard” PPX rewriters, but using <a class="reference external" href="https://github.com/camlp5/camlp5">Camlp5</a> infrastructure.</p>
-<p>You can learn more about <code class="docutils literal"><span class="pre">pa_ppx</span></code> at <a class="reference internal" href="intro.html#introduction"><span class="std std-ref">Introduction</span></a> but
-quickly, <code class="docutils literal"><span class="pre">pa_ppx</span></code> provides implementations of</p>
+<p>You can learn more about <code class="docutils literal notranslate"><span class="pre">pa_ppx</span></code> at <a class="reference internal" href="intro.html#introduction"><span class="std std-ref">Introduction</span></a> but
+quickly, <code class="docutils literal notranslate"><span class="pre">pa_ppx</span></code> provides implementations of</p>
 <ol class="arabic simple">
-<li>all of <code class="docutils literal"><span class="pre">ppx_deriving</span></code>: <code class="docutils literal"><span class="pre">pa_ppx.deriving_plugins.{enum,eq,fold,iter,make,map,ord,show}</span></code></li>
-<li><code class="docutils literal"><span class="pre">ppx_import</span></code>: <code class="docutils literal"><span class="pre">pa_ppx.import</span></code></li>
-<li><code class="docutils literal"><span class="pre">ppx_deriving_yojson</span></code>: <code class="docutils literal"><span class="pre">pa_ppx.deriving_plugins.yojson</span></code></li>
-<li><code class="docutils literal"><span class="pre">ppx_sexp_conv</span></code>: <code class="docutils literal"><span class="pre">pa_ppx.deriving_plugins.sexp</span></code></li>
-<li><code class="docutils literal"><span class="pre">ppx_inline_test</span></code>: <code class="docutils literal"><span class="pre">pa_ppx.inline_test</span></code></li>
-<li><code class="docutils literal"><span class="pre">ppx_expect_test</span></code>: <code class="docutils literal"><span class="pre">pa_ppx.expect_test</span></code></li>
-<li><code class="docutils literal"><span class="pre">ppx_assert</span></code>: <code class="docutils literal"><span class="pre">pa_ppx.assert</span></code></li>
-<li><code class="docutils literal"><span class="pre">ppx_here</span></code>: <code class="docutils literal"><span class="pre">pa_ppx.here</span></code></li>
-<li><code class="docutils literal"><span class="pre">ppx_deriving_protobuf</span></code>: <code class="docutils literal"><span class="pre">pa_ppx.deriving_plugins.protobuf</span></code></li>
+<li><p>all of <code class="docutils literal notranslate"><span class="pre">ppx_deriving</span></code>: <code class="docutils literal notranslate"><span class="pre">pa_ppx.deriving_plugins.{enum,eq,fold,iter,make,map,ord,show}</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ppx_import</span></code>: <code class="docutils literal notranslate"><span class="pre">pa_ppx.import</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ppx_deriving_yojson</span></code>: <code class="docutils literal notranslate"><span class="pre">pa_ppx.deriving_plugins.yojson</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ppx_sexp_conv</span></code>: <code class="docutils literal notranslate"><span class="pre">pa_ppx.deriving_plugins.sexp</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ppx_inline_test</span></code>: <code class="docutils literal notranslate"><span class="pre">pa_ppx.inline_test</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ppx_expect_test</span></code>: <code class="docutils literal notranslate"><span class="pre">pa_ppx.expect_test</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ppx_assert</span></code>: <code class="docutils literal notranslate"><span class="pre">pa_ppx.assert</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ppx_here</span></code>: <code class="docutils literal notranslate"><span class="pre">pa_ppx.here</span></code></p></li>
 </ol>
 <p>and a few other experimental PPX rewriters.  For many of the
 re-implementations, there are extensions beyond what the original
@@ -186,7 +179,7 @@ extensible variants and exceptions, better type-import suppor).  All
 of this is built on an infrastructure for writing PPX rewriters, based
 on Camlp5.</p>
 <div class="section" id="rationale-for-pa-ppx">
-<h2>Rationale for <code class="docutils literal"><span class="pre">pa_ppx</span></code><a class="headerlink" href="#rationale-for-pa-ppx" title="Permalink to this headline">¶</a></h2>
+<h2>Rationale for <code class="docutils literal notranslate"><span class="pre">pa_ppx</span></code><a class="headerlink" href="#rationale-for-pa-ppx" title="Permalink to this headline">¶</a></h2>
 <p>One can think of this project as an experiment to prove the following
 thesis:</p>
 <blockquote>
@@ -222,7 +215,7 @@ that this approach produces more <em>usable</em> rewriters.</p>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="tutorial.html#organization-of-findlib-packages">Organization of Findlib Packages</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial.html#using-pa-ppx-ppx-rewriters">Using <code class="docutils literal"><span class="pre">pa_ppx</span></code> PPX Rewriters</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#using-pa-ppx-ppx-rewriters">Using <code class="docutils literal notranslate"><span class="pre">pa_ppx</span></code> PPX Rewriters</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="tutorial.html#batch-compilation-with-make">Batch compilation with Make</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tutorial.html#batch-compilation-with-dune">Batch compilation with Dune</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tutorial.html#in-the-toplevel">In the toplevel</a></li>
@@ -231,17 +224,17 @@ that this approach produces more <em>usable</em> rewriters.</p>
 <li class="toctree-l2"><a class="reference internal" href="tutorial.html#writing-new-ppx-rewriters-upon-pa-ppx">Writing new PPX Rewriters upon Pa_ppx</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial.html#an-example-ppx-rewriter-based-on-pa-ppx">An Example PPX Rewriter based on Pa_ppx</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial.html#troubleshooting-ppx-rewriter-invocations">Troubleshooting PPX Rewriter Invocations</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="tutorial.html#debugging-using-not-ocamlfind-preprocess">Debugging using <code class="docutils literal"><span class="pre">not-ocamlfind</span> <span class="pre">preprocess</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial.html#debugging-using-not-ocamlfind-preprocess">Debugging using <code class="docutils literal notranslate"><span class="pre">not-ocamlfind</span> <span class="pre">preprocess</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="tutorial.html#debugging-using-the-ocaml-toplevel">Debugging using the ocaml toplevel</a></li>
 </ul>
 </li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="builtins.html">Built-in PPX Rewriters</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="builtins.html#type-decl-related-rewriters-deriving-and-import">Type-Decl-Related Rewriters (<code class="docutils literal"><span class="pre">deriving</span></code> and <code class="docutils literal"><span class="pre">import</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="builtins.html#type-decl-related-rewriters-deriving-and-import">Type-Decl-Related Rewriters (<code class="docutils literal notranslate"><span class="pre">deriving</span></code> and <code class="docutils literal notranslate"><span class="pre">import</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="builtins.html#test-related-rewriters">Test-Related Rewriters</a></li>
 <li class="toctree-l2"><a class="reference internal" href="builtins.html#miscellaneous-standard-rewriters">Miscellaneous Standard Rewriters</a></li>
-<li class="toctree-l2"><a class="reference internal" href="builtins.html#useful-pa-ppx-only-rewriters">Useful <code class="docutils literal"><span class="pre">Pa_ppx</span></code>-only Rewriters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="builtins.html#useful-pa-ppx-only-rewriters">Useful <code class="docutils literal notranslate"><span class="pre">Pa_ppx</span></code>-only Rewriters</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="build-systems.html">Using <cite>pa_ppx</cite> with Common Build-Systems for OCaml</a></li>
@@ -253,8 +246,8 @@ that this approach produces more <em>usable</em> rewriters.</p>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="faq.html">Frequently Asked Questions</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="faq.html#why-isn-t-this-project-compatible-with-ppxlib-and-other-standard-ppx-rewriter-infrastructure">Why isn’t this project compatible with <code class="docutils literal"><span class="pre">ppxlib</span></code> and other standard PPX rewriter infrastructure?</a></li>
-<li class="toctree-l2"><a class="reference internal" href="faq.html#why-do-the-packages-for-pa-ppx-have-different-names-than-the-equivalents-from-jane-street-et-al">Why do the packages for <code class="docutils literal"><span class="pre">pa_ppx</span></code> have different names than the equivalents from Jane Street et. al. ?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="faq.html#why-isn-t-this-project-compatible-with-ppxlib-and-other-standard-ppx-rewriter-infrastructure">Why isn’t this project compatible with <code class="docutils literal notranslate"><span class="pre">ppxlib</span></code> and other standard PPX rewriter infrastructure?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="faq.html#why-do-the-packages-for-pa-ppx-have-different-names-than-the-equivalents-from-jane-street-et-al">Why do the packages for <code class="docutils literal notranslate"><span class="pre">pa_ppx</span></code> have different names than the equivalents from Jane Street et. al. ?</a></li>
 </ul>
 </li>
 </ul>
@@ -280,11 +273,19 @@ that this approach produces more <em>usable</em> rewriters.</p>
 
   <div role="contentinfo">
     <p>
+        
         &copy; Copyright 2020, Chet Murthy. All rights reserved.
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -295,7 +296,6 @@ that this approach produces more <em>usable</em> rewriters.</p>
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {

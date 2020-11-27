@@ -814,6 +814,19 @@ value test ctxt =
 ;
 end
 ;
+value expr_to_lident_pair = fun [
+  <:expr< $lid:l$ . $lid:r$ >> -> (l, r)
+| e -> Ploc.raise (MLast.loc_of_expr e)
+    (Failure Fmt.(str "expr_to_lident_pair: not a lident pair:@ %a"
+                    Pp_MLast.pp_expr e))
+]
+;
+type a19t1 = (lident * lident) [@convert  ( [%typ: expr], expr_to_lident_pair );]
+[@@deriving params;]
+;
+type a19t2 = { f1 : list a19t1 ; f2 : string }
+[@@deriving params;]
+;
 
 value suite = "Test deriving(params)" >::: [
     "test_simple"           >:: test_simple

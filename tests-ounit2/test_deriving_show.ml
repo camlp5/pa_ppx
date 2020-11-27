@@ -7,7 +7,7 @@ open OUnit2
 
 let printer = fun x -> x
 
-type a1 = int        [@@deriving show, arglebargle { optional = true }]
+type a1 = int        [@@deriving show]
 type a2 = int32      [@@deriving show]
 type a3 = int64      [@@deriving show]
 type a4 = nativeint  [@@deriving show]

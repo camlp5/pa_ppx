@@ -46,6 +46,8 @@ CMX := $(CMO:.cmo=.cmx)
 
 TESTS= \
 	test_utils.byte \
+	test_ppx_deriving.byte \
+	test_ppx_deriving.ppx.byte \
 	test_deriving_show.byte \
 	test_deriving_show.ppx.byte \
 	test_deriving_eq.byte \

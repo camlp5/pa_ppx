@@ -213,6 +213,9 @@ value generate_param_parser_expression arg ty =
   | <:ctyp:< list $ty$ >> ->
     <:expr< Pa_ppx_base.Ppxutil.convert_down_list_expr $genrec ty$ >>
 
+  | <:ctyp:< ne_list $ty$ >> ->
+    <:expr< Pa_ppx_params.Runtime.convert_down_ne_list_expr $genrec ty$ >>
+
   | <:ctyp:< [ $list:branches$ ] >> as z ->
       let branches =
         branches |> List.map (fun [

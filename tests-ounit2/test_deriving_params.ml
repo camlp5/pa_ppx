@@ -827,6 +827,30 @@ type a19t1 = (lident * lident) [@convert  ( [%typ: expr], expr_to_lident_pair );
 type a19t2 = { f1 : list a19t1 ; f2 : string }
 [@@deriving params;]
 ;
+value test_a19 ctxt = do {
+  assert_equal
+    ({foo| { f1= [a.b; c.d] ; f2 = "bar" } |foo} |> parse_expr |> params_a19t2) 
+    {f1=[("a","b"); ("c","d")]; f2="bar"}
+}
+;
+type a20 = { f1 : ne_list ((lident * lident) [@convert  ( [%typ: expr], expr_to_lident_pair );]) }
+[@@deriving params;]
+;
+value test_a20 ctxt = do {
+  assert_equal
+    ({foo| { f1= [a.b; c.d] } |foo} |> parse_expr |> params_a20) 
+    { f1=[("a","b"); ("c","d")] }
+; assert_equal
+    ({foo| { f1= (a.b,  c.d) } |foo} |> parse_expr |> params_a20) 
+    { f1=[("a","b"); ("c","d")] }
+; assert_equal
+    ({foo| { f1= a.b } |foo} |> parse_expr |> params_a20) 
+    { f1=[("a","b")] }
+; assert_raises_exn_pattern "not a lident pair"
+    (fun () ->
+       ignore ({foo| { f1= [] } |foo} |> parse_expr |> params_a20)) 
+}
+;
 
 value suite = "Test deriving(params)" >::: [
     "test_simple"           >:: test_simple
@@ -843,6 +867,8 @@ value suite = "Test deriving(params)" >::: [
   ; "Hashcons.test_pertype_customization_t"    >:: Hashcons.test_pertype_customization_t
   ; "Hashcons.test"    >:: Hashcons.test
   ; "QAST.test"    >:: QAST.test
+  ; "test_a19"              >:: test_a19
+  ; "test_a20"              >:: test_a20
   ]
 ;
 

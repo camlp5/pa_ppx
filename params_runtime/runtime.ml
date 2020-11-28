@@ -20,6 +20,7 @@ type lident = string ;
 value equal_lident x y = x = y ;
 type uident = string ;
 value equal_uident x y = x = y ;
+type ne_list 'a = list 'a [@@deriving eq;] ;
 type alist 'a 'b = list ('a * 'b) [@@deriving eq;] ;
 value equal_ctyp = Reloc.eq_ctyp ;
 value equal_expr = Reloc.eq_expr ;
@@ -59,3 +60,11 @@ value remove ?{cmp=cmpequal} x l =
 ;
 end
 ;
+
+value convert_down_ne_list_expr conv1 = fun [
+  <:expr< [$_$ :: $_$] >> as e -> Pa_ppx_base.Ppxutil.convert_down_list_expr conv1 e
+| <:expr< ( $list:l$ ) >> when l <> [] -> List.map conv1 l
+| e -> [conv1 e]
+]
+;
+  

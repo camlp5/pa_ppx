@@ -305,3 +305,34 @@ value vala_map f =
     [ Ploc.VaAnt s -> Ploc.VaAnt s
     | Ploc.VaVal x -> Ploc.VaVal (f x) ]
 ;
+
+module AList = struct
+
+value cmpequal a b = a=b ;
+
+value assoc ?{cmp=cmpequal} x l =
+  let rec arec x = fun [
+    [] -> raise Not_found
+  | [ (a,b)::l ] -> if cmp a x then b else arec x l
+  ] in
+  arec x l
+;
+
+value mem ?{cmp=cmpequal} x l = 
+  let rec mrec x = fun [
+    [] -> False
+  | [ (a, _) :: l ] -> cmp a x || mrec x l
+  ] in
+  mrec x l
+;
+
+value remove ?{cmp=cmpequal} x l =
+  let rec rrec x = fun [
+    [] -> []
+  | [ ((a, _) as pair) :: l ] ->
+      if cmp a x then l else [ pair :: rrec x l ]
+  ] in
+  rrec x l
+;
+end
+;

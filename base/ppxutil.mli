@@ -61,3 +61,10 @@ value quote_position : MLast.loc → Lexing.position → MLast.expr;
 value loc_of_type_decl : MLast.type_decl → MLast.loc;
 value option_map : ('a -> 'b) -> option 'a -> option 'b;
 value vala_map : ('a -> 'b) -> Ploc.vala 'a -> Ploc.vala 'b;
+
+module AList : sig
+  value assoc : ?cmp:('a -> 'a -> bool) -> 'a -> list ('a * 'b) -> 'b ;
+  value mem : ?cmp:('a -> 'a -> bool) -> 'a -> list ('a * 'b) -> bool ;
+  value remove : ?cmp:('a -> 'a -> bool) -> 'a -> list ('a * 'b) -> list ('a * 'b) ;
+end
+;

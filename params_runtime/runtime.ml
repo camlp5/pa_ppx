@@ -30,37 +30,6 @@ value equal_longid = Reloc.eq_longid ;
 type case_branch = (patt * Ploc.vala (option expr) * expr) [@@deriving eq;] ;
 type longid_lident = (option (Ploc.vala longid) * Ploc.vala string) [@@deriving eq;] ;
 
-module AList = struct
-
-value cmpequal a b = a=b ;
-
-value assoc ?{cmp=cmpequal} x l =
-  let rec arec x = fun [
-    [] -> raise Not_found
-  | [ (a,b)::l ] -> if cmp a x then b else arec x l
-  ] in
-  arec x l
-;
-
-value mem ?{cmp=cmpequal} x l = 
-  let rec mrec x = fun [
-    [] -> False
-  | [ (a, _) :: l ] -> cmp a x || mrec x l
-  ] in
-  mrec x l
-;
-
-value remove ?{cmp=cmpequal} x l =
-  let rec rrec x = fun [
-    [] -> []
-  | [ ((a, _) as pair) :: l ] ->
-      if cmp a x then l else [ pair :: rrec x l ]
-  ] in
-  rrec x l
-;
-end
-;
-
 value convert_down_ne_list_expr conv1 = fun [
   <:expr< [$_$ :: $_$] >> as e -> Pa_ppx_base.Ppxutil.convert_down_list_expr conv1 e
 | <:expr< ( $list:l$ ) >> when l <> [] -> List.map conv1 l

@@ -21,7 +21,7 @@ value pp_loc : Fmt.t loc;
 value show_loc : loc → Stdlib.String.t;
 [@@@"end"];
 type type_var =
-  (Ploc.vala (option string) * option bool)[@@"deriving_inline" show;]
+  (Ploc.vala (option string) * (option bool * bool))[@@"deriving_inline" show;]
 ;
 value pp_type_var : Fmt.t type_var;
 value show_type_var : type_var → Stdlib.String.t;

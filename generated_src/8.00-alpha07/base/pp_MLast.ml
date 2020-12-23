@@ -60,7 +60,7 @@ and show_loc : loc → Stdlib.String.t =
 ;
 [@@@"end"];
 type type_var =
-  (Ploc.vala (option string) * option bool)[@@"deriving_inline" show;]
+  (Ploc.vala (option string) * (option bool * bool))[@@"deriving_inline" show;]
 ;
 value rec pp_type_var : Fmt.t type_var =
   fun (ofmt : Format.formatter) arg →
@@ -81,14 +81,18 @@ value rec pp_type_var : Fmt.t type_var =
                         pf ofmt "%S" arg)
                      arg ]))
          v0
-         (fun ofmt →
-            fun
-            [ None →
-                let open Pa_ppx_runtime.Runtime.Fmt in
-                const string "None" ofmt ()
-            | Some arg →
-                let open Pa_ppx_runtime.Runtime.Fmt in
-                pf ofmt "(Some %a)" Fmt.bool arg ])
+         (fun (ofmt : Format.formatter) (v0, v1) →
+            let open Pa_ppx_runtime.Runtime.Fmt in
+            pf ofmt "(@[%a,@ %a@])"
+              (fun ofmt →
+                 fun
+                 [ None →
+                     let open Pa_ppx_runtime.Runtime.Fmt in
+                     const string "None" ofmt ()
+                 | Some arg →
+                     let open Pa_ppx_runtime.Runtime.Fmt in
+                     pf ofmt "(Some %a)" Fmt.bool arg ])
+              v0 Fmt.bool v1)
          v1)
       ofmt arg[@@"ocaml.warning" "-39";] [@@"ocaml.warning" "-33";]
 and show_type_var : type_var → Stdlib.String.t =
@@ -2588,11 +2592,6 @@ and show_attributes : attributes → Stdlib.String.t =
   fun arg → Format.asprintf "%a" pp_attributes arg[@@"ocaml.warning" "-39";] [@@"ocaml.warning" "-33";]
 ;
 [@@@"end"];
-Pp_debug.Pp_MLast.ref_show_longid.val := show_longid;
-Pp_debug.Pp_MLast.ref_show_longid_lident.val := show_longid_lident;
-Pp_debug.Pp_MLast.ref_show_ctyp.val := show_ctyp;
-Pp_debug.Pp_MLast.ref_show_expr.val := show_expr;
-Pp_debug.Pp_MLast.ref_show_patt.val := show_patt;
 Pp_debug.Pp_MLast.ref_show_longid.val := show_longid;
 Pp_debug.Pp_MLast.ref_show_longid_lident.val := show_longid_lident;
 Pp_debug.Pp_MLast.ref_show_ctyp.val := show_ctyp;

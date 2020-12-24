@@ -32,3 +32,5 @@ end
 
 type w1 = A of w2 option
 and w2 = B of w1 * i
+
+type zz = int * (int * bool)

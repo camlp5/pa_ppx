@@ -49,6 +49,11 @@ end
 
 end
 
+[%%import: Stuff.zz
+  [@with [%typ: int * bool] := [%typ: bool * int]]
+]
+let f_zz (x : Stuff.zz) = match x with (a,(b,c)) -> ((a,(c,b)) : zz)
+
 let test_simplest ctxt =
   ()
 

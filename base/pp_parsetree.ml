@@ -294,7 +294,7 @@ module Asttypes =
     ;
     [@@@"end"];
     type variance =
-      Asttypes.variance == [ Covariant | Contravariant | Invariant ][@@"deriving_inline" show;]
+      Asttypes.variance == [ Covariant | Contravariant | NoVariance ][@@"deriving_inline" show;]
     ;
     value rec pp_variance : Fmt.t variance =
       fun (ofmt : Format.formatter) arg →
@@ -306,12 +306,30 @@ module Asttypes =
            | Contravariant →
                let open Pa_ppx_runtime.Runtime.Fmt in
                pf ofmt "@[<2>Asttypes.Contravariant@]"
-           | Invariant →
+           | NoVariance →
                let open Pa_ppx_runtime.Runtime.Fmt in
-               pf ofmt "@[<2>Asttypes.Invariant@]" ])
+               pf ofmt "@[<2>Asttypes.NoVariance@]" ])
           ofmt arg[@@"ocaml.warning" "-39";] [@@"ocaml.warning" "-33";]
     and show_variance : variance → Stdlib.String.t =
       fun arg → Format.asprintf "%a" pp_variance arg[@@"ocaml.warning" "-39";] [@@"ocaml.warning" "-33";]
+    ;
+    [@@@"end"];
+    type injectivity =
+      Asttypes.injectivity == [ Injective | NoInjectivity ][@@"deriving_inline" show;]
+    ;
+    value rec pp_injectivity : Fmt.t injectivity =
+      fun (ofmt : Format.formatter) arg →
+        (fun ofmt →
+           fun
+           [ Injective →
+               let open Pa_ppx_runtime.Runtime.Fmt in
+               pf ofmt "@[<2>Asttypes.Injective@]"
+           | NoInjectivity →
+               let open Pa_ppx_runtime.Runtime.Fmt in
+               pf ofmt "@[<2>Asttypes.NoInjectivity@]" ])
+          ofmt arg[@@"ocaml.warning" "-39";] [@@"ocaml.warning" "-33";]
+    and show_injectivity : injectivity → Stdlib.String.t =
+      fun arg → Format.asprintf "%a" pp_injectivity arg[@@"ocaml.warning" "-39";] [@@"ocaml.warning" "-33";]
     ;
     [@@@"end"];
   end
@@ -320,7 +338,7 @@ type constant =
   Parsetree.constant ==
     [ Pconst_integer of string and option char
     | Pconst_char of char
-    | Pconst_string of string and option string
+    | Pconst_string of string and Location.t and option string
     | Pconst_float of string and option char ][@@"deriving_inline" show;]
 ;
 value rec pp_constant : Fmt.t constant =
@@ -352,12 +370,12 @@ value rec pp_constant : Fmt.t constant =
              (fun ofmt arg →
                 let open Pa_ppx_runtime.Runtime.Fmt in pf ofmt "%C" arg)
              v0
-       | Pconst_string v0 v1 →
+       | Pconst_string v0 v1 v2 →
            let open Pa_ppx_runtime.Runtime.Fmt in
-           pf ofmt "(@[<2>Parsetree.Pconst_string@ (@,%a,@ %a@,))@]"
+           pf ofmt "(@[<2>Parsetree.Pconst_string@ (@,%a,@ %a,@ %a@,))@]"
              (fun ofmt arg →
                 let open Pa_ppx_runtime.Runtime.Fmt in pf ofmt "%S" arg)
-             v0
+             v0 Location.pp v1
              (fun ofmt →
                 fun
                 [ None →
@@ -370,7 +388,7 @@ value rec pp_constant : Fmt.t constant =
                          let open Pa_ppx_runtime.Runtime.Fmt in
                          pf ofmt "%S" arg)
                       arg ])
-             v1
+             v2
        | Pconst_float v0 v1 →
            let open Pa_ppx_runtime.Runtime.Fmt in
            pf ofmt "(@[<2>Parsetree.Pconst_float@ (@,%a,@ %a@,))@]"
@@ -560,7 +578,8 @@ and value_description =
 and type_declaration =
   Parsetree.type_declaration ==
     { ptype_name : Asttypes.loc string;
-      ptype_params : list (core_type * Asttypes.variance);
+      ptype_params :
+        list (core_type * (Asttypes.variance * Asttypes.injectivity));
       ptype_cstrs : list (core_type * core_type * Location.t);
       ptype_kind : type_kind;
       ptype_private : Asttypes.private_flag;
@@ -594,7 +613,8 @@ and constructor_arguments =
 and type_extension =
   Parsetree.type_extension ==
     { ptyext_path : Asttypes.loc Longident.t;
-      ptyext_params : list (core_type * Asttypes.variance);
+      ptyext_params :
+        list (core_type * (Asttypes.variance * Asttypes.injectivity));
       ptyext_constructors : list extension_constructor;
       ptyext_private : Asttypes.private_flag;
       ptyext_loc : Location.t;
@@ -649,7 +669,8 @@ and class_type_field_desc =
 and class_infos α =
   Parsetree.class_infos α ==
     { pci_virt : Asttypes.virtual_flag;
-      pci_params : list (core_type * Asttypes.variance);
+      pci_params :
+        list (core_type * (Asttypes.variance * Asttypes.injectivity));
       pci_name : Asttypes.loc string;
       pci_expr : α;
       pci_loc : Location.t;
@@ -1616,7 +1637,11 @@ and pp_type_declaration : Fmt.t type_declaration =
                  (fun (ofmt : Format.formatter) (v0, v1) →
                     let open Pa_ppx_runtime.Runtime.Fmt in
                     pf ofmt "(@[%a,@ %a@])" pp_core_type v0
-                      Asttypes.pp_variance v1))
+                      (fun (ofmt : Format.formatter) (v0, v1) →
+                         let open Pa_ppx_runtime.Runtime.Fmt in
+                         pf ofmt "(@[%a,@ %a@])" Asttypes.pp_variance v0
+                           Asttypes.pp_injectivity v1)
+                      v1))
               arg)
          v_ptype_params
          (fun (ofmt : Format.formatter) arg →
@@ -1756,7 +1781,11 @@ and pp_type_extension : Fmt.t type_extension =
                  (fun (ofmt : Format.formatter) (v0, v1) →
                     let open Pa_ppx_runtime.Runtime.Fmt in
                     pf ofmt "(@[%a,@ %a@])" pp_core_type v0
-                      Asttypes.pp_variance v1))
+                      (fun (ofmt : Format.formatter) (v0, v1) →
+                         let open Pa_ppx_runtime.Runtime.Fmt in
+                         pf ofmt "(@[%a,@ %a@])" Asttypes.pp_variance v0
+                           Asttypes.pp_injectivity v1)
+                      v1))
               arg)
          v_ptyext_params
          (fun (ofmt : Format.formatter) arg →
@@ -1960,7 +1989,11 @@ and pp_class_infos : ! α . Fmt.t α → Fmt.t (class_infos α) =
                  (fun (ofmt : Format.formatter) (v0, v1) →
                     let open Pa_ppx_runtime.Runtime.Fmt in
                     pf ofmt "(@[%a,@ %a@])" pp_core_type v0
-                      Asttypes.pp_variance v1))
+                      (fun (ofmt : Format.formatter) (v0, v1) →
+                         let open Pa_ppx_runtime.Runtime.Fmt in
+                         pf ofmt "(@[%a,@ %a@])" Asttypes.pp_variance v0
+                           Asttypes.pp_injectivity v1)
+                      v1))
               arg)
          v_pci_params
          (Asttypes.pp_loc

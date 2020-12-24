@@ -50,7 +50,7 @@ module To = struct
 
 type attrmod_t = [ Nobuiltin ] ;
 
-module PM = ParamMap(struct value arg_ctyp_f loc pty = <:ctyp< $pty$ -> Sexplib.Sexp.t >> ; end) ;
+module PM = ParamMap(struct value arg_ctyp_f loc pty = <:ctyp< $pty$ -> Sexplib0.Sexp.t >> ; end) ;
 
 value to_sexp_fname arg tyname =
   (*if tyname = "t" then "sexp_of"
@@ -273,9 +273,9 @@ value sig_item_top_funs arg td =
   let tyname = uv tyname in
   let to_sexpfname = to_sexp_fname arg tyname in
   let paramtys = List.map (fun p -> <:ctyp< ' $PM.type_id p$ >>) param_map in
-  let argfmttys = List.map (fun pty -> <:ctyp< $pty$ -> Sexplib.Sexp.t >>) paramtys in  
+  let argfmttys = List.map (fun pty -> <:ctyp< $pty$ -> Sexplib0.Sexp.t >>) paramtys in  
   let ty = <:ctyp< $lid:tyname$ >> in
-  let toftype = Ctyp.arrows_list loc argfmttys <:ctyp< $(Ctyp.applist ty paramtys)$ -> Sexplib.Sexp.t >> in
+  let toftype = Ctyp.arrows_list loc argfmttys <:ctyp< $(Ctyp.applist ty paramtys)$ -> Sexplib0.Sexp.t >> in
   [(to_sexpfname, toftype)]
 ;
 
@@ -380,7 +380,7 @@ module Of = struct
 
 type attrmod_t = [ Nobuiltin ] ;
 
-module PM = ParamMap(struct value arg_ctyp_f loc pty = <:ctyp< Sexplib.Sexp.t -> $pty$ >> ; end) ;
+module PM = ParamMap(struct value arg_ctyp_f loc pty = <:ctyp< Sexplib0.Sexp.t -> $pty$ >> ; end) ;
 
 value of_sexp_fname arg tyname =
   (*if tyname = "t" then "of_sexp"
@@ -644,9 +644,9 @@ value sig_item_top_funs arg td =
   let tyname = uv tyname in
   let of_sexpfname = of_sexp_fname arg tyname in
   let paramtys = List.map (fun p -> <:ctyp< ' $PM.type_id p$ >>) param_map in
-  let argfmttys = List.map (fun pty -> <:ctyp< Sexplib.Sexp.t -> $pty$ >>) paramtys in  
+  let argfmttys = List.map (fun pty -> <:ctyp< Sexplib0.Sexp.t -> $pty$ >>) paramtys in  
   let ty = <:ctyp< $lid:tyname$ >> in
-  let offtype = Ctyp.arrows_list loc argfmttys <:ctyp< Sexplib.Sexp.t -> $(Ctyp.applist ty paramtys)$ >> in
+  let offtype = Ctyp.arrows_list loc argfmttys <:ctyp< Sexplib0.Sexp.t -> $(Ctyp.applist ty paramtys)$ >> in
   let e = (of_sexpfname, offtype) in
   [e]
 ;
@@ -876,12 +876,12 @@ value ctyp_sexp arg = fun [
   <:ctyp:< [% $attrid:(_, id)$: $type:ty$ ] >> when id = "sexp_of" || id = "derive.sexp_of" ->
     let param_map = ty |> type_params |> To.PM.make_of_ids in
     let argfmttys = List.map (To.PM.arg_ctyp loc) param_map in  
-    Ctyp.arrows_list loc argfmttys <:ctyp< $ty$ -> Sexplib.Sexp.t >>
+    Ctyp.arrows_list loc argfmttys <:ctyp< $ty$ -> Sexplib0.Sexp.t >>
 
 | <:ctyp:< [% $attrid:(_, id)$: $type:ty$ ] >> when id = "of_sexp" || id = "derive.of_sexp" ->
     let param_map = ty |> type_params |> Of.PM.make_of_ids in
     let argfmttys = List.map (Of.PM.arg_ctyp loc) param_map in  
-    Ctyp.arrows_list loc argfmttys <:ctyp< Sexplib.Sexp.t -> $ty$ >>
+    Ctyp.arrows_list loc argfmttys <:ctyp< Sexplib0.Sexp.t -> $ty$ >>
 
 | _ -> assert False ]
 ;

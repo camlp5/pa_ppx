@@ -262,11 +262,19 @@ let ends_with ~pat s =
       (String.sub s (slen-patlen) patlen) = pat
 
 
+let finally f arg finf =
+  let rv = try Inl(f arg) with e -> Inr e
+  in (try finf arg (match rv with Inl v -> Some v | Inr _ -> None) with e -> ());
+	match rv with
+		Inl v -> v
+	  | Inr e -> raise e
+
 let apply_to_in_channel f fna =
-  let open Base.Exn in
   let ic = open_in fna in
-    protect ~f:(fun () -> f ic)
-      ~finally:(fun () -> close_in ic)
+    finally
+      f
+      ic
+      (fun _ _ -> close_in ic)
 
 let apply_to_out_channel f fna =
   let oc = try open_out fna

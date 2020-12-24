@@ -40,7 +40,8 @@ depends: [
   "not-ocamlfind" { >= "0.01" }
   "pcre" { >= "7.4.3" }
   "yojson" { >= "1.7.0" }
-  "ounit" { >= "2.2.3" }
+  "sexplib0"
+  "ounit"
   "bos" { >= "0.2.0" }
   "uint" { >= "2.0.1" }
   "ppx_import" { with-test & >= "1.7.1" }

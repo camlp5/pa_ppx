@@ -8,7 +8,7 @@ our $destdir = shift @ARGV ;
 
 print <<"EOF";
 # test utilities for "pa_ppx"
-requires = "unix,camlp5,ounit2,fmt,pcre,rresult,compiler-libs.common,yojson,sexplib"
+requires = "unix,camlp5,oUnit,fmt,pcre,rresult,compiler-libs.common,yojson,sexplib0"
 version = "$Version::version"
 description = "pa_ppx test utilities"
 

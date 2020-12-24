@@ -25,6 +25,9 @@ module Asttypes : sig
 [%%import: Asttypes.virtual_flag] [@@deriving show]
 [%%import: Asttypes.override_flag] [@@deriving show]
 [%%import: Asttypes.variance] [@@deriving show]
+IFDEF OCAML_VERSION >= OCAML_4_12_0 THEN
+[%%import: Asttypes.injectivity] [@@deriving show]
+END
 end
 [%%import: Parsetree.constant] [@@deriving show]
 [%%import: Parsetree.location_stack] [@@deriving show]

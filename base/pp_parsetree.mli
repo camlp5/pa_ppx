@@ -105,10 +105,16 @@ module Asttypes :
     value show_override_flag : override_flag → Stdlib.String.t;
     [@@@"end"];
     type variance =
-      Asttypes.variance == [ Covariant | Contravariant | Invariant ][@@"deriving_inline" show;]
+      Asttypes.variance == [ Covariant | Contravariant | NoVariance ][@@"deriving_inline" show;]
     ;
     value pp_variance : Fmt.t variance;
     value show_variance : variance → Stdlib.String.t;
+    [@@@"end"];
+    type injectivity =
+      Asttypes.injectivity == [ Injective | NoInjectivity ][@@"deriving_inline" show;]
+    ;
+    value pp_injectivity : Fmt.t injectivity;
+    value show_injectivity : injectivity → Stdlib.String.t;
     [@@@"end"];
   end
 ;
@@ -116,7 +122,7 @@ type constant =
   Parsetree.constant ==
     [ Pconst_integer of string and option char
     | Pconst_char of char
-    | Pconst_string of string and option string
+    | Pconst_string of string and Location.t and option string
     | Pconst_float of string and option char ][@@"deriving_inline" show;]
 ;
 value pp_constant : Fmt.t constant;
@@ -280,7 +286,8 @@ and value_description =
 and type_declaration =
   Parsetree.type_declaration ==
     { ptype_name : Asttypes.loc string;
-      ptype_params : list (core_type * Asttypes.variance);
+      ptype_params :
+        list (core_type * (Asttypes.variance * Asttypes.injectivity));
       ptype_cstrs : list (core_type * core_type * Location.t);
       ptype_kind : type_kind;
       ptype_private : Asttypes.private_flag;
@@ -314,7 +321,8 @@ and constructor_arguments =
 and type_extension =
   Parsetree.type_extension ==
     { ptyext_path : Asttypes.loc Longident.t;
-      ptyext_params : list (core_type * Asttypes.variance);
+      ptyext_params :
+        list (core_type * (Asttypes.variance * Asttypes.injectivity));
       ptyext_constructors : list extension_constructor;
       ptyext_private : Asttypes.private_flag;
       ptyext_loc : Location.t;
@@ -369,7 +377,8 @@ and class_type_field_desc =
 and class_infos α =
   Parsetree.class_infos α ==
     { pci_virt : Asttypes.virtual_flag;
-      pci_params : list (core_type * Asttypes.variance);
+      pci_params :
+        list (core_type * (Asttypes.variance * Asttypes.injectivity));
       pci_name : Asttypes.loc string;
       pci_expr : α;
       pci_loc : Location.t;

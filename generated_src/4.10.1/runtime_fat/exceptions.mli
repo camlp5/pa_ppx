@@ -31,21 +31,21 @@ value of_yojson : Yojson.Safe.t → Rresult.result t string;
 [@@@"ocaml.text" "/*";];
 module M_sexp_of_t :
   sig
-    type nonrec sexp_of_t = { f : mutable t → Sexplib.Sexp.t };
+    type nonrec sexp_of_t = { f : mutable t → Sexplib0.Sexp.t };
     value f : sexp_of_t;
   end
 ;
 [@@@"ocaml.text" "/*";];
-value sexp_of_t : t → Sexplib.Sexp.t;
+value sexp_of_t : t → Sexplib0.Sexp.t;
 [@@@"ocaml.text" "/*";];
 module M_t_of_sexp :
   sig
-    type nonrec t_of_sexp = { f : mutable Sexplib.Sexp.t → t };
+    type nonrec t_of_sexp = { f : mutable Sexplib0.Sexp.t → t };
     value f : t_of_sexp;
   end
 ;
 [@@@"ocaml.text" "/*";];
-value t_of_sexp : Sexplib.Sexp.t → t;
+value t_of_sexp : Sexplib0.Sexp.t → t;
 [@@@"ocaml.text" "/*";];
 module M_pp : sig type nonrec pp = { f : mutable Fmt.t t }; value f : pp; end;
 [@@@"ocaml.text" "/*";];

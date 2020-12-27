@@ -26,6 +26,9 @@ opam switch $VERS
 #opam remove -y camlp5 || true
 #opam install -y camlp5
 
+(cd ../camlp5 && opam install -y .)
+opam install -y --deps-only .
+
 {
   ( \
    make clean && \
@@ -33,7 +36,7 @@ opam switch $VERS
    make presys && \
    make bootstrap && \
    make clean && \
-   make sys && \
+   make -j16 sys && \
    make save-generated \
    true ) 2>&1
   echo "build OK" 1>&2

@@ -41,7 +41,7 @@ value of_yojson x = M_of_yojson.f.M_of_yojson.f x;
 [@@@"ocaml.text" "/*";];
 module M_sexp_of_t =
   struct
-    type nonrec sexp_of_t = { f : mutable t → Sexplib.Sexp.t };
+    type nonrec sexp_of_t = { f : mutable t → Sexplib0.Sexp.t };
     value f =
       {f _ =
         invalid_arg
@@ -55,7 +55,7 @@ value sexp_of_t x = M_sexp_of_t.f.M_sexp_of_t.f x;
 [@@@"ocaml.text" "/*";];
 module M_t_of_sexp =
   struct
-    type nonrec t_of_sexp = { f : mutable Sexplib.Sexp.t → t };
+    type nonrec t_of_sexp = { f : mutable Sexplib0.Sexp.t → t };
     value f =
       {f _ =
         invalid_arg

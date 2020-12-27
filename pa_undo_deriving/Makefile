@@ -27,10 +27,10 @@ all: $(TARGET) $(TARGET:.cma=.cmxa) camlp5.pa_ppx_undo_deriving camlp5.pa_ppx_un
 
 doc: $(CMT) $(CMTI)
 
-camlp5.pa_ppx_undo_deriving:
+camlp5.pa_ppx_undo_deriving: $(TARGET)
 	$(MKCAMLP5) -verbose -package $(PACKAGES),pa_ppx_base $(TARGET) -o $@
 
-camlp5.pa_ppx_undo_deriving.opt:
+camlp5.pa_ppx_undo_deriving.opt: $(TARGET:.cma=.cmxa)
 	$(MKCAMLP5).opt -verbose -package $(PACKAGES),pa_ppx_base $(TARGET:.cma=.cmxa) -o $@
 
 META: META.pl

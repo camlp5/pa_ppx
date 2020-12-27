@@ -14,7 +14,7 @@ LAUNCH=env TOP=$(TOP) $(TOP)/tools/LAUNCH
 OCAMLFIND=$(LAUNCH) ocamlfind
 NOT_OCAMLFIND=$(LAUNCH) not-ocamlfind
 MKCAMLP5=$(LAUNCH) mkcamlp5
-PACKAGES := $(PACKAGES),oUnit,fmt,pcre,rresult,compiler-libs.common,yojson,sexplib0
+PACKAGES := $(PACKAGES),oUnit,fmt,pcre,rresult,compiler-libs.common,yojson,sexplib
 
 PPXPACKAGES:=ppx_import
 PPXPACKAGES:=$(PPXPACKAGES),ppx_deriving.show

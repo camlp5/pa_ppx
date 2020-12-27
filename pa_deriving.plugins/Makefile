@@ -35,7 +35,8 @@ CMTI := $(MLI:.mli=.cmti)
 BATCHTOP=camlp5o.pa_ppx_deriving_plugins camlp5o.pa_ppx_deriving_plugins.opt \
 	camlp5r.pa_ppx_deriving_plugins camlp5r.pa_ppx_deriving_plugins.opt
 
-all: $(CMO) $(BATCHTOP) local-install
+all: $(CMO) $(BATCHTOP)
+	$(MAKE) DESTDIR=$(WD)/$(TOP)/local-install/ install
 
 doc: $(CMT) $(CMTI)
 
@@ -61,9 +62,6 @@ install:: $(BATCHTOP)
 	./META.pl $(DESTDIR)/lib > META
 	$(NOT_OCAMLFIND) reinstall-if-diff pa_ppx_deriving_plugins -destdir $(DESTDIR)/lib META $(CMO) $(CMX) $(MLI:.mli=.cmi) $(KITS:.cmo=.o) $(wildcard *.cmt*) $(BATCHTOP)
 	$(RM) -f META
-
-local-install::
-	$(MAKE) DESTDIR=$(WD)/$(TOP)/local-install/ install
 
 clean::
 	rm -rf META camlp5*.pa_ppx_deriving_plugins*

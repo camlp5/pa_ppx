@@ -25,11 +25,12 @@ CMTI := $(MLI:.mli=.cmti)
 SYNTAX := camlp5o
 OCAMLCFLAGS := $(OCAMLCFLAGS) -for-pack Pa_ppx_utils
 
-all: $(TARGET) $(TARGET:.cma=.cmxa) local-install
+all: $(TARGET) $(TARGET:.cma=.cmxa)
+	$(MAKE) DESTDIR=$(WD)/$(TOP)/local-install/ install
 
 doc: $(CMT) $(CMTI)
 
-pa_ppx_utils.cmo: $(CMO)
+pa_ppx_utils.cmo pa_ppx_utils.cmi: $(CMO)
 	$(OCAMLFIND) ocamlc $(DEBUG) -pack -o pa_ppx_utils.cmo $^
 
 pa_ppx_utils.cmx: $(CMO:.cmo=.cmx)
@@ -37,14 +38,12 @@ pa_ppx_utils.cmx: $(CMO:.cmo=.cmx)
 
 META: META.pl
 	./META.pl > META
+
 install::
 	mkdir -p $(DESTDIR)/lib
 	./META.pl $(DESTDIR)/lib > META
 	$(NOT_OCAMLFIND) reinstall-if-diff pa_ppx_utils -destdir $(DESTDIR)/lib META $(TARGET) $(TARGET:.cma=.cmxa) $(TARGET:.cma=.a) pa_ppx_utils.cmx pa_ppx_utils.cmi $(wildcard *.cmt*)
 	$(RM) -f META
-
-local-install::
-	$(MAKE) DESTDIR=$(WD)/$(TOP)/local-install/ install
 
 clean::
 	rm -rf META

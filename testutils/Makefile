@@ -22,7 +22,8 @@ CMTI := $(MLI:.mli=.cmti)
 
 OCAMLCFLAGS := $(OCAMLCFLAGS) -for-pack Pa_ppx_testutils
 
-all: $(TARGET) $(TARGET:.cma=.cmxa) local-install
+all: $(TARGET) $(TARGET:.cma=.cmxa)
+	$(MAKE) DESTDIR=$(WD)/$(TOP)/local-install/ install
 
 doc: $(CMT) $(CMTI)
 
@@ -46,9 +47,6 @@ install::
 	./META.pl $(DESTDIR)/lib > META
 	$(NOT_OCAMLFIND) reinstall-if-diff pa_ppx_testutils -destdir $(DESTDIR)/lib META $(TARGET) $(TARGET:.cma=.cmxa) $(TARGET:.cma=.a) pa_ppx_testutils.cmx pa_ppx_testutils.cmi $(wildcard *.cmt*)
 	$(RM) -f META
-
-local-install::
-	$(MAKE) DESTDIR=$(WD)/$(TOP)/local-install/ install
 
 clean::
 	rm -rf META

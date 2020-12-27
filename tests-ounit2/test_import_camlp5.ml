@@ -49,10 +49,19 @@ end
 
 end
 
+module A = struct
 [%%import: Stuff.zz
   [@with [%typ: int * bool] := [%typ: bool * int]]
 ]
 let f_zz (x : Stuff.zz) = match x with (a,(b,c)) -> ((a,(c,b)) : zz)
+end
+
+module B = struct
+type zz = [%import: Stuff.zz
+  [@with [%typ: int * bool] := [%typ: bool * int]]
+]
+let f_zz (x : Stuff.zz) = match x with (a,(b,c)) -> ((a,(c,b)) : zz)
+end
 
 let test_simplest ctxt =
   ()

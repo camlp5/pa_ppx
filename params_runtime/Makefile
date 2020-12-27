@@ -24,7 +24,8 @@ CMTI := $(MLI:.mli=.cmti)
 
 OCAMLCFLAGS := $(OCAMLCFLAGS) -for-pack Pa_ppx_params
 
-all: $(TARGET) $(TARGET:.cma=.cmxa) local-install
+all: $(TARGET) $(TARGET:.cma=.cmxa)
+	$(MAKE) DESTDIR=$(WD)/$(TOP)/local-install/ install
 
 doc: $(CMT) $(CMTI)
 
@@ -41,9 +42,6 @@ install::
 	./META.pl $(DESTDIR)/lib > META
 	$(NOT_OCAMLFIND) reinstall-if-diff pa_ppx_params_runtime -destdir $(DESTDIR)/lib META $(TARGET) $(TARGET:.cma=.cmxa) $(TARGET:.cma=.a) pa_ppx_params.cmx pa_ppx_params.cmi $(wildcard *.cmt*)
 	$(RM) -f META
-
-local-install::
-	$(MAKE) DESTDIR=$(WD)/$(TOP)/local-install/ install
 
 clean::
 	rm -rf META camlp5.pa_ppx_params

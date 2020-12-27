@@ -22,7 +22,8 @@ CMX := $(ML:.ml=.cmx)
 CMT := $(ML:.ml=.cmt)
 CMTI := $(MLI:.mli=.cmti)
 
-all: $(TARGET) $(TARGET:.cma=.cmxa) camlp5.pa_ppx_assert camlp5.pa_ppx_assert.opt local-install
+all: $(TARGET) $(TARGET:.cma=.cmxa) camlp5.pa_ppx_assert camlp5.pa_ppx_assert.opt
+	$(MAKE) DESTDIR=$(WD)/$(TOP)/local-install/ install
 
 doc: $(CMT) $(CMTI)
 
@@ -39,9 +40,6 @@ install::
 	./META.pl $(DESTDIR)/lib > META
 	$(NOT_OCAMLFIND) reinstall-if-diff pa_ppx_assert -destdir $(DESTDIR)/lib META $(TARGET) $(TARGET:.cma=.cmxa) $(TARGET:.cma=.a) $(CMO:.cmo=.cmx) $(MLI:.mli=.cmi) $(wildcard *.cmt*)
 	$(RM) -f META
-
-local-install::
-	$(MAKE) DESTDIR=$(WD)/$(TOP)/local-install/ install
 
 clean::
 	rm -rf META camlp5.pa_ppx_assert*

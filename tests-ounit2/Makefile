@@ -153,6 +153,10 @@ test_import0.byte: test_import0.ml stuff.cmo test_self_import.cmi
 	-linkpkg -syntax camlp5o $< -o $@
 
 test_import_camlp5.byte: test_import_camlp5.ml stuff.cmo test_self_import.cmi
+	$(NOT_OCAMLFIND) preprocess -package $(PACKAGES),$(PACKAGEPREFIX)import,$(PACKAGEPREFIX)deriving_plugins.show,$(PACKAGEPREFIX)testutils,camlp5.pr_o \
+	-ppopt -pa_import-package -ppopt $(PACKAGES) \
+	-ppopt -pa_import-I -ppopt . \
+	-syntax camlp5o $< > $<.ppo
 	$(OCAMLFIND) ocamlc $(DEBUG) $(WARNERR) -package $(PACKAGES),$(PACKAGEPREFIX)import,$(PACKAGEPREFIX)deriving_plugins.show,$(PACKAGEPREFIX)testutils \
 	-ppopt -pa_import-package -ppopt $(PACKAGES) \
 	-ppopt -pa_import-I -ppopt . \

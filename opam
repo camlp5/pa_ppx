@@ -36,7 +36,7 @@ doc: "https://github.com/camlp5/pa_ppx/doc"
 
 depends: [
   "ocaml"       { >= "4.10.0" & < "4.13.0" }
-  "camlp5"      { <= "8.00~alpha07" }
+  "camlp5"      { >= "8.00" }
   "not-ocamlfind" { >= "0.01" }
   "pcre" { >= "7.4.3" }
   "yojson" { >= "1.7.0" }
@@ -44,11 +44,11 @@ depends: [
   "ounit"
   "bos" { >= "0.2.0" }
   "uint" { >= "2.0.1" }
-  "ppx_import" { with-test & >= "1.7.1" }
-  "ppx_deriving_yojson" { with-test & >= "3.5.2" }
-  "ppx_here" { with-test & >= "v0.13.0" }
-  "ppx_sexp_conv" { with-test & >= "v0.13.0" }
-  "expect_test_helpers" { with-test & >= "v0.13.0" }
+#  "ppx_import" { with-test & >= "1.7.1" }
+#  "ppx_deriving_yojson" { with-test & >= "3.5.2" }
+#  "ppx_here" { with-test & >= "v0.13.0" }
+#  "ppx_sexp_conv" { with-test & >= "v0.13.0" }
+#  "expect_test_helpers" { with-test & >= "v0.13.0" }
 ]
 depexts: [
   [
@@ -79,7 +79,7 @@ depexts: [
 available: [ os != "macos" ]
 build: [
   [make "get-generated"]
-  [make "DEBUG=-g" "sys"]
-  [make "DEBUG=-g" "test"] {with-test}
+  [make "-j%{jobs}%" "DEBUG=-g" "sys"]
+#  [make "DEBUG=-g" "test"] {with-test}
 ]
 install: [make "install"]

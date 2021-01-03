@@ -49,8 +49,12 @@ value make_comment_map l =
   List.fold_left (fun m ((s : string), i) -> CM.add i s m) CM.empty l
 ;
 
-value comments_between0 (m : CM.t string) i j = do {
-  assert (i <= j) ;
+value comments_between0 loc (m : CM.t string) i j = do {
+  if i > j then do {
+    Fmt.(pf stderr "WARNING: %s\tcomments_between0: beginning (%d) > ending (%d) positions\n%!" (Ploc.string_of_location loc) i j) ;
+    []
+  }
+  else
   let (_, iopt, rest) = CM.split i m in
   let (want, jopt, _) = CM.split j rest in
   (match iopt with [ None -> [] | Some x -> [(i, x)] ])@
@@ -58,8 +62,8 @@ value comments_between0 (m : CM.t string) i j = do {
 }
 ;
 
-value comments_between m i j =
-  (comments_between0 m i j)
+value comments_between loc m i j =
+  (comments_between0 loc m i j)
 |> List.map (fun (ofs, s) ->
       let slen = String.length s in
       (Ploc.make_unlined (ofs, ofs+slen), s))
@@ -416,7 +420,7 @@ value class_sig_item_wrap_itemattr a si = match si with [
 
 value rewrite_gc arg ((loc, ci, tyl, rto, attrs) : generic_constructor) maxpos = 
   let startpos = Ploc.last_pos loc in
-  let l = comments_between (get arg) startpos maxpos in
+  let l = comments_between loc (get arg) startpos maxpos in
   let l = Std.filter is_doc_comment l in
   let newattrs = List.map attr_doc_comment l in
   let attrs = <:vala< (uv attrs) @ newattrs >> in
@@ -425,7 +429,7 @@ value rewrite_gc arg ((loc, ci, tyl, rto, attrs) : generic_constructor) maxpos =
 
 value rewrite_field arg ((loc, f, m, ty, attrs) : (loc * string * bool * ctyp * attributes)) maxpos = 
   let startpos = Ploc.last_pos loc in
-  let l = comments_between (get arg) startpos maxpos in
+  let l = comments_between loc (get arg) startpos maxpos in
   let l = Std.filter is_doc_comment l in
   let newattrs = List.map attr_doc_comment l in
   let attrs = <:vala< (uv attrs) @ newattrs >> in
@@ -468,7 +472,7 @@ value rewrite_extension_constructor arg ec maxpos = match ec with [
 | EcRebind _ a b attrs ->
   let loc = loc_of_extension_constructor ec in
   let startpos = Ploc.last_pos loc in
-  let l = comments_between (get arg) startpos maxpos in
+  let l = comments_between loc (get arg) startpos maxpos in
   let l = Std.filter is_doc_comment l in
   let newattrs = List.map attr_doc_comment l in
   let attrs = <:vala< (uv attrs) @ newattrs >> in
@@ -485,7 +489,7 @@ value rewrite_extension_constructors arg maxpos ecs =
 
 value str_items_leading_doc_comments arg startpos (h2, loc2) =
   let bp2 = Ploc.first_pos loc2 in
-  let l = comments_between (get arg) startpos bp2 in
+  let l = comments_between loc2 (get arg) startpos bp2 in
   let (floating, after) = str_item_apportion_interior_comments l in
   let floating = List.map str_item_floating_attribute floating in
   let (more_floating, h2) = match (after, h2) with [
@@ -502,7 +506,7 @@ value str_items_leading_doc_comments arg startpos (h2, loc2) =
 
 value sig_items_leading_doc_comments arg startpos (h2, loc2) =
   let bp2 = Ploc.first_pos loc2 in
-  let l = comments_between (get arg) startpos bp2 in
+  let l = comments_between loc2 (get arg) startpos bp2 in
   let (floating, after) = str_item_apportion_interior_comments l in
   let floating = List.map sig_item_floating_attribute floating in
   let (more_floating, h2) = match (after, h2) with [
@@ -519,7 +523,7 @@ value sig_items_leading_doc_comments arg startpos (h2, loc2) =
 
 value str_item_preceding_doc_comment arg startpos (h2, loc2) =
   let bp2 = Ploc.first_pos loc2 in
-  let l = comments_between (get arg) startpos bp2 in
+  let l = comments_between loc2 (get arg) startpos bp2 in
   let (floating, after) = str_item_apportion_interior_comments l in
   let floating = List.map str_item_floating_attribute floating in
   let (more_floating, h2) = match (after, h2) with [
@@ -533,7 +537,7 @@ value str_item_preceding_doc_comment arg startpos (h2, loc2) =
 value rewrite_sig_item_pair arg (h1, loc1) (h2, loc2) =
   let startpos = Ploc.last_pos loc1 in
   let bp2 = Ploc.first_pos loc2 in
-  let l = comments_between (get arg) startpos bp2 in
+  let l = comments_between loc2 (get arg) startpos bp2 in
   let (before, floating, after) = sig_item_apportion_interior_comments l in
   let floating = List.map sig_item_floating_attribute floating in
   let (more_floating2, h2) = match (after, h2) with [
@@ -552,7 +556,7 @@ value rewrite_sig_item_pair arg (h1, loc1) (h2, loc2) =
 value rewrite_class_sig_item_pair arg (h1, loc1) (h2, loc2) =
   let startpos = Ploc.last_pos loc1 in
   let bp2 = Ploc.first_pos loc2 in
-  let l = comments_between (get arg) startpos bp2 in
+  let l = comments_between loc2 (get arg) startpos bp2 in
   let (before, floating, after) = sig_item_apportion_interior_comments l in
   let floating = List.map class_sig_item_floating_attribute floating in
   let (more_floating2, h2) = match (after, h2) with [
@@ -570,7 +574,7 @@ value rewrite_class_sig_item_pair arg (h1, loc1) (h2, loc2) =
 
 value rewrite_leading_sig_item arg startpos (h2, loc2) =
   let bp2 = Ploc.first_pos loc2 in
-  let l = comments_between (get arg) startpos bp2 in
+  let l = comments_between loc2 (get arg) startpos bp2 in
   let (floating, after) = sig_item_apportion_leading_comments l in
   let floating = List.map sig_item_floating_attribute floating in
   let (more_floating2, h2) = match (after, h2) with [
@@ -583,7 +587,7 @@ value rewrite_leading_sig_item arg startpos (h2, loc2) =
 
 value rewrite_leading_class_sig_item arg startpos (h2, loc2) =
   let bp2 = Ploc.first_pos loc2 in
-  let l = comments_between (get arg) startpos bp2 in
+  let l = comments_between loc2 (get arg) startpos bp2 in
   let (floating, after) = sig_item_apportion_leading_comments l in
   let floating = List.map class_sig_item_floating_attribute floating in
   let (more_floating2, h2) = match (after, h2) with [
@@ -597,7 +601,7 @@ value rewrite_leading_class_sig_item arg startpos (h2, loc2) =
 value rewrite_class_str_item_pair arg startpos h2 =
   let loc2 = loc_of_class_str_item h2 in
   let bp2 = Ploc.first_pos loc2 in
-  let l = comments_between (get arg) startpos bp2 in
+  let l = comments_between loc2 (get arg) startpos bp2 in
   let (floating, after) = str_item_apportion_interior_comments l in
   let floating = List.map class_str_item_floating_attribute floating in
   let (more_floating, h2) = match (after, h2) with [
@@ -608,15 +612,15 @@ value rewrite_class_str_item_pair arg startpos h2 =
   (floating@more_floating, h2)
 ;
 
-value trailing_str_item_doc_comments arg spos epos =
-  let l = comments_between (get arg) spos epos in
+value trailing_str_item_doc_comments loc arg spos epos =
+  let l = comments_between loc (get arg) spos epos in
   let l = Std.filter is_doc_comment l in
   List.map str_item_floating_attribute l
 ;
 
 value trailing_sig_item_doc_comments arg (h, loc) epos =
   let spos = Ploc.last_pos loc in
-  let l = comments_between (get arg) spos epos in
+  let l = comments_between loc (get arg) spos epos in
   let (before, rest, after) = sig_item_apportion_interior_comments l in
   let (more_floating1, h) = match (before, h) with [
     (None, _) -> ([], h)
@@ -630,7 +634,7 @@ value trailing_sig_item_doc_comments arg (h, loc) epos =
 
 value trailing_class_sig_item_doc_comments arg (h, loc) epos =
   let spos = Ploc.last_pos loc in
-  let l = comments_between (get arg) spos epos in
+  let l = comments_between loc (get arg) spos epos in
   let (before, rest, after) = sig_item_apportion_interior_comments l in
   let (more_floating1, h) = match (before, h) with [
     (None, _) -> ([], h)
@@ -642,14 +646,14 @@ value trailing_class_sig_item_doc_comments arg (h, loc) epos =
   ((h, loc), List.map class_sig_item_floating_attribute (more_floating1@rest@after))
 ;
 
-value trailing_class_str_item_doc_comments arg spos epos =
-  let l = comments_between (get arg) spos epos in
+value trailing_class_str_item_doc_comments loc arg spos epos =
+  let l = comments_between loc (get arg) spos epos in
   let l = Std.filter is_doc_comment l in
   List.map class_str_item_floating_attribute l
 ;
 
 value immediately_trailing_doc_comment arg hloc epos =
-  match comments_between (get arg) (Ploc.last_pos hloc) epos with [
+  match comments_between hloc (get arg) (Ploc.last_pos hloc) epos with [
     [ s :: _ ] when is_doc_comment s -> Some s
   | [ s1 ; s2 :: _ ]
     when (not (is_comment s1))
@@ -825,7 +829,7 @@ value rewrite_implem0 arg loc l =
     let (floating, h1) = str_item_preceding_doc_comment arg startpos h1 in
     floating @ [h1] @ (rerec (Ploc.last_pos (snd h1)) t)
   | [] ->
-    (trailing_str_item_doc_comments arg startpos (Ploc.last_pos loc))
+    (trailing_str_item_doc_comments loc arg startpos (Ploc.last_pos loc))
   ] in
   rerec (Ploc.first_pos loc) l
 ;
@@ -850,7 +854,7 @@ value rewrite_class_structure arg loc l =
     let (floating, h1) = rewrite_class_str_item_pair arg startpos h1 in
     floating @ [h1] @ (rerec (Ploc.last_pos (loc_of_class_str_item h1)) t)
   | [] ->
-    trailing_class_str_item_doc_comments arg startpos (Ploc.last_pos loc)
+    trailing_class_str_item_doc_comments loc arg startpos (Ploc.last_pos loc)
   ] in
   rerec (Ploc.first_pos loc) l
 ;

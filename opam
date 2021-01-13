@@ -36,6 +36,9 @@ doc: "https://github.com/camlp5/pa_ppx/doc"
 
 depends: [
   "ocaml"       { >= "4.10.0" & < "4.13.0" }
+  "conf-perl"
+  "conf-perl-ipc-system-simple"
+  "conf-perl-string-shellquote"
   "camlp5"      { >= "8.00" }
   "not-ocamlfind" { >= "0.01" }
   "pcre" { >= "7.4.3" }
@@ -50,33 +53,6 @@ depends: [
 #  "ppx_sexp_conv" { with-test & >= "v0.13.0" }
 #  "expect_test_helpers" { with-test & >= "v0.13.0" }
 ]
-depexts: [
-  [
-    "libstring-shellquote-perl"
-    "libipc-system-simple-perl"
-  ] {os-family = "debian"}
-  [
-    "perl-string-shellquote"
-    "perl-ipc-system-simple"
-  ] {os-distribution = "alpine"}
-  [
-    "perl-String-ShellQuote"
-    "perl-IPC-System-Simple"
-  ] {os-distribution = "centos"}
-  [
-    "perl-String-ShellQuote"
-    "perl-IPC-System-Simple"
-  ] {os-family = "suse"}
-  [
-    "perl-String-ShellQuote"
-    "perl-IPC-System-Simple"
-  ] {os-family = "fedora"}
-  [
-    "perl-string-shellquote"
-    "perl-ipc-system-simple"
-  ] {os-family = "arch"}
-]
-available: [ os != "macos" ]
 build: [
   [make "get-generated"]
   [make "-j%{jobs}%" "DEBUG=-g" "sys"]

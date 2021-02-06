@@ -87,8 +87,8 @@ camlp5GENERATED=base/pp_MLast.ml base/pp_MLast.mli
 ocamlVERSION=$(shell ocamlc --version)
 camlp5VERSION=$(shell camlp5 -version)
 
-genocamlVERSION=$(shell config/find_gensrc.pl ocaml 4. $(ocamlVERSION))
-gencamlp5VERSION=$(shell config/find_gensrc.pl camlp5 8. $(camlp5VERSION))
+genocamlVERSION=$(shell config/find_gensrc.pl ocaml $(ocamlVERSION))
+gencamlp5VERSION=$(shell config/find_gensrc.pl camlp5 $(camlp5VERSION))
 
 save-generated:
 	mkdir -p generated_src/$(ocamlVERSION)

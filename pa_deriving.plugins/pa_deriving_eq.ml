@@ -21,7 +21,15 @@ module PM = ParamMap(struct value arg_ctyp_f loc pty = <:ctyp< $pty$ -> $pty$ ->
 
 value fmt_expression arg ?{coercion} param_map ty0 =
   let rec fmtrec ?{coercion} ?{attrmod=None} = fun [
-    <:ctyp:< $lid:lid$ >> when attrmod = Some Nobuiltin ->
+
+    <:ctyp:< $t$ [@ $attrid:(_, id)$ $exp:e$ ;] >> when Some id = DC.allowed_attribute (DC.get arg) "eq" "equal" -> e
+
+  | <:ctyp:< $t$ [@ $attrid:(_, id)$ ] >> when Some id = DC.allowed_attribute (DC.get arg) "eq" "nobuiltin" ->
+    fmtrec ~{attrmod=Some Nobuiltin} t
+
+  | <:ctyp:< $t$ [@ $attribute:_$ ] >> -> fmtrec t
+
+  | <:ctyp:< $lid:lid$ >> when attrmod = Some Nobuiltin ->
   let fname = eq_fname arg lid in
   <:expr< $lid:fname$ >>
 
@@ -88,13 +96,6 @@ value fmt_expression arg ?{coercion} param_map ty0 =
     x -> x | exception Not_found -> failwith "pa_deriving.eq: unrecognized param-var in type-decl"
   ] in
   PM.arg_expr loc p
-
-  | <:ctyp:< $t$ [@ $attrid:(_, id)$ $exp:e$ ;] >> when Some id = DC.allowed_attribute (DC.get arg) "eq" "equal" -> e
-
-| <:ctyp:< $t$ [@ $attrid:(_, id)$ ] >> when Some id = DC.allowed_attribute (DC.get arg) "eq" "nobuiltin" ->
-    fmtrec ~{attrmod=Some Nobuiltin} t
-
-| <:ctyp:< $t$ [@ $attribute:_$ ] >> -> fmtrec t
 
 | <:ctyp:< $lid:lid$ >> ->
   let fname = eq_fname arg lid in

@@ -8,7 +8,7 @@ type a1 = int        [@@deriving eq]
 type a2 = int32      [@@deriving eq]
 type a3 = int64      [@@deriving eq]
 type a4 = nativeint  [@@deriving eq]
-type a5 = float      [@@deriving eq]
+type a5 = (float [@equal fun x y -> 0 = compare x y])      [@@deriving eq ]
 type a6 = bool       [@@deriving eq]
 type a7 = char       [@@deriving eq]
 type a8 = string     [@@deriving eq]
@@ -21,8 +21,10 @@ type o  = int option [@@deriving eq]
 type y  = int lazy_t [@@deriving eq]
 
 let test_simple ctxt =
-  assert_equal ~printer true  (equal_a1 1 1);
-  assert_equal ~printer false (equal_a1 1 2)
+  assert_equal ~printer true  (equal_a1 1 1)
+; assert_equal ~printer false (equal_a1 1 2)
+; assert_equal ~printer true (equal_a5 1. 1.)
+; assert_equal ~printer true (equal_a5 nan nan)
 
 let test_arr ctxt =
   assert_equal ~printer true (equal_a [||] [||]);

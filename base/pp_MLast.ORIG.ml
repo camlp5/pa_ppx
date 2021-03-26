@@ -14,8 +14,8 @@ let pp0_loc ppf loc =
   let ep = Ploc.last_pos loc in
   let bol = Ploc.bol_pos loc in
 
-  let bp = bp - bol + 1 in
-  let ep = ep - bol + 1 in
+  let bp = bp - bol in
+  let ep = ep - bol in
   Fmt.(pf ppf "<%a:%d:%d-%d>" (quote string) fname line bp ep)
 
 let pp1_loc ppf x = Fmt.(const string "<loc>" ppf ())

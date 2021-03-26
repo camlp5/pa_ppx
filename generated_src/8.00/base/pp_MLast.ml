@@ -7,8 +7,8 @@ module Ploc =
       let bp = Ploc.first_pos loc in
       let ep = Ploc.last_pos loc in
       let bol = Ploc.bol_pos loc in
-      let bp = bp - bol + 1 in
-      let ep = ep - bol + 1 in
+      let bp = bp - bol in
+      let ep = ep - bol in
       Fmt.(pf ppf "<%a:%d:%d-%d>" (quote string) fname line bp ep)
     ;
     value pp1_loc ppf x = Fmt.(const string "<loc>" ppf ());

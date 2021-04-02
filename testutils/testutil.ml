@@ -91,7 +91,7 @@ open OUnitAssert ;
 value assert_bool ?{printer} msg b =
   if not b then
     let msg0 = match printer with [ None -> "" | Some (f, arg) -> f arg ] in
-    assert_failure (msg0^msg)
+    assert_failure (msg0^"\n"^msg)
   else ()
 ;
 

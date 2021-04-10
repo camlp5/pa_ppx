@@ -303,10 +303,11 @@ type unpacked_t =
   ; lid : string
   ; sl : list string
   ; loc : Ploc.t
+  ; self_import : bool
   }
 ;
 
-value unpack_imported_type full_t =
+value unpack_imported_type arg full_t =
   let (bare_t,attrs) = Ctyp.unwrap_attrs full_t in
   let (unapp_t, args) = Ctyp.unapplist bare_t in
   let (li, lid) = match unapp_t with [
@@ -314,13 +315,15 @@ value unpack_imported_type full_t =
   | _ -> failwith "unpack_imported_type"
   ] in
   let sl = Longid.to_string_list li in
+  let self_import = (List.hd sl) = (List.hd (Ctxt.module_path arg)) in
   { full_t = full_t ; attrs = attrs ; bare_t = bare_t ;
     unapp_t = unapp_t ; args = args ; li = li ;
-    lid = lid ; sl = sl ; loc = loc_of_ctyp full_t }
+    lid = lid ; sl = sl ; loc = loc_of_ctyp full_t
+  ; self_import = self_import }
 ;
 
 value import_type arg (newtname,new_formals) t =
-  let unp = unpack_imported_type t in
+  let unp = unpack_imported_type arg t in
   let (with_attrs, rest_attrs) = extract_with_attributes unp.attrs in
   let unp = { (unp) with attrs = rest_attrs } in
   let renmap = List.fold_right extend_renmap with_attrs [] in
@@ -344,7 +347,7 @@ value import_type arg (newtname,new_formals) t =
     ] in
     let ct = if renmap = [] then tk
     else Ctyp.wrap_attrs (substitute_ctyp renmap tk) unp.attrs in
-    if is_generative_type ct && not redeclare.val then
+    if is_generative_type ct && not redeclare.val && not unp.self_import then
       <:ctyp< $unp.bare_t$ == $ct$ >>
     else ct
 ;
@@ -368,7 +371,7 @@ value rec expand_add_attribute arg attr =
   ]
 
 and import_typedecl_group arg t item_attrs =
-  let unp = unpack_imported_type t in
+  let unp = unpack_imported_type arg t in
   let (with_attrs, rest_attrs) = extract_with_attributes unp.attrs in
   let (add_attrs, rest_attrs) = extract_add_attributes rest_attrs in
   let added_typedecls = List.concat (List.map (expand_add_attribute arg) add_attrs) in
@@ -391,7 +394,7 @@ and import_typedecl_group arg t item_attrs =
         Ctyp.applist baset args in
       let ct = if renmap = [] then td.tdDef
         else Ctyp.wrap_attrs (substitute_ctyp renmap td.tdDef) unp.attrs in
-      let ct = if is_generative_type ct && not redeclare.val then
+      let ct = if is_generative_type ct && not redeclare.val && not unp.self_import then
           <:ctyp< $imported_tycon$ == $ct$ >>
         else ct in
       { (td) with tdDef = ct }

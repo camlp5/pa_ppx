@@ -5,6 +5,8 @@ type t = [
   | `OptionB
 ]
 
+type t' = A | B
+
 module type S = sig
   val test : unit -> string
 end

@@ -70,6 +70,10 @@ let nth1 l n =
   assert (n >= 0);
   List.nth l (n-1)
 
+let rec nthtail l = function
+	0 -> l
+  | n -> nthtail (List.tl l) (n-1)
+
 let rec last = function
     [] -> failwith "last"
   | x::[] -> x

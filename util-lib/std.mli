@@ -27,6 +27,9 @@ val fourth4 : ('a * 'b * 'c * 'd) -> 'd
 val nth1 : 'a list -> int -> 'a
 	(* returns the n-th element of the given list, where the head of the list is at position 1 *)
 
+val nthtail : 'a list -> int -> 'a list
+	(* retuns the nth-tail of the given list, where the list itself is at position 0 *)
+
 val sep_firstn : int -> 'a list -> 'a list * 'a list
 val sep_last : 'a list -> 'a * 'a list
 val sizebin_of_string : string -> int

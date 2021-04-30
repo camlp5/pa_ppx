@@ -1,5 +1,7 @@
 type 'a edges_t
 type 'a hash_adj_t
+val adj_lookup : 'a hash_adj_t -> 'a -> 'a list
+
 
 type 'a visit_type = PRE of 'a | POST of 'a | EDGE of 'a * 'a
 

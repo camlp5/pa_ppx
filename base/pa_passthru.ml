@@ -307,8 +307,8 @@ and patt0 arg =
        PaAtt loc (self p) (attribute arg attr)
     | PaPfx loc li p ->
        PaPfx loc (longid arg li) (self p)
-    | PaLong loc li ->
-       PaLong loc (longid arg li)
+    | PaLong loc li loc_ids ->
+       PaLong loc (longid arg li) loc_ids
     | PaAli loc x1 x2 →
         PaAli loc (self x1) (self x2)
     | PaAnt loc x1 → assert False

@@ -133,8 +133,8 @@ and patt0 arg =
        PaAtt loc (self p) (attribute arg attr)[@hashrecons z;]
     | PaPfx loc li p[@hashrecons z;] ->
        PaPfx loc (longid arg li) (self p)[@hashrecons z;]
-    | PaLong loc li[@hashrecons z;] ->
-       PaLong loc (longid arg li)[@hashrecons z;]
+    | PaLong loc li loc_ids[@hashrecons z;] ->
+       PaLong loc (longid arg li) loc_ids[@hashrecons z;]
     | PaAli loc x1 x2[@hashrecons z;] →
         PaAli loc (self x1) (self x2)[@hashrecons z;]
     | PaAnt loc x1 → assert False

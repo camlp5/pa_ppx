@@ -7,7 +7,7 @@ use Data::Dumper ;
   my $kind = $ARGV[0] ;
   my $oversion = $ARGV[1] ;
   die "mal-formatted $kind version detected: please report to maintainer with this output: ".Dumper(\@ARGV)
-    unless $oversion =~ s,^(\d+(?:\.\d+)+)(?:[~-].*)?$,$1, ;
+    unless $oversion =~ s,^(\d+(?:\.\d+)+)(?:[+~-].*)?$,$1, ;
 
   if (-d "generated_src/$oversion") {
     print "$oversion\n";

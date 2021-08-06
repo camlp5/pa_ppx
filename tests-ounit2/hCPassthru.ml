@@ -383,6 +383,8 @@ and sig_item0 arg =
              x2)[@hashrecons z;]
     | SgMty loc x1 x2 x3[@hashrecons z;] →
         SgMty loc x1 (module_type arg x2) (attributes arg x3)[@hashrecons z;]
+    | SgMtySubst loc v1 v2 v3[@hashrecons z;] →
+        SgMtySubst loc v1 (module_type arg v2) (attributes arg v3)[@hashrecons z;]
     | SgMtyAlias loc x1 x2 x3[@hashrecons z;] →
         SgMtyAlias loc x1 (vala_map (longid arg) x2) (attributes arg x3)[@hashrecons z;]
     | SgModSubst loc x1 x2 x3[@hashrecons z;] →
@@ -419,6 +421,10 @@ and with_constr0 arg =
       WcMod loc (vala_map (longid arg) x1) (module_expr arg x2)[@hashrecons z;]
   | WcMos loc x1 x2[@hashrecons z;] →
       WcMos loc (vala_map (longid arg) x1) (module_expr arg x2)[@hashrecons z;]
+  | WcMty loc x1 x2[@hashrecons z;] →
+      WcMty loc (vala_map (longid arg) x1) (module_type arg x2)[@hashrecons z;]
+  | WcMts loc x1 x2[@hashrecons z;] →
+      WcMts loc (vala_map (longid arg) x1) (module_type arg x2)[@hashrecons z;]
   | WcTyp loc x1 x2 x3 x4[@hashrecons z;] →
       WcTyp loc (vala_map (longid_lident arg) x1) x2 x3 (ctyp arg x4)[@hashrecons z;]
   | WcTys loc x1 x2 x3[@hashrecons z;] →

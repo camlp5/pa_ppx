@@ -562,6 +562,8 @@ and sig_item0 arg =
              x2)
     | SgMty loc x1 x2 x3 →
         SgMty loc x1 (module_type arg x2) (attributes arg x3)
+    | SgMtySubst loc v1 v2 v3 →
+        SgMtySubst loc v1 (module_type arg v2) (attributes arg v3)
     | SgMtyAlias loc x1 x2 x3 →
         SgMtyAlias loc x1 (vala_map (longid arg) x2) (attributes arg x3)
     | SgModSubst loc x1 x2 x3 →
@@ -597,6 +599,10 @@ and with_constr0 arg =
       WcMod loc (vala_map (longid arg) x1) (module_expr arg x2)
   | WcMos loc x1 x2 →
       WcMos loc (vala_map (longid arg) x1) (module_expr arg x2)
+  | WcMty loc x1 x2 →
+      WcMty loc (vala_map (longid arg) x1) (module_type arg x2)
+  | WcMts loc x1 x2 →
+      WcMts loc (vala_map (longid arg) x1) (module_type arg x2)
   | WcTyp loc x1 x2 x3 x4 →
       WcTyp loc (vala_map (longid_lident arg) x1) x2 x3 (ctyp arg x4)
   | WcTys loc x1 x2 x3 →

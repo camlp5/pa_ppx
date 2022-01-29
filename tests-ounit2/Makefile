@@ -14,7 +14,7 @@ LAUNCH=env TOP=$(TOP) $(TOP)/tools/LAUNCH
 OCAMLFIND=$(LAUNCH) ocamlfind
 NOT_OCAMLFIND=$(LAUNCH) not-ocamlfind
 MKCAMLP5=$(LAUNCH) mkcamlp5
-PACKAGES := $(PACKAGES),oUnit,fmt,pcre,rresult,compiler-libs.common,yojson,sexplib
+PACKAGES := $(PACKAGES),oUnit,fmt,pcre,result,rresult,compiler-libs.common,yojson,sexplib,sexplib0
 
 PPXPACKAGES:=ppx_import
 PPXPACKAGES:=$(PPXPACKAGES),ppx_deriving.show
@@ -150,7 +150,7 @@ test_import0.byte: test_import0.ml stuff.cmo test_self_import.cmi
 	$(OCAMLFIND) ocamlc $(DEBUG) $(WARNERR) -package $(PACKAGES),$(PACKAGEPREFIX)deriving_plugins.show,$(PACKAGEPREFIX)import,camlp5.pr_o,$(PACKAGEPREFIX)testutils \
 	-ppopt -pa_import-package -ppopt $(PACKAGES) \
 	-ppopt -pa_import-I -ppopt . \
-	-linkpkg -syntax camlp5o $< -o $@
+	-linkall -linkpkg -syntax camlp5o $< -o $@
 
 test_import_camlp5.byte: test_import_camlp5.ml stuff.cmo test_self_import.cmi
 	$(NOT_OCAMLFIND) preprocess -package $(PACKAGES),$(PACKAGEPREFIX)import,$(PACKAGEPREFIX)deriving_plugins.show,$(PACKAGEPREFIX)testutils,camlp5.pr_o \

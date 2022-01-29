@@ -418,13 +418,13 @@ value class_sig_item_wrap_itemattr a si = match si with [
 ]
 ;
 
-value rewrite_gc arg ((loc, ci, tyl, rto, attrs) : generic_constructor) maxpos = 
+value rewrite_gc arg ((loc, ci, tyvars, tyl, rto, attrs) : generic_constructor) maxpos = 
   let startpos = Ploc.last_pos loc in
   let l = comments_between loc (get arg) startpos maxpos in
   let l = Std.filter is_doc_comment l in
   let newattrs = List.map attr_doc_comment l in
   let attrs = <:vala< (uv attrs) @ newattrs >> in
-  ((loc, ci, tyl, rto, attrs), Ploc.first_pos loc)
+  ((loc, ci, tyvars, tyl, rto, attrs), Ploc.first_pos loc)
 ;
 
 value rewrite_field arg ((loc, f, m, ty, attrs) : (loc * string * bool * ctyp * attributes)) maxpos = 
@@ -674,9 +674,9 @@ value variant_type_decl_add_doc_comment td s =
   match td.tdDef with [
     <:ctyp:< [ $list:l$ ] >> ->
       let (last, l) = sep_last l in
-      let (loc, ci, tyl, rto, attrs) = last in
+      let (loc, ci, tyvars, tyl, rto, attrs) = last in
       let attrs = <:vala< (uv attrs) @ [ attr_doc_comment s ] >> in
-      let last =  (loc, ci, tyl, rto, attrs) in
+      let last =  (loc, ci, tyvars, tyl, rto, attrs) in
       let l = l @ [ last ] in
       { (td) with tdDef = <:ctyp:< [ $list:l$ ] >> }
   | _ -> assert False
@@ -687,14 +687,14 @@ value variant_type_decl_last_branch_has_doc_comments td =
   match td.tdDef with [
     <:ctyp:< [ $list:l$ ] >> ->
       let (last, l) = sep_last l in
-      let (loc, ci, tyl, rto, attrs) = last in
+      let (loc, ci, tyvars, tyl, rto, attrs) = last in
       List.exists is_doc_attribute (uv attrs)
     | _ -> False
   ]
 ;
 
 value extension_constructor_has_doc_comments = fun [
-  EcTuple _ (_, _, _, _, attrs) ->
+  EcTuple _ (_, _, _, _, _, attrs) ->
   List.exists is_doc_attribute (uv attrs)
 | EcRebind _ _ _ attrs ->
   List.exists is_doc_attribute (uv attrs)
@@ -702,8 +702,8 @@ value extension_constructor_has_doc_comments = fun [
 ;
 
 value extension_constructor_add_doc_comment ec s = match ec with [
-  EcTuple loc (a, b, c, d, attrs) ->
-  EcTuple loc (a, b, c, d, <:vala< (uv attrs) @ [ attr_doc_comment s ] >>)
+  EcTuple loc (a, b, c, d, e, attrs) ->
+  EcTuple loc (a, b, c, d, e, <:vala< (uv attrs) @ [ attr_doc_comment s ] >>)
   
 | EcRebind loc a b attrs ->
   EcRebind loc a b <:vala< (uv attrs) @ [ attr_doc_comment s ] >>

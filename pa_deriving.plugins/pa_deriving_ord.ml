@@ -155,10 +155,10 @@ value fmt_expression arg ?{coercion} param_map ty0 =
 
     (conspat, <:vala< None >>, body)
 
-  | (_, _, _, <:vala< Some _ >>, _) -> assert False
+  | (_, _, _, _, <:vala< Some _ >>, _) -> assert False
   ]) l in
   let tag2int_exp =
-    let branches = List.mapi (fun i (_, cid, tyl, _, _) ->
+    let branches = List.mapi (fun i (_, cid, _, tyl, _, _) ->
         let cid = uv cid in
         let tyl = uv tyl in
         let underscores = List.map (fun _ -> <:patt< _ >>) tyl in

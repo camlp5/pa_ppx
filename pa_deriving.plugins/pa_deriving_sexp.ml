@@ -147,7 +147,7 @@ value to_expression arg ?{coercion} ~{msg} param_map ty0 =
 
     (conspat, <:vala< None >>, <:expr< Sexplib0.Sexp.List [ (Sexplib0.Sexp.Atom $str:jscid$) :: $liste$ ] >>)
 
-  | (_, _, _, <:vala< Some _ >>, _) -> assert False
+  | (_, _, _, _, <:vala< Some _ >>, _) -> assert False
   ]) l in
   <:expr< fun [ $list:branches$ ] >>
 
@@ -477,7 +477,7 @@ value of_expression arg ~{msg} param_map ty0 =
 
     (conspat, <:vala< None >>, consexp)
 
-  | (_, _, _, <:vala< Some _ >>, _) -> assert False
+  | (_, _, _, _, <:vala< Some _ >>, _) -> assert False
   ]) l in
   let catch_branch = (<:patt< _ >>, <:vala< None >>, <:expr< failwith $str:msg$ >>) in
   let branches = branches @ [catch_branch] in

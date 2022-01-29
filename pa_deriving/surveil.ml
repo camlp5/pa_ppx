@@ -110,7 +110,7 @@ value start_decl loc dc plugins = do {
   List.iter (fun ((na, _) as r) ->
       if not (legitimate_plugin_reference dc r) then
         let msg = match Registry.get na with [
-          _ -> Fmt.(str "superfluous options %a" (list string) (superfluous_options dc r))
+          _ -> Fmt.(str "superfluous options %a" (list ~{sep=const string " "} string) (superfluous_options dc r))
         | exception Not_found -> Fmt.(str "unrecognized plugin %s" na)
         ] in
         Ploc.raise loc (Failure (Printf.sprintf "ill-formed plugin reference %s: %s" na msg))
@@ -350,7 +350,7 @@ let ef = EF.{ (ef) with
   | <:ctyp:< [ $list:l$ ] >> ->
       fun arg _ -> do {
         List.iter (fun [
-          (loc, cid, tyl, <:vala< None >>, attrs) ->
+          (loc, cid, _, tyl, <:vala< None >>, attrs) ->
           List.iter (fun a -> add_current_attribute arg (attr_id a)) (uv attrs)
         | _ -> ()
         ]) l ;

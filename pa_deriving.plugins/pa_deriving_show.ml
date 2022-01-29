@@ -198,7 +198,7 @@ value fmt_expression arg ?{coercion} param_map ty0 =
         <:expr< pf ofmt $str:fmtstring$ >> fmts vars in
     (conspat, <:vala< None >>, <:expr< let open $runtime_module$.Fmt in ($e$) >>)
     ]
-  | (_, _, _, <:vala< Some _ >>, _) -> assert False
+  | (_, _, _, _, <:vala< Some _ >>, _) -> assert False
   ]) l in
   <:expr< fun ofmt -> fun [ $list:branches$ ] >>
 

@@ -116,7 +116,7 @@ value fmt_expression arg ?{coercion} param_map ty0 =
 
     (conspat, <:vala< None >>, cmpexp)
 
-  | (_, _, _, <:vala< Some _ >>, _) -> assert False
+  | (_, _, _, _, <:vala< Some _ >>, _) -> assert False
   ]) l in
   <:expr< fun [ $list:branches$ ] >>
 

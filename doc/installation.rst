@@ -40,7 +40,7 @@ and the standard PPX rewriters, so there are a ton of extra
 packages needed::
 
   opam install rresult fmt ounit2 pcre core_kernel ppx_deriving \
-       ppx_deriving_yojson ppx_import ppx_here sexplib bos \
+       ppx_deriving_yojson ppx_import ppx_here sexplib0 bos \
        expect_test_helpers ppx_expect
 
 5. A few Perl packages

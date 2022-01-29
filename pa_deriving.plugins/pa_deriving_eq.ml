@@ -145,7 +145,7 @@ value fmt_expression arg ?{coercion} param_map ty0 =
 
     (conspat, <:vala< None >>, cmpexp)
 
-  | (_, _, _, <:vala< Some _ >>, _) -> assert False
+  | (_, _, _, _, <:vala< Some _ >>, _) -> assert False
   ]) l in
   let branches = branches @ [ (<:patt< _ >>, <:vala< None >>, <:expr< False >>) ] in
   <:expr< fun a b -> match (a,b) with [ $list:branches$ ] [@ocaml.warning "-4";][@ocaml.warning "-11";] >>

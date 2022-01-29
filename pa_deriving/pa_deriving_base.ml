@@ -94,8 +94,8 @@ value monomorphize_ctyp cty =
     <:ctyp:< [= $list:l$ ] >>
   | <:ctyp:< [ $list:l$ ] >> ->
     let l = List.map (fun [
-          (loc, na, tl, rto, al) ->
-          (loc, na, vala_map (List.map mrec) tl, vala_map (Option.map mrec) rto, al)
+          (loc, na, tyvars, tl, rto, al) ->
+          (loc, na, tyvars, vala_map (List.map mrec) tl, vala_map (Option.map mrec) rto, al)
             ]) l in
     <:ctyp:< [ $list:l$ ] >>
   | <:ctyp:< ( $list:l$ ) >> -> <:ctyp:< ( $list:List.map mrec l$ ) >>

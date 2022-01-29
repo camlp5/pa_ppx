@@ -158,7 +158,7 @@ value to_expression arg ?{coercion} ~{msg} param_map ty0 =
 
     (conspat, <:vala< None >>, <:expr< `List [ (`String $str:jscid$) :: $liste$ ] >>)
 
-  | (_, _, _, <:vala< Some _ >>, _) -> assert False
+  | (_, _, _, _, <:vala< Some _ >>, _) -> assert False
   ]) l in
   <:expr< fun [ $list:branches$ ] >>
 
@@ -521,7 +521,7 @@ value of_expression arg ~{msg} param_map ty0 =
 
     (conspat, <:vala< None >>, rhs)
 
-  | (_, _, _, <:vala< Some _ >>, _) -> assert False
+  | (_, _, _, _, <:vala< Some _ >>, _) -> assert False
   ]) l in
   let catch_branch = (<:patt< _ >>, <:vala< None >>, <:expr< Result.Error $str:msg$ >>) in
   let branches = branches @ [catch_branch] in

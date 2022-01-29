@@ -149,7 +149,7 @@ value generate_param_parser_expression arg ty =
             if [] = superfluous_fields then
               $full_rhs$
             else Ploc.raise (loc_of_expr z)
-              (Failure Fmt.(str "superfluous (not-allowed) fields: %a" (list string) superfluous_fields))
+              (Failure Fmt.(str "superfluous (not-allowed) fields: %a" (list ~{sep=const string " "} string) superfluous_fields))
                 | e -> Ploc.raise (loc_of_expr e)
                          (Failure Fmt.(str "param did not match record-type:@ record-type: %s\n@ param: %a"
                                            $str:String.escaped (Pp_MLast.show_ctyp z)$ Pp_MLast.pp_expr e)) 

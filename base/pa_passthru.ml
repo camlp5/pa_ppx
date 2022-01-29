@@ -284,9 +284,9 @@ and generic_constructor arg x =
   | None -> generic_constructor0 arg x
   | exception Extfun.Failure -> generic_constructor0 arg x
   ]
-and generic_constructor0 arg = fun (loc, x1, x2, x3, x4) ->
-    (loc, x1, vala_map (List.map (ctyp arg)) x2,
-     vala_map (option_map (ctyp arg)) x3, attributes arg x4)
+and generic_constructor0 arg = fun (loc, x1, x2, x3, x4, x5) ->
+    (loc, x1, x2, vala_map (List.map (ctyp arg)) x3,
+     vala_map (option_map (ctyp arg)) x4, attributes arg x5)
 and poly_variant arg =
   fun
   [ PvTag loc x1 x2 x3 x4 →
@@ -552,8 +552,8 @@ and sig_item0 arg =
         SgDir loc x1 (vala_map (option_map (expr arg)) x2)
     | SgExc loc x1 x2 →
         SgExc loc (generic_constructor arg x1) (attributes arg x2)
-    | SgExt loc x1 x2 x3 x4 →
-        SgExt loc x1 (ctyp arg x2) x3 (attributes arg x4)
+    | SgExt loc x1 x2 x3 x4 x5 →
+        SgExt loc x1 x2 (ctyp arg x3) x4 (attributes arg x5)
     | SgInc loc x1 x2 →
         SgInc loc (module_type arg x1) (attributes arg x2)
     | SgMod loc x1 x2 →
@@ -691,8 +691,8 @@ and str_item0 arg =
         StExc loc (vala_map (extension_constructor arg) x1) (attributes arg x2)
     | StExp loc x1 x2 →
         StExp loc (expr arg x1) (attributes arg x2)
-    | StExt loc x1 x2 x3 x4 →
-        StExt loc x1 (ctyp arg x2) x3 (attributes arg x4)
+    | StExt loc x1 x2 x3 x4 x5 →
+        StExt loc x1 x2 (ctyp arg x3) x4 (attributes arg x5)
     | StInc loc x1 x2 →
         StInc loc (module_expr arg x1) (attributes arg x2)
     | StMod loc x1 x2 →

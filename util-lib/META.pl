@@ -8,7 +8,7 @@ our $destdir = shift @ARGV ;
 
 print <<"EOF";
 # Base libraries for "pa_ppx"
-requires = "pcre,unix"
+requires = "pcre,unix,camlp5.streams"
 version = "$Version::version"
 description = "pa_ppx base libraries"
 

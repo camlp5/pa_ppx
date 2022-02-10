@@ -1,3 +1,4 @@
+version: "dev"
 synopsis: "PPX Rewriters for Ocaml, written using Camlp5"
 description:
 """

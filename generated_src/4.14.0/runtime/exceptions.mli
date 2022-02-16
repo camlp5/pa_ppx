@@ -1,3 +1,11 @@
+module Ploc :
+  sig
+    include module type of Ploc with type t = Ploc.t;
+    value pp_loc_verbose : ref bool;
+    value pp : Fmt.t t;
+    value equal : t → t → bool;
+  end
+;
 type t = exn == ..[@@"deriving_inline" show;];
 [@@@"ocaml.text" "/*";];
 module M_pp : sig type nonrec pp = { f : mutable Fmt.t t }; value f : pp; end;
@@ -31,7 +39,8 @@ type t +=
       (string * int * int)[@"rebind_to" Stdlib.Undefined_recursive_module;]
   | StreamFailure[@"rebind_to" Stream.Failure;]
   | Error of string[@"rebind_to" Stream.Error;]
-  | Break[@"rebind_to" Sys.Break;] ][@@"deriving_inline" show;]
+  | Break[@"rebind_to" Sys.Break;]
+  | Exc of Ploc.t and t[@"rebind_to" Ploc.Exc;] [@"name" "Ploc.Exc";] ][@@"deriving_inline" show;]
 ;
 [@@@"end"];
 

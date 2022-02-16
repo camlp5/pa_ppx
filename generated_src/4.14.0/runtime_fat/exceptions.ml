@@ -1,4 +1,33 @@
-type t = exn == ..[@@"deriving_inline" (show, sexp, yojson, eq);];
+module Ploc =
+  struct
+    include Ploc;
+    value pp0_loc ppf loc =
+      let fname = Ploc.file_name loc in
+      let line = Ploc.line_nb loc in
+      let bp = Ploc.first_pos loc in
+      let ep = Ploc.last_pos loc in
+      let bol = Ploc.bol_pos loc in
+      let bp = bp - bol in
+      let ep = ep - bol in
+      Fmt.(pf ppf "<%a:%d:%d-%d>" (quote string) fname line bp ep)
+    ;
+    value pp1_loc ppf x = Fmt.(const string "<loc>" ppf ());
+    value pp_loc_verbose = ref False;
+    value pp ppf x =
+      if pp_loc_verbose.val then pp0_loc ppf x else pp1_loc ppf x
+    ;
+    value equal (x : t) y = x = y;
+    value to_yojson (x : t) =
+      let s = Fmt.(str "%a" pp x) in
+      `String s
+    ;
+    value sexp_of_t (x : t) =
+      let s = Fmt.(str "%a" pp x) in
+      Sexplib0.Sexp.Atom s
+    ;
+  end
+;
+type t = exn == ..[@@"deriving_inline" (show, sexp_of, to_yojson, eq);];
 [@@@"ocaml.text" "/*";];
 module M_equal =
   struct
@@ -23,22 +52,6 @@ module M_to_yojson =
 [@@@"ocaml.text" "/*";];
 value to_yojson x = M_to_yojson.f.M_to_yojson.f x;
 [@@@"ocaml.text" "/*";];
-module M_of_yojson =
-  struct
-    type nonrec of_yojson =
-      { f : mutable Yojson.Safe.t → Rresult.result t string }
-    ;
-    value f =
-      {f _ =
-        invalid_arg
-          ("of_yojson: Maybe a [@@deriving yojson] is missing when extending the type " ^
-           "t")}
-    ;
-  end
-;
-[@@@"ocaml.text" "/*";];
-value of_yojson x = M_of_yojson.f.M_of_yojson.f x;
-[@@@"ocaml.text" "/*";];
 module M_sexp_of_t =
   struct
     type nonrec sexp_of_t = { f : mutable t → Sexplib0.Sexp.t };
@@ -52,20 +65,6 @@ module M_sexp_of_t =
 ;
 [@@@"ocaml.text" "/*";];
 value sexp_of_t x = M_sexp_of_t.f.M_sexp_of_t.f x;
-[@@@"ocaml.text" "/*";];
-module M_t_of_sexp =
-  struct
-    type nonrec t_of_sexp = { f : mutable Sexplib0.Sexp.t → t };
-    value f =
-      {f _ =
-        invalid_arg
-          ("t_of_sexp: Maybe a [@@deriving sexp] is missing when extending the type " ^
-           "t")}
-    ;
-  end
-;
-[@@@"ocaml.text" "/*";];
-value t_of_sexp x = M_t_of_sexp.f.M_t_of_sexp.f x;
 [@@@"ocaml.text" "/*";];
 module M_pp =
   struct
@@ -109,7 +108,8 @@ type t +=
     = Stdlib.Undefined_recursive_module[@"name" "Stdlib.Undefined_recursive_module";]
   | StreamFailure = Stream.Failure[@"name" "Stream.Failure";]
   | Error = Stream.Error[@"name" "Stream.Error";]
-  | Break = Sys.Break[@"name" "Sys.Break";] ][@@"deriving_inline" (show, sexp, yojson, eq);]
+  | Break = Sys.Break[@"name" "Sys.Break";]
+  | Exc = Ploc.Exc[@"name" "Ploc.Exc";] ][@@"deriving_inline" (show, sexp_of, to_yojson, eq);]
 ;
 let open M_equal in
 let fallback = f.f in
@@ -152,6 +152,7 @@ f.f :=
     | (StreamFailure, StreamFailure) → True
     | (Error a_0, Error b_0) → (fun a b → a = b) a_0 b_0
     | (Break, Break) → True
+    | (Exc a_0 a_1, Exc b_0 b_1) → Ploc.equal a_0 b_0 && equal a_1 b_1
     | (a, b) → fallback a b ];
 let open M_to_yojson in
 let fallback = f.f in
@@ -212,111 +213,7 @@ f.f :=
   | Error v0 →
       `List [`String "Stream.Error"; Runtime.Yojson.string_to_yojson v0]
   | Break → `List [`String "Sys.Break"]
-  | z → fallback z ];
-let open M_of_yojson in
-let fallback = f.f in
-f.f :=
-  fun
-  [ `List [`String "Arg.Help"; v0] →
-      Rresult.R.bind
-        (Runtime.Yojson.string_of_yojson "Extending type <longid_lident>" v0)
-        (fun v0 → Result.Ok (Help v0))
-  | `List [`String "Arg.Bad"; v0] →
-      Rresult.R.bind
-        (Runtime.Yojson.string_of_yojson "Extending type <longid_lident>" v0)
-        (fun v0 → Result.Ok (Bad v0))
-  | `List [`String "Fun.Finally_raised"; v0] →
-      Rresult.R.bind (of_yojson v0) (fun v0 → Result.Ok (Finally_raised v0))
-  | `List [`String "Lazy.Undefined"] → Result.Ok Undefined
-  | `List [`String "Parsing.Parse_error"] → Result.Ok Parse_error
-  | `List [`String "Queue.Empty"] → Result.Ok QueueEmpty
-  | `List [`String "Scanf.Scan_failure"; v0] →
-      Rresult.R.bind
-        (Runtime.Yojson.string_of_yojson "Extending type <longid_lident>" v0)
-        (fun v0 → Result.Ok (Scan_failure v0))
-  | `List [`String "Stack.Empty"] → Result.Ok StackEmpty
-  | `List [`String "Stdlib.Exit"] → Result.Ok Exit
-  | `List [`String "Stdlib.Match_failure"; v0] →
-      Rresult.R.bind
-        ((fun
-          [ `List [v0; v1; v2] →
-              Rresult.R.bind
-                (Runtime.Yojson.string_of_yojson
-                   "Extending type <longid_lident>" v0)
-                (fun v0 →
-                   Rresult.R.bind
-                     (Runtime.Yojson.int_of_yojson
-                        "Extending type <longid_lident>" v1)
-                     (fun v1 →
-                        Rresult.R.bind
-                          (Runtime.Yojson.int_of_yojson
-                             "Extending type <longid_lident>" v2)
-                          (fun v2 → Result.Ok (v0, v1, v2))))
-          | _ → Result.Error "Extending type <longid_lident>" ])
-           v0)
-        (fun v0 → Result.Ok (Match_failure v0))
-  | `List [`String "Stdlib.Assert_failure"; v0] →
-      Rresult.R.bind
-        ((fun
-          [ `List [v0; v1; v2] →
-              Rresult.R.bind
-                (Runtime.Yojson.string_of_yojson
-                   "Extending type <longid_lident>" v0)
-                (fun v0 →
-                   Rresult.R.bind
-                     (Runtime.Yojson.int_of_yojson
-                        "Extending type <longid_lident>" v1)
-                     (fun v1 →
-                        Rresult.R.bind
-                          (Runtime.Yojson.int_of_yojson
-                             "Extending type <longid_lident>" v2)
-                          (fun v2 → Result.Ok (v0, v1, v2))))
-          | _ → Result.Error "Extending type <longid_lident>" ])
-           v0)
-        (fun v0 → Result.Ok (Assert_failure v0))
-  | `List [`String "Stdlib.Invalid_argument"; v0] →
-      Rresult.R.bind
-        (Runtime.Yojson.string_of_yojson "Extending type <longid_lident>" v0)
-        (fun v0 → Result.Ok (Invalid_argument v0))
-  | `List [`String "Stdlib.Failure"; v0] →
-      Rresult.R.bind
-        (Runtime.Yojson.string_of_yojson "Extending type <longid_lident>" v0)
-        (fun v0 → Result.Ok (Failure v0))
-  | `List [`String "Stdlib.Not_found"] → Result.Ok Not_found
-  | `List [`String "Stdlib.Out_of_memory"] → Result.Ok Out_of_memory
-  | `List [`String "Stdlib.Stack_overflow"] → Result.Ok Stack_overflow
-  | `List [`String "Stdlib.Sys_error"; v0] →
-      Rresult.R.bind
-        (Runtime.Yojson.string_of_yojson "Extending type <longid_lident>" v0)
-        (fun v0 → Result.Ok (Sys_error v0))
-  | `List [`String "Stdlib.End_of_file"] → Result.Ok End_of_file
-  | `List [`String "Stdlib.Division_by_zero"] → Result.Ok Division_by_zero
-  | `List [`String "Stdlib.Sys_blocked_io"] → Result.Ok Sys_blocked_io
-  | `List [`String "Stdlib.Undefined_recursive_module"; v0] →
-      Rresult.R.bind
-        ((fun
-          [ `List [v0; v1; v2] →
-              Rresult.R.bind
-                (Runtime.Yojson.string_of_yojson
-                   "Extending type <longid_lident>" v0)
-                (fun v0 →
-                   Rresult.R.bind
-                     (Runtime.Yojson.int_of_yojson
-                        "Extending type <longid_lident>" v1)
-                     (fun v1 →
-                        Rresult.R.bind
-                          (Runtime.Yojson.int_of_yojson
-                             "Extending type <longid_lident>" v2)
-                          (fun v2 → Result.Ok (v0, v1, v2))))
-          | _ → Result.Error "Extending type <longid_lident>" ])
-           v0)
-        (fun v0 → Result.Ok (Undefined_recursive_module v0))
-  | `List [`String "Stream.Failure"] → Result.Ok StreamFailure
-  | `List [`String "Stream.Error"; v0] →
-      Rresult.R.bind
-        (Runtime.Yojson.string_of_yojson "Extending type <longid_lident>" v0)
-        (fun v0 → Result.Ok (Error v0))
-  | `List [`String "Sys.Break"] → Result.Ok Break
+  | Exc v0 v1 → `List [`String "Ploc.Exc"; Ploc.to_yojson v0; to_yojson v1]
   | z → fallback z ];
 let open M_sexp_of_t in
 let fallback = f.f in
@@ -396,73 +293,9 @@ f.f :=
         [Sexplib0.Sexp.Atom "Stream.Error";
          Sexplib0.Sexp_conv.sexp_of_string v0]
   | Break → Sexplib0.Sexp.List [Sexplib0.Sexp.Atom "Sys.Break"]
-  | z → fallback z ];
-let open M_t_of_sexp in
-let fallback = f.f in
-f.f :=
-  fun
-  [ Sexplib0.Sexp.List [Sexplib0.Sexp.Atom "Arg.Help"; v0] →
-      Help (Sexplib0.Sexp_conv.string_of_sexp v0)
-  | Sexplib0.Sexp.List [Sexplib0.Sexp.Atom "Arg.Bad"; v0] →
-      Bad (Sexplib0.Sexp_conv.string_of_sexp v0)
-  | Sexplib0.Sexp.List [Sexplib0.Sexp.Atom "Fun.Finally_raised"; v0] →
-      Finally_raised (t_of_sexp v0)
-  | Sexplib0.Sexp.List [Sexplib0.Sexp.Atom "Lazy.Undefined"] → Undefined
-  | Sexplib0.Sexp.List [Sexplib0.Sexp.Atom "Parsing.Parse_error"] →
-      Parse_error
-  | Sexplib0.Sexp.List [Sexplib0.Sexp.Atom "Queue.Empty"] → QueueEmpty
-  | Sexplib0.Sexp.List [Sexplib0.Sexp.Atom "Scanf.Scan_failure"; v0] →
-      Scan_failure (Sexplib0.Sexp_conv.string_of_sexp v0)
-  | Sexplib0.Sexp.List [Sexplib0.Sexp.Atom "Stack.Empty"] → StackEmpty
-  | Sexplib0.Sexp.List [Sexplib0.Sexp.Atom "Stdlib.Exit"] → Exit
-  | Sexplib0.Sexp.List [Sexplib0.Sexp.Atom "Stdlib.Match_failure"; v0] →
-      Match_failure
-        ((fun
-          [ Sexplib0.Sexp.List [v0; v1; v2] →
-              (Sexplib0.Sexp_conv.string_of_sexp v0,
-               Sexplib0.Sexp_conv.int_of_sexp v1,
-               Sexplib0.Sexp_conv.int_of_sexp v2)
-          | _ → failwith "wrong number of members in list" ])
-           v0)
-  | Sexplib0.Sexp.List [Sexplib0.Sexp.Atom "Stdlib.Assert_failure"; v0] →
-      Assert_failure
-        ((fun
-          [ Sexplib0.Sexp.List [v0; v1; v2] →
-              (Sexplib0.Sexp_conv.string_of_sexp v0,
-               Sexplib0.Sexp_conv.int_of_sexp v1,
-               Sexplib0.Sexp_conv.int_of_sexp v2)
-          | _ → failwith "wrong number of members in list" ])
-           v0)
-  | Sexplib0.Sexp.List [Sexplib0.Sexp.Atom "Stdlib.Invalid_argument"; v0] →
-      Invalid_argument (Sexplib0.Sexp_conv.string_of_sexp v0)
-  | Sexplib0.Sexp.List [Sexplib0.Sexp.Atom "Stdlib.Failure"; v0] →
-      Failure (Sexplib0.Sexp_conv.string_of_sexp v0)
-  | Sexplib0.Sexp.List [Sexplib0.Sexp.Atom "Stdlib.Not_found"] → Not_found
-  | Sexplib0.Sexp.List [Sexplib0.Sexp.Atom "Stdlib.Out_of_memory"] →
-      Out_of_memory
-  | Sexplib0.Sexp.List [Sexplib0.Sexp.Atom "Stdlib.Stack_overflow"] →
-      Stack_overflow
-  | Sexplib0.Sexp.List [Sexplib0.Sexp.Atom "Stdlib.Sys_error"; v0] →
-      Sys_error (Sexplib0.Sexp_conv.string_of_sexp v0)
-  | Sexplib0.Sexp.List [Sexplib0.Sexp.Atom "Stdlib.End_of_file"] → End_of_file
-  | Sexplib0.Sexp.List [Sexplib0.Sexp.Atom "Stdlib.Division_by_zero"] →
-      Division_by_zero
-  | Sexplib0.Sexp.List [Sexplib0.Sexp.Atom "Stdlib.Sys_blocked_io"] →
-      Sys_blocked_io
-  | Sexplib0.Sexp.List
-      [Sexplib0.Sexp.Atom "Stdlib.Undefined_recursive_module"; v0] →
-      Undefined_recursive_module
-        ((fun
-          [ Sexplib0.Sexp.List [v0; v1; v2] →
-              (Sexplib0.Sexp_conv.string_of_sexp v0,
-               Sexplib0.Sexp_conv.int_of_sexp v1,
-               Sexplib0.Sexp_conv.int_of_sexp v2)
-          | _ → failwith "wrong number of members in list" ])
-           v0)
-  | Sexplib0.Sexp.List [Sexplib0.Sexp.Atom "Stream.Failure"] → StreamFailure
-  | Sexplib0.Sexp.List [Sexplib0.Sexp.Atom "Stream.Error"; v0] →
-      Error (Sexplib0.Sexp_conv.string_of_sexp v0)
-  | Sexplib0.Sexp.List [Sexplib0.Sexp.Atom "Sys.Break"] → Break
+  | Exc v0 v1 →
+      Sexplib0.Sexp.List
+        [Sexplib0.Sexp.Atom "Ploc.Exc"; Ploc.sexp_of_t v0; sexp_of_t v1]
   | z → fallback z ];
 let open M_pp in
 let fallback = f.f in
@@ -549,6 +382,9 @@ f.f :=
         pf ofmt "(@[<2>Stream.Error@ %a)@]"
           (fun ofmt arg → let open Runtime.Fmt in pf ofmt "%S" arg) v0
     | Break → let open Runtime.Fmt in pf ofmt "@[<2>Sys.Break@]"
+    | Exc v0 v1 →
+        let open Runtime.Fmt in
+        pf ofmt "(@[<2>Ploc.Exc@ (@,%a,@ %a@,))@]" Ploc.pp v0 pp v1
     | z → fallback ofmt z ];
 [@@@"end"];
 value print_exn exn = Some (show exn);

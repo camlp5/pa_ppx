@@ -1,3 +1,32 @@
+module Ploc =
+  struct
+    include Ploc;
+    value pp0_loc ppf loc =
+      let fname = Ploc.file_name loc in
+      let line = Ploc.line_nb loc in
+      let bp = Ploc.first_pos loc in
+      let ep = Ploc.last_pos loc in
+      let bol = Ploc.bol_pos loc in
+      let bp = bp - bol in
+      let ep = ep - bol in
+      Fmt.(pf ppf "<%a:%d:%d-%d>" (quote string) fname line bp ep)
+    ;
+    value pp1_loc ppf x = Fmt.(const string "<loc>" ppf ());
+    value pp_loc_verbose = ref False;
+    value pp ppf x =
+      if pp_loc_verbose.val then pp0_loc ppf x else pp1_loc ppf x
+    ;
+    value equal (x : t) y = x = y;
+    value to_yojson (x : t) =
+      let s = Fmt.(str "%a" pp x) in
+      `String s
+    ;
+    value sexp_of_t (x : t) =
+      let s = Fmt.(str "%a" pp x) in
+      Sexplib0.Sexp.Atom s
+    ;
+  end
+;
 type t = exn == ..[@@"deriving_inline" show;];
 [@@@"ocaml.text" "/*";];
 module M_pp =
@@ -42,7 +71,8 @@ type t +=
     = Stdlib.Undefined_recursive_module[@"name" "Stdlib.Undefined_recursive_module";]
   | StreamFailure = Stream.Failure[@"name" "Stream.Failure";]
   | Error = Stream.Error[@"name" "Stream.Error";]
-  | Break = Sys.Break[@"name" "Sys.Break";] ][@@"deriving_inline" show;]
+  | Break = Sys.Break[@"name" "Sys.Break";]
+  | Exc = Ploc.Exc[@"name" "Ploc.Exc";] ][@@"deriving_inline" show;]
 ;
 let open M_pp in
 let fallback = f.f in
@@ -129,6 +159,9 @@ f.f :=
         pf ofmt "(@[<2>Stream.Error@ %a)@]"
           (fun ofmt arg → let open Runtime.Fmt in pf ofmt "%S" arg) v0
     | Break → let open Runtime.Fmt in pf ofmt "@[<2>Sys.Break@]"
+    | Exc v0 v1 →
+        let open Runtime.Fmt in
+        pf ofmt "(@[<2>Ploc.Exc@ (@,%a,@ %a@,))@]" Ploc.pp v0 pp v1
     | z → fallback ofmt z ];
 [@@@"end"];
 value print_exn exn = Some (show exn);

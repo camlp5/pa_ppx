@@ -1,22 +1,6 @@
 module Ploc =
   struct
-    include Ploc;
-    value pp0_loc ppf loc =
-      let fname = Ploc.file_name loc in
-      let line = Ploc.line_nb loc in
-      let bp = Ploc.first_pos loc in
-      let ep = Ploc.last_pos loc in
-      let bol = Ploc.bol_pos loc in
-      let bp = bp - bol in
-      let ep = ep - bol in
-      Fmt.(pf ppf "<%a:%d:%d-%d>" (quote string) fname line bp ep)
-    ;
-    value pp1_loc ppf x = Fmt.(const string "<loc>" ppf ());
-    value pp_loc_verbose = ref False;
-    value pp ppf x =
-      if pp_loc_verbose.val then pp0_loc ppf x else pp1_loc ppf x
-    ;
-    value equal (x : t) y = x = y;
+    include Pa_ppx_runtime.Exceptions.Ploc;
     type vala α =
       Ploc.vala α ==
         [ VaAnt of string

@@ -68,3 +68,6 @@ module AList : sig
   value remove : ?cmp:('a -> 'a -> bool) -> 'a -> list ('a * 'b) -> list ('a * 'b) ;
 end
 ;
+value failwithf : format4 'a Format.formatter unit 'b  -> 'a ;
+value raise_failwith : Ploc.t -> string -> 'a ;
+value raise_failwithf : Ploc.t -> format4 'a Format.formatter unit 'b  -> 'a ;

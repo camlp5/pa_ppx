@@ -4,31 +4,7 @@
 IFDEF BOOTSTRAP THEN
 
 module Ploc = struct
-include Ploc
-
-
-let pp0_loc ppf loc =
-  let fname = Ploc.file_name loc in
-  let line = Ploc.line_nb loc in
-  let bp = Ploc.first_pos loc in
-  let ep = Ploc.last_pos loc in
-  let bol = Ploc.bol_pos loc in
-
-  let bp = bp - bol in
-  let ep = ep - bol in
-  Fmt.(pf ppf "<%a:%d:%d-%d>" (quote string) fname line bp ep)
-
-let pp1_loc ppf x = Fmt.(const string "<loc>" ppf ())
-
-let pp_loc_verbose = ref false
-
-let pp ppf x =
-  if !pp_loc_verbose then
-    pp0_loc ppf x
-  else
-    pp1_loc ppf x
-
-let equal (x : t) y = x = y
+include Pa_ppx_runtime.Exceptions.Ploc
 
 type 'a vala = [%import: 'a Ploc.vala] [@@deriving show,eq]
 end

@@ -108,11 +108,11 @@ runtime.ml: ../runtime/runtime.ml
 
 exceptions.ORIG.ml: ../runtime/exceptions.ORIG.ml
 	cp $^ .
-	perl -p -i -e 's|show\]|show, sexp, yojson, eq\]|' $@
+	perl -p -i -e 's|show\]|show, sexp_of, to_yojson, eq\]|' $@
 
 exceptions.ORIG.mli: ../runtime/exceptions.ORIG.mli
 	cp $^ .
-	perl -p -i -e 's|show\]|show, sexp, yojson, eq\]|' $@
+	perl -p -i -e 's|show\]|show, sexp_of, to_yojson, eq\]|' $@
 
 EXTERNAL = $(shell $(OCAMLFIND) query -predicates byte -format '%m' $(PACKAGES) | grep local-install)
 $(CMO) $(CMI) $(CMX): $(EXTERNAL)

@@ -336,3 +336,8 @@ value remove ?{cmp=cmpequal} x l =
 ;
 end
 ;
+
+(* borrowed from ounit *)
+value failwithf fmt = Fmt.kstr failwith fmt ;
+value raise_failwith loc s = Ploc.raise loc (Failure s) ;
+value raise_failwithf loc fmt = Fmt.kstr (raise_failwith loc) fmt ;

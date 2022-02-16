@@ -3,7 +3,16 @@
 
 IFDEF BOOTSTRAP THEN
 
-type t = exn = .. [@@deriving show, sexp, yojson, eq]
+module Ploc : sig
+include (module type of Ploc with type t = Ploc.t)
+
+val pp_loc_verbose : bool ref
+val pp : t Fmt.t
+val equal : t -> t -> bool
+
+end
+
+type t = exn = .. [@@deriving show, sexp_of, to_yojson, eq]
 
 type t +=
     Help of string [@rebind_to Arg.Help]
@@ -30,7 +39,8 @@ type t +=
   | StreamFailure [@rebind_to Stream.Failure]
   | Error of string [@rebind_to Stream.Error]
   | Break [@rebind_to Sys.Break]
-[@@deriving show, sexp, yojson, eq]
+  | Exc of Ploc.t * t[@rebind_to Ploc.Exc;][@name "Ploc.Exc";]
+[@@deriving show, sexp_of, to_yojson, eq]
 
 ELSE
 type t = exn = ..

@@ -2,8 +2,43 @@
 (* pp_MLast.ml,v *)
 
 IFDEF BOOTSTRAP THEN
+module Ploc = struct
+include Ploc
 
-type t = exn = .. [@@deriving show, sexp, yojson, eq]
+
+let pp0_loc ppf loc =
+  let fname = Ploc.file_name loc in
+  let line = Ploc.line_nb loc in
+  let bp = Ploc.first_pos loc in
+  let ep = Ploc.last_pos loc in
+  let bol = Ploc.bol_pos loc in
+
+  let bp = bp - bol in
+  let ep = ep - bol in
+  Fmt.(pf ppf "<%a:%d:%d-%d>" (quote string) fname line bp ep)
+
+let pp1_loc ppf x = Fmt.(const string "<loc>" ppf ())
+
+let pp_loc_verbose = ref false
+
+let pp ppf x =
+  if !pp_loc_verbose then
+    pp0_loc ppf x
+  else
+    pp1_loc ppf x
+
+let equal (x : t) y = x = y
+let to_yojson (x : t) =
+  let s = Fmt.(str "%a" pp x) in
+  `String s
+let sexp_of_t (x : t) =
+  let s = Fmt.(str "%a" pp x) in
+  Sexplib0.Sexp.Atom s
+
+end
+
+
+type t = exn = .. [@@deriving show, sexp_of, to_yojson, eq]
 
 type t +=
     Help of string [@rebind_to Arg.Help][@name "Arg.Help"]
@@ -30,7 +65,8 @@ type t +=
   | StreamFailure [@rebind_to Stream.Failure][@name "Stream.Failure"]
   | Error of string [@rebind_to Stream.Error][@name "Stream.Error"]
   | Break [@rebind_to Sys.Break][@name "Sys.Break"]
-[@@deriving show, sexp, yojson, eq]
+  | Exc of Ploc.t * t[@rebind_to Ploc.Exc;][@name "Ploc.Exc";]
+[@@deriving show, sexp_of, to_yojson, eq]
 ;;
 
 let print_exn exn = Some (show exn) ;;

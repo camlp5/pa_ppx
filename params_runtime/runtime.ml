@@ -5,16 +5,6 @@
 open MLast ;
 open Pa_ppx_base ;
 open Pp_MLast ;
-open Pa_ppx_runtime.Exceptions ;
-
-type t += [
-    Help of string [@rebind_to Arg.Help;][@name "Arg.Help";] 
-  | Exc of Ploc.t and t[@rebind_to Ploc.Exc;][@name "Ploc.Exc";]
-] [@@deriving show;]
-;
-
-value print_exn exn = Some (show exn) ;
-Printexc.register_printer print_exn ;
 
 type lident = string ;
 value equal_lident x y = x = y ;

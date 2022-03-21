@@ -81,7 +81,7 @@ initialize-exn:: exceptions.ORIG.ml
 	mv $@.NEW exceptions.ml
 
 bootstrap-exn: exceptions.ORIG.ml
-	$(NOT_OCAMLFIND) preprocess -package $(PACKAGES),camlp5.macro,camlp5.pr_r,pa_ppx_import,pa_ppx_deriving_plugins.show \
+	$(NOT_OCAMLFIND) preprocess -package $(PACKAGES),camlp5.macro,camlp5.pr_r,pa_ppx_import,pa_ppx_deriving_plugins.show,pa_ppx_deriving_plugins.yojson,pa_ppx_deriving_plugins.sexp \
 	-syntax camlp5o \
 	-ppopt -pa_ppx-runtime -ppopt "" \
 	-ppopt -D -ppopt BOOTSTRAP \

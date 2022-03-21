@@ -28,17 +28,49 @@ let pp ppf x =
     pp1_loc ppf x
 
 let equal (x : t) y = x = y
-let to_yojson (x : t) =
-  let s = Fmt.(str "%a" pp x) in
-  `String s
-let sexp_of_t (x : t) =
-  let s = Fmt.(str "%a" pp x) in
-  Sexplib0.Sexp.Atom s
 
+type unmade_loc_t = string * int * int * int * int * int * int * string * string [@@deriving show, sexp, yojson]
+
+let unmk_t (x : t) : unmade_loc_t =
+  let open Ploc in
+  (file_name x,
+   line_nb x,
+   bol_pos x,
+   line_nb_last x,
+   bol_pos_last x,
+   first_pos x,
+   last_pos x,
+   comment x,
+   comment_last x)
+
+let mk_t ((file_name,
+        line_nb,
+        bol_pos,
+        line_nb_last,
+        bol_pos_last,
+        first_pos,
+        last_pos,
+        comment,
+        comment_last) : unmade_loc_t) =
+  let x = Ploc.make_loc file_name line_nb bol_pos (first_pos, last_pos) comment in
+  let x = Ploc.with_comment_last x comment_last in
+  let x = Ploc.with_line_nb_last x line_nb_last in
+  let x = Ploc.with_bol_pos_last x bol_pos_last in
+  x
+
+let to_yojson (x : t) =
+  unmade_loc_t_to_yojson (unmk_t x)
+let of_yojson j =
+  Rresult.R.bind (unmade_loc_t_of_yojson j)
+    (fun x -> Result.Ok (mk_t x))
+let sexp_of_t (x : t) =
+  sexp_of_unmade_loc_t (unmk_t x)
+let t_of_sexp s =
+  mk_t (unmade_loc_t_of_sexp s)
 end
 
 
-type t = exn = .. [@@deriving show, sexp_of, to_yojson, eq]
+type t = exn = .. [@@deriving show, sexp, yojson, eq]
 
 type t +=
     Help of string [@rebind_to Arg.Help][@name "Arg.Help"]
@@ -66,7 +98,7 @@ type t +=
   | Error of string [@rebind_to Stream.Error][@name "Stream.Error"]
   | Break [@rebind_to Sys.Break][@name "Sys.Break"]
   | Exc of Ploc.t * t[@rebind_to Ploc.Exc;][@name "Ploc.Exc";]
-[@@deriving show, sexp_of, to_yojson, eq]
+[@@deriving show, sexp, yojson, eq]
 ;;
 
 let print_exn exn = Some (show exn) ;;

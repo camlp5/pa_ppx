@@ -1,6 +1,8 @@
 module Ploc :
   sig
-    include module type of Ploc with type t = Ploc.t;
+    include module type of Ploc with
+      type t = Ploc.t
+      and type vala α = Ploc.vala α;
     value pp_loc_verbose : ref bool;
     value pp : Fmt.t t;
     value equal : t → t → bool;

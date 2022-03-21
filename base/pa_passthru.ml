@@ -1034,11 +1034,11 @@ value install x = do {
 }
 ;
 
-value loc_of_implem (l, status) = do {
-  assert (l <> []) ;
-  let (_, loc) = List.hd l in
-  loc
-}
+value loc_of_implem (l, status) =
+  match l with [
+      [] -> Ploc.dummy
+     | [(_, loc) :: _] -> loc
+    ]
 ;
 value before_implem = Pcaml.parse_implem.val ;
 Pcaml.parse_implem.val := (fun arg -> passthru loc_of_implem implem (List.rev eflist.val) before_implem arg);

@@ -1,12 +1,14 @@
 module Ploc :
   sig
-    include module type of Ploc with type t = Ploc.t;
+    include module type of Ploc with
+      type t = Ploc.t
+      and type vala α = Ploc.vala α;
     value pp_loc_verbose : ref bool;
     value pp : Fmt.t t;
     value equal : t → t → bool;
   end
 ;
-type t = exn == ..[@@"deriving_inline" (show, sexp_of, to_yojson, eq);];
+type t = exn == ..[@@"deriving_inline" (show, sexp, yojson, eq);];
 [@@@"ocaml.text" "/*";];
 module M_equal :
   sig
@@ -26,6 +28,17 @@ module M_to_yojson :
 [@@@"ocaml.text" "/*";];
 value to_yojson : t → Yojson.Safe.t;
 [@@@"ocaml.text" "/*";];
+module M_of_yojson :
+  sig
+    type nonrec of_yojson =
+      { f : mutable Yojson.Safe.t → Rresult.result t string }
+    ;
+    value f : of_yojson;
+  end
+;
+[@@@"ocaml.text" "/*";];
+value of_yojson : Yojson.Safe.t → Rresult.result t string;
+[@@@"ocaml.text" "/*";];
 module M_sexp_of_t :
   sig
     type nonrec sexp_of_t = { f : mutable t → Sexplib0.Sexp.t };
@@ -34,6 +47,15 @@ module M_sexp_of_t :
 ;
 [@@@"ocaml.text" "/*";];
 value sexp_of_t : t → Sexplib0.Sexp.t;
+[@@@"ocaml.text" "/*";];
+module M_t_of_sexp :
+  sig
+    type nonrec t_of_sexp = { f : mutable Sexplib0.Sexp.t → t };
+    value f : t_of_sexp;
+  end
+;
+[@@@"ocaml.text" "/*";];
+value t_of_sexp : Sexplib0.Sexp.t → t;
 [@@@"ocaml.text" "/*";];
 module M_pp : sig type nonrec pp = { f : mutable Fmt.t t }; value f : pp; end;
 [@@@"ocaml.text" "/*";];
@@ -67,7 +89,7 @@ type t +=
   | StreamFailure[@"rebind_to" Stream.Failure;]
   | Error of string[@"rebind_to" Stream.Error;]
   | Break[@"rebind_to" Sys.Break;]
-  | Exc of Ploc.t and t[@"rebind_to" Ploc.Exc;] [@"name" "Ploc.Exc";] ][@@"deriving_inline" (show, sexp_of, to_yojson, eq);]
+  | Exc of Ploc.t and t[@"rebind_to" Ploc.Exc;] [@"name" "Ploc.Exc";] ][@@"deriving_inline" (show, sexp, yojson, eq);]
 ;
 [@@@"end"];
 

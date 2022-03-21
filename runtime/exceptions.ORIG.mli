@@ -4,7 +4,7 @@
 IFDEF BOOTSTRAP THEN
 
 module Ploc : sig
-include (module type of Ploc with type t = Ploc.t)
+include (module type of Ploc with type t = Ploc.t and type 'a vala = 'a Ploc.vala)
 
 val pp_loc_verbose : bool ref
 val pp : t Fmt.t

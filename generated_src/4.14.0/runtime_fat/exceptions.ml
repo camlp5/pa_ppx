@@ -160,14 +160,12 @@ module Ploc =
       let x = Ploc.with_bol_pos_last x bol_pos_last in
       x
     ;
-    value to_yojson (x : t) =
-      let s = Fmt.(str "%a" pp x) in
-      `String s
+    value to_yojson (x : t) = unmade_loc_t_to_yojson (unmk_t x);
+    value of_yojson j =
+      Rresult.R.bind (unmade_loc_t_of_yojson j) (fun x → Result.Ok (mk_t x))
     ;
-    value sexp_of_t (x : t) =
-      let s = Fmt.(str "%a" pp x) in
-      Sexplib0.Sexp.Atom s
-    ;
+    value sexp_of_t (x : t) = sexp_of_unmade_loc_t (unmk_t x);
+    value t_of_sexp s = mk_t (unmade_loc_t_of_sexp s);
   end
 ;
 type t = exn == ..[@@"deriving_inline" (show, sexp, yojson, eq);];

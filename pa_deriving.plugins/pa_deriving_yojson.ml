@@ -412,7 +412,7 @@ value of_expression arg ~{msg} param_map ty0 =
     let loc = loc_of_ctyp ty0 in
     Base.longident_runtime_module <:longident< Runtime >> in
 
-  let rec fmtrec ?{attrmod=None} = fun [
+  let rec fmtrec ?{attrmod=None} ~{msg} = fun [
 
   <:ctyp:< $lid:lid$ >> when attrmod = Some Nobuiltin ->
   let fname = of_yojson_fname arg lid in
@@ -452,30 +452,30 @@ value of_expression arg ~{msg} param_map ty0 =
   <:expr< $longid:runtime_module$.Yojson.hashtbl_of_yojson >>
 
 | <:ctyp:< $t$ [@ $attrid:(_, id)$ ] >> when Some id = DC.allowed_attribute (DC.get arg) "yojson" "nobuiltin" ->
-    fmtrec ~{attrmod=Some Nobuiltin} t
+    fmtrec ~{attrmod=Some Nobuiltin} ~{msg=msg} t
 
 | <:ctyp:< $t$ [@ $attrid:(_, id)$ $exp:e$ ;] >> when Some id = DC.allowed_attribute (DC.get arg) "yojson" "of_yojson" ->
     e
 
-| <:ctyp:< $t$ [@ $attribute:_$ ] >> -> fmtrec ~{attrmod=attrmod} t
+| <:ctyp:< $t$ [@ $attribute:_$ ] >> -> fmtrec ~{attrmod=attrmod} ~{msg=msg} t
 
 | <:ctyp:< list $ty$ >> ->
-  let fmt1 = fmtrec ty in
+  let fmt1 = fmtrec ~{msg=msg} ty in
   <:expr< $longid:runtime_module$.Yojson.list_of_yojson $str:msg$ $fmt1$ >>
 
 | <:ctyp:< array $ty$ >> ->
-  let fmt1 = fmtrec ty in
+  let fmt1 = fmtrec ~{msg=msg} ty in
   <:expr< $longid:runtime_module$.Yojson.array_of_yojson $str:msg$ $fmt1$ >>
 
 | (<:ctyp:< ref $ty$ >> | <:ctyp:< Pervasives.ref $ty$ >>) ->
-  let fmt1 = fmtrec ty in
+  let fmt1 = fmtrec ~{msg=msg} ty in
   <:expr< $longid:runtime_module$.Yojson.ref_of_yojson $fmt1$ >>
 
 | <:ctyp:< option $ty$ >> ->
-  let fmt1 = fmtrec ty in
+  let fmt1 = fmtrec ~{msg=msg} ty in
   <:expr< $longid:runtime_module$.Yojson.option_of_yojson $fmt1$ >>
 
-| <:ctyp:< $t1$ $t2$ >> -> <:expr< $fmtrec t1$ $fmtrec t2$ >>
+| <:ctyp:< $t1$ $t2$ >> -> <:expr< $fmtrec ~{msg=msg} t1$ $fmtrec ~{msg=msg} t2$ >>
 
 | <:ctyp:< '$i$ >> ->
   let p = match PM.find i param_map with [
@@ -496,7 +496,7 @@ value of_expression arg ~{msg} param_map ty0 =
     let jscid = match extract_allowed_attribute_expr arg ("yojson", "name") (uv attrs) with [
       None -> cid | Some <:expr< $str:s$ >> -> s | _ -> failwith "@name with non-string argument"
     ] in
-    let (recpat, body) = fmt_record ~{cid=Some cid} loc arg fields in
+    let (recpat, body) = fmt_record ~{cid=Some cid} ~{msg=msg} loc arg fields in
 
     let conspat = <:patt< `List [ `String $str:jscid$ ; $recpat$ ] >> in
     (conspat, <:vala< None >>, body)
@@ -507,7 +507,7 @@ value of_expression arg ~{msg} param_map ty0 =
     ] in
     let vars = List.mapi (fun n _ -> Printf.sprintf "v%d" n) tyl in
     let varexps = List.map (fun v -> <:expr< $lid:v$ >>) vars in
-    let fmts = List.map fmtrec tyl in
+    let fmts = List.map (fmtrec ~{msg=msg}) tyl in
 
     let conspat = List.fold_right (fun v rhs -> <:patt< [ $lid:v$ :: $rhs$ ] >>)
         vars <:patt< [] >> in
@@ -543,7 +543,7 @@ value of_expression arg ~{msg} param_map ty0 =
     | [t] -> [t]
     | [_::_] -> assert False ] in
     let vars = List.mapi (fun n _ -> Printf.sprintf "v%d" n) tyl in
-    let fmts = List.map fmtrec tyl in
+    let fmts = List.map (fmtrec ~{msg=msg}) tyl in
     let varpats = List.map (fun v -> <:patt< $lid:v$ >>) vars in
     let listpat = List.fold_right (fun vp listpat -> <:patt< [ $vp$ :: $listpat$ ] >>)
         varpats <:patt< [] >> in
@@ -562,7 +562,7 @@ value of_expression arg ~{msg} param_map ty0 =
   }
 
   | PvInh _ ty ->
-    let fmtf = fmtrec ty in
+    let fmtf = fmtrec ~{msg=msg} ty in
     Right fmtf
   ]) l in
   let (lefts,rights) = filter_split isLeft branches in
@@ -588,19 +588,19 @@ value of_expression arg ~{msg} param_map ty0 =
     let varexps = List.map (fun v -> <:expr< $lid:v$ >>) vars in
     let tuplevars = tupleexpr loc varexps in
     let consexp = <:expr< Result.Ok $tuplevars$ >> in
-    let fmts = List.map fmtrec tyl in
+    let fmts = List.map (fmtrec ~{msg=msg}) tyl in
     let unmarshe = List.fold_right2 (fun fmte v rhs ->
         <:expr< Rresult.R.bind ($fmte$ $lid:v$) (fun $lid:v$ -> $rhs$) >>) fmts vars consexp in
     <:expr< fun [ `List $listpat$ -> $unmarshe$
                 | _ -> Result.Error $str:msg$ ] >>
 
 | <:ctyp:< { $list:fields$ } >> ->
-  let (recpat, body) = fmt_record ~{cid=None} loc arg fields in
+  let (recpat, body) = fmt_record ~{cid=None} ~{msg=msg} loc arg fields in
   <:expr< fun [ $recpat$ -> $body$ | _ -> Result.Error $str:msg$ ] >>
 
 | [%unmatched_vala] -> failwith "pa_deriving_yojson.of_expression"
 ]
-and fmt_record ~{cid} loc arg fields = 
+and fmt_record ~{cid} ~{msg} loc arg fields = 
   let labels_vars_fmts_defaults_jskeys = List.map (fun (_, fname, _, ty, attrs) ->
         let ty = ctyp_wrap_attrs ty (uv attrs) in
         let attrs = snd(Ctyp.unwrap_attrs ty) in
@@ -610,7 +610,8 @@ and fmt_record ~{cid} loc arg fields =
           Some <:expr< $str:k$ >> -> k
         | Some _ -> failwith "@key attribute without string payload"
         | None -> fname ] in
-        (fname, Printf.sprintf "v_%s" fname, fmtrec ty, default, jskey)) fields in
+        let msg = msg^"."^fname in
+        (fname, Printf.sprintf "v_%s" fname, fmtrec ~{msg=msg} ty, default, jskey)) fields in
 
   let varrow_except (i,iexp) =
     List.mapi (fun j (f,v,fmt,_,_) ->
@@ -660,7 +661,7 @@ and fmt_record ~{cid} loc arg fields =
 
   (<:patt< `Assoc xs >>, e)
 
-in fmtrec ty0
+in fmtrec ~{msg=msg} ty0
 ;
 
 value fmt_of_top arg ~{msg} params = fun [

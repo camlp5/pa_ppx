@@ -1322,7 +1322,7 @@ struct
   let mk size =
     {
       count = 0 ;
-      v = Array.create size None ;
+      v = Array.make size None ;
     }
 
   let map m k =

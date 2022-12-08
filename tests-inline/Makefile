@@ -10,10 +10,6 @@ PACKAGEPREFIX=pa_ppx_
 DESTDIR=
 RM=rm
 
-LAUNCH=env TOP=$(TOP) $(TOP)/tools/LAUNCH
-OCAMLFIND=$(LAUNCH) ocamlfind
-NOT_OCAMLFIND=$(LAUNCH) not-ocamlfind
-MKCAMLP5=$(LAUNCH) mkcamlp5
 PACKAGES := $(PACKAGES),ounit2,fmt,pcre,rresult,compiler-libs.common,sexplib0,str,threads.posix
 OCAMLCFLAGS += -thread
 

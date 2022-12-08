@@ -8,10 +8,6 @@ include $(TOP)/config/Makefile
 DESTDIR=
 RM=rm
 
-LAUNCH=env TOP=$(TOP) $(TOP)/tools/LAUNCH
-OCAMLFIND=$(LAUNCH) ocamlfind
-NOT_OCAMLFIND=$(LAUNCH) not-ocamlfind
-MKCAMLP5=$(LAUNCH) mkcamlp5
 PACKAGES := $(PACKAGES),pa_ppx_deriving,pa_ppx_base,pa_ppx_unmatched_vala,camlp5.parser_quotations.link
 
 ML=\
@@ -43,16 +39,16 @@ doc: $(CMT) $(CMTI)
 KITS=$(CMO)
 
 camlp5r.pa_ppx_deriving_plugins: $(KITS)
-	$(MKCAMLP5) -verbose -package camlp5.pa_r,camlp5.pr_r,pa_ppx_deriving $(KITS) -o $@
+	$(MKCAMLP5) -package camlp5.pa_r,camlp5.pr_r,pa_ppx_deriving $(KITS) -o $@
 
 camlp5r.pa_ppx_deriving_plugins.opt: $(KITS:.cmo=.cmx)
-	$(MKCAMLP5).opt -verbose -package camlp5.pa_r,camlp5.pr_r,pa_ppx_deriving $(KITS:.cmo=.cmx) -o $@
+	$(MKCAMLP5OPT) -package camlp5.pa_r,camlp5.pr_r,pa_ppx_deriving $(KITS:.cmo=.cmx) -o $@
 
 camlp5o.pa_ppx_deriving_plugins: $(KITS)
-	$(MKCAMLP5) -verbose -package camlp5.pa_o,camlp5.pr_o,pa_ppx_deriving $(KITS) -o $@
+	$(MKCAMLP5) -package camlp5.pa_o,camlp5.pr_o,pa_ppx_deriving $(KITS) -o $@
 
 camlp5o.pa_ppx_deriving_plugins.opt: $(KITS:.cmo=.cmx)
-	$(MKCAMLP5).opt -verbose -package camlp5.pa_o,camlp5.pr_o,pa_ppx_deriving $(KITS:.cmo=.cmx) -o $@
+	$(MKCAMLP5OPT) -package camlp5.pa_o,camlp5.pr_o,pa_ppx_deriving $(KITS:.cmo=.cmx) -o $@
 
 META: META.pl
 	./META.pl > META

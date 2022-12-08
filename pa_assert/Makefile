@@ -8,11 +8,6 @@ include $(TOP)/config/Makefile
 DESTDIR=
 RM=rm
 
-LAUNCH=env TOP=$(TOP) $(TOP)/tools/LAUNCH
-OCAMLFIND=$(LAUNCH) ocamlfind
-NOT_OCAMLFIND=$(LAUNCH) not-ocamlfind
-MKCAMLP5=$(LAUNCH) mkcamlp5
-
 PACKAGES := $(PACKAGES),fmt,pa_ppx_base
 TARGET := pa_ppx_assert.cma
 ML := pa_assert.ml
@@ -28,10 +23,10 @@ all: $(TARGET) $(TARGET:.cma=.cmxa) camlp5.pa_ppx_assert camlp5.pa_ppx_assert.op
 doc: $(CMT) $(CMTI)
 
 camlp5.pa_ppx_assert: $(TARGET)
-	$(MKCAMLP5) -verbose -package fmt,camlp5.pa_r,camlp5.pr_r,pa_ppx_base $(TARGET) -o $@
+	$(MKCAMLP5) -package fmt,camlp5.pa_r,camlp5.pr_r,pa_ppx_base $(TARGET) -o $@
 
 camlp5.pa_ppx_assert.opt: $(TARGET)
-	$(MKCAMLP5).opt -verbose -package fmt,camlp5.pa_r,camlp5.pr_r,pa_ppx_base $(TARGET:.cma=.cmxa) -o $@
+	$(MKCAMLP5OPT) -package fmt,camlp5.pa_r,camlp5.pr_r,pa_ppx_base $(TARGET:.cma=.cmxa) -o $@
 
 META: META.pl
 	./META.pl > META

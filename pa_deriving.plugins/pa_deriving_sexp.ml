@@ -96,7 +96,7 @@ value to_expression arg ?{coercion} ~{msg} param_map ty0 =
   let fmt1 = fmtrec ty in
   <:expr< Sexplib0.Sexp_conv.sexp_of_array $fmt1$ >>
 
-| (<:ctyp:< ref $ty$ >> | <:ctyp:< Pervasives.ref $ty$ >>) ->
+| (<:ctyp:< ref $ty$ >> | <:ctyp:< Stdlib.ref $ty$ >>) ->
   let fmt1 = fmtrec ty in
   <:expr< Sexplib0.Sexp_conv.sexp_of_ref $fmt1$ >>
 
@@ -425,7 +425,7 @@ value of_expression arg ~{msg} param_map ty0 =
   let fmt1 = fmtrec ty in
   <:expr< Sexplib0.Sexp_conv.array_of_sexp $fmt1$ >>
 
-| (<:ctyp:< ref $ty$ >> | <:ctyp:< Pervasives.ref $ty$ >>) ->
+| (<:ctyp:< ref $ty$ >> | <:ctyp:< Stdlib.ref $ty$ >>) ->
   let fmt1 = fmtrec ty in
   <:expr< Sexplib0.Sexp_conv.ref_of_sexp $fmt1$ >>
 

@@ -8,11 +8,6 @@ include $(TOP)/config/Makefile
 DESTDIR=
 RM=rm
 
-LAUNCH=env TOP=$(TOP) $(TOP)/tools/LAUNCH
-OCAMLFIND=$(LAUNCH) ocamlfind
-NOT_OCAMLFIND=$(LAUNCH) not-ocamlfind
-MKCAMLP5 := $(LAUNCH) $(MKCAMLP5)
-
 PACKAGES := $(PACKAGES),rresult,fmt,pa_ppx_utils,pa_ppx_runtime,compiler-libs.common
 TARGET := pa_ppx_base.cma
 ML := base.ml pp_MLast.ml pp_parsetree.ml ppxutil.ml pa_passthru.ml pa_normalize.ml
@@ -113,10 +108,10 @@ refold-pp-parsetree: pp_parsetree.ml
 	mv $@.NEW  pp_parsetree.REFOLD.ml
 
 camlp5.pa_ppx_base: $(TARGET)
-	$(MKCAMLP5) -verbose -package fmt,rresult,camlp5.pa_r,camlp5.pr_r,pa_ppx_utils,compiler-libs.common $(TARGET) -o $@
+	$(MKCAMLP5) -package fmt,rresult,camlp5.pa_r,camlp5.pr_r,pa_ppx_utils,pa_ppx_runtime,compiler-libs.common $(TARGET) -o $@
 
 camlp5.pa_ppx_base.opt: $(TARGET:.cma=.cmxa)
-	$(MKCAMLP5).opt -verbose -package fmt,rresult,camlp5.pa_r,camlp5.pr_r,pa_ppx_utils,compiler-libs.common $(TARGET:.cma=.cmxa) -o $@
+	$(MKCAMLP5OPT) -package fmt,rresult,camlp5.pa_r,camlp5.pr_r,pa_ppx_utils,pa_ppx_runtime,compiler-libs.common $(TARGET:.cma=.cmxa) -o $@
 
 META: META.pl
 	./META.pl > META

@@ -8,10 +8,6 @@ include $(TOP)/config/Makefile
 DESTDIR=
 RM=rm
 
-LAUNCH=env TOP=$(TOP) $(TOP)/tools/LAUNCH
-OCAMLFIND=$(LAUNCH) ocamlfind
-NOT_OCAMLFIND=$(LAUNCH) not-ocamlfind
-
 PACKAGES := rresult,fmt,camlp5,uint,pa_ppx_base,pa_ppx_deriving_plugins.std,camlp5.parser_quotations
 TARGET := pa_ppx_params.cma
 ML := runtime.ml

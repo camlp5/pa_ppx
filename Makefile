@@ -101,16 +101,16 @@ get-generated: generated_src/$(genocamlVERSION) generated_src/$(gencamlp5VERSION
 	tar -C generated_src/$(gencamlp5VERSION) -cf - . | tar -xvBf -
 
 camlp5r.pa_ppx:
-	tools/LAUNCH $(MKCAMLP5) -verbose -package camlp5.pa_r,camlp5.pr_r,$(PACKAGES) -o $@
+	tools/LAUNCH $(MKCAMLP5) -package camlp5.pa_r,camlp5.pr_r,$(PACKAGES) -o $@
 
 camlp5r.pa_ppx.opt:
-	tools/LAUNCH $(MKCAMLP5).opt -verbose -package camlp5.pa_r,camlp5.pr_r,$(PACKAGES) -o $@
+	tools/LAUNCH $(MKCAMLP5OPT) -package camlp5.pa_r,camlp5.pr_r,$(PACKAGES) -o $@
 
 camlp5o.pa_ppx:
-	tools/LAUNCH $(MKCAMLP5) -verbose -package camlp5.pa_o,camlp5.pr_o,$(PACKAGES) -o $@
+	tools/LAUNCH $(MKCAMLP5) -package camlp5.pa_o,camlp5.pr_o,$(PACKAGES) -o $@
 
 camlp5o.pa_ppx.opt:
-	tools/LAUNCH $(MKCAMLP5).opt -verbose -package camlp5.pa_o,camlp5.pr_o,$(PACKAGES) -o $@
+	tools/LAUNCH $(MKCAMLP5OPT) -package camlp5.pa_o,camlp5.pr_o,$(PACKAGES) -o $@
 
 META: META.pl
 	./META.pl > META

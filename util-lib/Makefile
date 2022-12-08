@@ -8,10 +8,6 @@ include $(TOP)/config/Makefile
 DESTDIR=
 RM=rm
 
-LAUNCH=env TOP=$(TOP) $(TOP)/tools/LAUNCH
-OCAMLFIND=$(LAUNCH) ocamlfind
-NOT_OCAMLFIND=$(LAUNCH) not-ocamlfind
-
 PACKAGES := $(PACKAGES),pcre
 TARGET := pa_ppx_utils.cma
 ML := std.ml coll.ml std2.ml uf.ml tsort0.ml tsort.ml pack.ml hash.ml

@@ -102,7 +102,7 @@ value fmt_expression arg ?{coercion} param_map ty0 =
   let fmt1 = fmtrec ty in
   <:expr< fun (ofmt : Format.formatter) arg -> let open $runtime_module$.Fmt in (pf ofmt $str:"@[<2>[|%a@,|]@]"$ (array ~{sep=semi} $fmt1$) arg) >>
 
-| (<:ctyp:< ref $ty$ >> | <:ctyp:< Pervasives.ref $ty$ >>) ->
+| (<:ctyp:< ref $ty$ >> | <:ctyp:< Stdlib.ref $ty$ >>) ->
   let fmt1 = fmtrec ty in
   <:expr< fun (ofmt : Format.formatter) arg -> let open $runtime_module$.Fmt in (pf ofmt $str:"ref (%a)"$ $fmt1$ arg.val) >>
 

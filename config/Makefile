@@ -3,10 +3,13 @@
 
 RM=rm
 
-OCAMLFIND=ocamlfind
 OCAMLTOPLEVEL=ocaml
 CAMLP5LIB=$(shell $(OCAMLFIND) query camlp5)
-MKCAMLP5=mkcamlp5
+LAUNCH=env TOP=$(TOP) $(TOP)/tools/LAUNCH
+OCAMLFIND=$(LAUNCH) ocamlfind
+NOT_OCAMLFIND=$(LAUNCH) not-ocamlfind
+MKCAMLP5=$(LAUNCH) mkcamlp5 -verbose -I +dynlink
+MKCAMLP5OPT=$(LAUNCH) mkcamlp5.opt -verbose -I +dynlink
 CAMLP5R=camlp5r -I $(CAMLP5LIB)
 INCLUDES=
 OCAMLCFLAGS=$(DEBUG) $(WARNERR) $(INCLUDES)

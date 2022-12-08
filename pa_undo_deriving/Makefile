@@ -8,10 +8,6 @@ include $(TOP)/config/Makefile
 DESTDIR=
 RM=rm
 
-LAUNCH=$(TOP)/tools/LAUNCH
-OCAMLFIND=$(LAUNCH) ocamlfind
-NOT_OCAMLFIND=$(LAUNCH) not-ocamlfind
-MKCAMLP5=$(LAUNCH) mkcamlp5
 PACKAGES := $(PACKAGES),pa_ppx_base,fmt,bos,compiler-libs.common
 
 TARGET=pa_undo_deriving.cma
@@ -28,10 +24,10 @@ all: $(TARGET) $(TARGET:.cma=.cmxa) camlp5.pa_ppx_undo_deriving camlp5.pa_ppx_un
 doc: $(CMT) $(CMTI)
 
 camlp5.pa_ppx_undo_deriving: $(TARGET)
-	$(MKCAMLP5) -verbose -package $(PACKAGES),pa_ppx_base $(TARGET) -o $@
+	$(MKCAMLP5) -package $(PACKAGES),pa_ppx_base $(TARGET) -o $@
 
 camlp5.pa_ppx_undo_deriving.opt: $(TARGET:.cma=.cmxa)
-	$(MKCAMLP5).opt -verbose -package $(PACKAGES),pa_ppx_base $(TARGET:.cma=.cmxa) -o $@
+	$(MKCAMLP5OPT) -package $(PACKAGES),pa_ppx_base $(TARGET:.cma=.cmxa) -o $@
 
 META: META.pl
 	./META.pl > META

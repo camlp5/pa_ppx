@@ -9,7 +9,7 @@ module T : sig
   type ('a,'b) record = { a : 'a; b : 'b }
   [@@deriving iter]
 
-  type 'a reflist = 'a Pervasives.ref list
+  type 'a reflist = 'a Stdlib.ref list
   [@@ocaml.warning "-3"]
   [@@deriving iter]
 
@@ -21,7 +21,7 @@ end = struct
   type ('a,'b) record = { a : 'a; b : 'b }
   [@@deriving iter]
 
-  type 'a reflist = 'a Pervasives.ref list
+  type 'a reflist = 'a Stdlib.ref list
   [@@ocaml.warning "-3"]
   [@@deriving iter]
 

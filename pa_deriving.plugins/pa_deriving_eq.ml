@@ -65,7 +65,7 @@ value fmt_expression arg ?{coercion} param_map ty0 =
                  (loop (i + 1))) in
           ((Array.length x) = (Array.length y)) && (loop 0) >>
 
-  | (<:ctyp:< ref $ty$ >> | <:ctyp:< Pervasives.ref $ty$ >>) ->
+  | (<:ctyp:< ref $ty$ >> | <:ctyp:< Stdlib.ref $ty$ >>) ->
     let fmt1 = fmtrec ty in
     <:expr< fun a b -> $fmt1$ a.val b.val >>
 

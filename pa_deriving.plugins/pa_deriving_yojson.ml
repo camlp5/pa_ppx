@@ -109,7 +109,7 @@ value to_expression arg ?{coercion} ~{msg} param_map ty0 =
   let fmt1 = fmtrec ty in
   <:expr< $longid:runtime_module$.Yojson.array_to_yojson $fmt1$ >>
 
-| (<:ctyp:< ref $ty$ >> | <:ctyp:< Pervasives.ref $ty$ >>) ->
+| (<:ctyp:< ref $ty$ >> | <:ctyp:< Stdlib.ref $ty$ >>) ->
   let fmt1 = fmtrec ty in
   <:expr< $longid:runtime_module$.Yojson.ref_to_yojson $fmt1$ >>
 
@@ -467,7 +467,7 @@ value of_expression arg ~{msg} param_map ty0 =
   let fmt1 = fmtrec ~{msg=msg} ty in
   <:expr< $longid:runtime_module$.Yojson.array_of_yojson $str:msg$ $fmt1$ >>
 
-| (<:ctyp:< ref $ty$ >> | <:ctyp:< Pervasives.ref $ty$ >>) ->
+| (<:ctyp:< ref $ty$ >> | <:ctyp:< Stdlib.ref $ty$ >>) ->
   let fmt1 = fmtrec ~{msg=msg} ty in
   <:expr< $longid:runtime_module$.Yojson.ref_of_yojson $fmt1$ >>
 

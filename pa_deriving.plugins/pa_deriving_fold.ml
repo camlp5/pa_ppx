@@ -45,7 +45,7 @@ value fmt_expression arg ?{coercion} param_map ty0 =
   let fmt1 = fmtrec ty in
   <:expr< fun acc a -> Array.fold_left $fmt1$ acc a >>
 
-  | (<:ctyp:< ref $ty$ >> | <:ctyp:< Pervasives.ref $ty$ >>) ->
+  | (<:ctyp:< ref $ty$ >> | <:ctyp:< Stdlib.ref $ty$ >>) ->
     let fmt1 = fmtrec ty in
     <:expr< fun acc a -> $fmt1$ acc a.val >>
 

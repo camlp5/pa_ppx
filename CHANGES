@@ -1,4 +1,9 @@
 
+pa_ppx Version 0.10
+-------------------
+
+* [08 Dec 2022] update pa_ppx to support camlp5 8.00.04 (and OCaml 5.0.0)
+
 pa_ppx Version 0.09
 -------------------
 

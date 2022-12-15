@@ -16,9 +16,9 @@ PRESYSDIRS= util-lib testutils runtime runtime_fat base pa_unmatched_vala \
 SYSDIRS= $(PRESYSDIRS) \
 	params_runtime
 
-TESTDIRS= tests-ounit2 our-tests-inline
+TESTDIRS= tests-ounit2
 
-EXTRATESTDIRS = tests-inline tests-expect
+EXTRATESTDIRS = our-tests-inline tests-inline tests-expect
 
 PACKAGES := pa_ppx_utils
 PACKAGES := $(PACKAGES),pa_ppx_base

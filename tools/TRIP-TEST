@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 function noisy_error {
     echo "FAILED FAILED FAILED FAILED FAILED"
@@ -8,50 +8,15 @@ function noisy_error {
 set -e
 trap noisy_error ERR
 
-VERS=$1
 
-ENABLE_LOG=${ENABLE_LOG:-1}
-LOG=~/tmp/TRIP-TEST-pa_ppx-$VERS.log
-
-if (( $ENABLE_LOG ))
-then
-  rm -f $LOG && touch $LOG
-fi
-
-echo "================ $VERS ================" 2>&1
-opam switch $VERS
-. $OPAMROOT/dot.bashrc
+echo "================ $OPAM_SWITCH_PREFIX ================"
 
 #uncomment these when testing a new camlp5 release
 #opam remove -y camlp5 || true
 #opam install -y camlp5
 
 (cd ../camlp5 && opam install -y .)
-opam install -y --deps-only .
-
-{
-  ( \
-   make clean && \
-   make initialize && \
-   make presys && \
-   make bootstrap && \
-   make clean && \
-   make -j16 sys && \
-   make save-generated \
-   true ) 2>&1
-  echo "build OK" 1>&2
-} | if (( $ENABLE_LOG ))
-then
-  tee 1>>$LOG
-else
-  cat
-fi
-{
-  make test 2>&1 
-  echo "test OK" 1>&2
-} | if (( $ENABLE_LOG ))
-then
-  tee 1>>$LOG
-else
-  cat
-fi
+opam remove -y pa_ppx
+opam pin remove -y pa_ppx
+opam install -t -y --deps-only --working-dir .
+opam install -t -y --working-dir .

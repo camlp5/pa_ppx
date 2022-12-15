@@ -1,0 +1,19 @@
+#!/bin/bash
+
+set -e
+
+switch="$1"
+shift
+
+mkdir -p /tmp/debugopam
+if [ "$1" = "opam" ] ; then
+  cmd="$@ --debug-level 2 2> /tmp/debugopam/err_$switch"
+else
+  cmd="$@"
+fi
+OPAMDEBUGSECTIONS="GSTATE SYSTEM" # to retrieve only a subset of debug infos
+exec opam exec --switch "$switch" --set-switch --set-root -- "$cmd"
+# clean debug files as everything succeed ; or remove them by hand to not automatise an rm
+if [ $? -eq 0 ]; then
+  rm /tmp/debugopam/err_*
+fi

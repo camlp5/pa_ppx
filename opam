@@ -48,12 +48,12 @@ depends: [
   "bos" { >= "0.2.0" }
   "uint" { >= "2.0.1" }
   "ounit"
-#  "sexplib" { with-test >= "v0.14.0" }
-#  "ppx_import" { with-test & >= "1.7.1" }
-#  "ppx_deriving { with-test }
-#  "ppx_deriving_yojson" { with-test & >= "3.5.2" }
-#  "ppx_here" { with-test & >= "v0.13.0" }
-#  "ppx_sexp_conv" { with-test & >= "v0.13.0" }
+  "sexplib" { with-test & >= "v0.14.0" }
+  "ppx_import" { with-test & >= "1.7.1" }
+  "ppx_deriving" { with-test }
+  "ppx_deriving_yojson" { with-test & >= "3.5.2" }
+  "ppx_here" { with-test & >= "v0.13.0" }
+  "ppx_sexp_conv" { with-test & >= "v0.13.0" }
 #  "expect_test_helpers" { with-test & >= "v0.13.0" }
 ]
 conflicts: [
@@ -62,6 +62,6 @@ conflicts: [
 build: [
   [make "get-generated"]
   [make "-j%{jobs}%" "DEBUG=-g" "sys"]
-#  [make "DEBUG=-g" "test"] {with-test}
+  [make "DEBUG=-g" "test"] {with-test}
 ]
 install: [make "install"]

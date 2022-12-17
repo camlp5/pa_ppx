@@ -1,4 +1,3 @@
-version: "dev"
 synopsis: "PPX Rewriters for Ocaml, written using Camlp5"
 description:
 """
@@ -39,8 +38,8 @@ depends: [
   "conf-perl"
   "conf-perl-ipc-system-simple"
   "conf-perl-string-shellquote"
-  "camlp5"      { >= "8.00.03" }
-  "not-ocamlfind" { >= "0.01" }
+  "camlp5"      { >= "8.00.04" }
+  "not-ocamlfind" { >= "0.09" }
   "pcre" { >= "7.4.3" }
   "result" { >= "1.5" }
   "yojson" { >= "1.7.0" }
@@ -58,6 +57,7 @@ depends: [
 ]
 conflicts: [
   "base-effects"
+  "ocaml-option-bytecode-only"
 ]
 build: [
   [make "get-generated"]
@@ -65,3 +65,9 @@ build: [
   [make "DEBUG=-g" "test"] {with-test}
 ]
 install: [make "install"]
+url {
+  src: "https://github.com/camlp5/pa_ppx/archive/refs/tags/0.10.tar.gz"
+  checksum: [
+    "sha512=3df9af96c89799be1caf818d3493c4b8923662f5aae88463f9cc5f15f765aa4c15c4acb9d15b27568f4ace452020ca5db8aa061bcf3f841513fc0de3f63c566f"
+  ]
+}

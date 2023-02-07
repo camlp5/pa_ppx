@@ -1,11 +1,5 @@
-papr_util.cmo hCPassthru.cmo test_utils.byte test_deriving_show.byte test_deriving_show.ppx.byte test_deriving_eq.byte test_deriving_eq.ppx.byte test_deriving_ord.byte test_deriving_ord.ppx.byte test_deriving_enum.byte test_deriving_enum.ppx.byte test_deriving_iter.byte test_deriving_iter.ppx.byte test_deriving_map.byte test_deriving_map.ppx.byte test_deriving_fold.byte test_deriving_fold.ppx.byte test_deriving_make.byte test_deriving_make.ppx.byte test_deriving_params.byte test_here.byte test_here_original.byte test_here.ppx.byte test_import0.byte test_import_camlp5.byte test_ppx_import.byte test_ppx_import.ppx.byte test_hashrecons.byte test_passthru_hashrecons.byte test_ppx_yojson.byte test_ppx_yojson.ppx.byte test_extensible_variants.byte test_comment_lexer.byte o_top_test.byte: 
+papr_util.cmo hCPassthru.cmo test_utils.byte test_ppx_deriving.byte test_ppx_deriving.ppx.byte test_deriving_show.byte test_deriving_show.ppx.byte test_deriving_eq.byte test_deriving_eq.ppx.byte test_deriving_ord.byte test_deriving_ord.ppx.byte test_deriving_enum.byte test_deriving_enum.ppx.byte test_deriving_iter.byte test_deriving_iter.ppx.byte test_deriving_map.byte test_deriving_map.ppx.byte test_deriving_fold.byte test_deriving_fold.ppx.byte test_deriving_make.byte test_deriving_make.ppx.byte test_deriving_params.byte test_here.byte test_here_original.byte test_here.ppx.byte test_import0.byte test_import_camlp5.byte test_ppx_import.byte test_ppx_import.ppx.byte test_hashrecons.byte test_passthru_hashrecons.byte test_ppx_yojson.byte test_ppx_yojson.ppx.byte test_extensible_variants.byte test_comment_lexer.byte o_top_test.byte: 
 stuff.cmo :
 stuff.cmx :
-test_deriving_show.ml.pappx.cmo :
-test_deriving_show.ml.pappx.cmx :
-test_deriving_show.ml.ppx.cmo :
-test_deriving_show.ml.ppx.cmx :
-test_utils.ml.pappx.cmo :
-test_utils.ml.pappx.cmx :
 hCPassthru.cmo :
 hCPassthru.cmx :

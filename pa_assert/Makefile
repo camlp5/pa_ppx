@@ -25,7 +25,7 @@ doc: $(CMT) $(CMTI)
 camlp5.pa_ppx_assert: $(TARGET)
 	$(MKCAMLP5) -package fmt,camlp5.pa_r,camlp5.pr_r,pa_ppx_base $(TARGET) -o $@
 
-camlp5.pa_ppx_assert.opt: $(TARGET)
+camlp5.pa_ppx_assert.opt: $(TARGET:.cma=.cmxa)
 	$(MKCAMLP5OPT) -package fmt,camlp5.pa_r,camlp5.pr_r,pa_ppx_base $(TARGET:.cma=.cmxa) -o $@
 
 META: META.pl

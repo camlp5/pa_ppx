@@ -150,9 +150,8 @@ META: sys
 		-rewrite pa_ppx_utils:pa_ppx.utils \
 		-wrap-subdir utils:util-lib >> META
 
-install: sys META.pl
+install: sys META
 	$(OCAMLFIND) remove pa_ppx || true
-	./META.pl > META
 	$(OCAMLFIND) install pa_ppx META local-install/lib/*/*.*
 
 uninstall:

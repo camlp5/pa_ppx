@@ -45,10 +45,10 @@ sys: plugins $(BATCHTOP)
 
 $(BATCHTOP): plugins
 
-plugins: prereqs
+plugins:
 	set -e; for i in $(SYSDIRS); do cd $$i; $(MAKE) all; cd ..; done
 
-presys: prereqs
+presys:
 	set -e; for i in $(PRESYSDIRS); do cd $$i; $(MAKE) all; cd ..; done
 
 doc: all
@@ -62,11 +62,6 @@ test-everything: all
 
 test: all
 	set -e; for i in $(TESTDIRS); do cd $$i; $(MAKE) test; cd ..; done
-
-prereqs:
-	(perl -MIPC::System::Simple -e 1 > /dev/null 2>&1) || (echo "MUST install Perl module IPC::System::Simple" && exit -1)
-	(perl -MString::ShellQuote -e 1 > /dev/null 2>&1) || (echo "MUST install Perl module String::ShellQuote" && exit -1)
-
 
 bootstrap:
 	$(MAKE) -C runtime bootstrap-exn bootstrap-exn-i
@@ -112,8 +107,48 @@ camlp5o.pa_ppx:
 camlp5o.pa_ppx.opt:
 	$(LAUNCH) $(MKCAMLP5OPT) -package camlp5.pa_o,camlp5.pr_o,$(PACKAGES) -o $@
 
-META: META.pl
-	./META.pl > META
+META.OLD: META.pl META
+	./META.pl > META.OLD
+	diff -Bwiu META.OLD META
+
+META: sys
+	echo 'version = "0.09"' > META
+	echo 'description = "pa_ppx: camlp5-based PPX rewriters"' >> META
+	$(JOINMETA) \
+		-rewrite pa_ppx_params_runtime:pa_ppx.params_runtime \
+		-wrap-subdir params_runtime:params_runtime \
+		-rewrite pa_ppx_expect_test:pa_ppx.expect_test \
+		-wrap-subdir expect_test:pa_expect_test \
+		-rewrite pa_ppx_inline_test:pa_ppx.inline_test \
+		-wrap-subdir inline_test:pa_inline_test \
+		-rewrite pa_ppx_assert:pa_ppx.assert \
+		-wrap-subdir assert:pa_assert \
+		-rewrite pa_ppx_here_original:pa_ppx.here_original \
+		-wrap-subdir here_original:pa_here_original \
+		-rewrite pa_ppx_here:pa_ppx.here \
+		-wrap-subdir here:pa_here \
+		-rewrite pa_ppx_import:pa_ppx.import \
+		-wrap-subdir import:pa_import \
+		-rewrite pa_ppx_dock:pa_ppx.dock \
+		-wrap-subdir dock:pa_dock \
+		-rewrite pa_ppx_deriving_plugins:pa_ppx.deriving_plugins \
+		-wrap-subdir deriving_plugins:pa_deriving.plugins \
+		-rewrite pa_ppx_deriving:pa_ppx.deriving \
+		-wrap-subdir deriving:pa_deriving \
+		-rewrite pa_ppx_hashrecons:pa_ppx.hashrecons \
+		-wrap-subdir hashrecons:pa_hashrecons \
+		-rewrite pa_ppx_unmatched_vala:pa_ppx.unmatched_vala \
+		-wrap-subdir unmatched_vala:pa_unmatched_vala \
+		-rewrite pa_ppx_base:pa_ppx.base \
+		-wrap-subdir base:base \
+		-rewrite pa_ppx_runtime_fat:pa_ppx.runtime_fat \
+		-wrap-subdir runtime_fat:runtime_fat \
+		-rewrite pa_ppx_runtime:pa_ppx.runtime \
+		-wrap-subdir runtime:runtime \
+		-rewrite pa_ppx_testutils:pa_ppx.testutils \
+		-wrap-subdir testutils:testutils \
+		-rewrite pa_ppx_utils:pa_ppx.utils \
+		-wrap-subdir utils:util-lib >> META
 
 install: sys META.pl
 	$(OCAMLFIND) remove pa_ppx || true

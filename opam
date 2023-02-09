@@ -64,8 +64,8 @@ build: [
 ]
 install: [make "install"]
 url {
-  src: "https://github.com/camlp5/pa_ppx/archive/refs/tags/0.10.tar.gz"
+  src: ""
   checksum: [
-    "sha512=3df9af96c89799be1caf818d3493c4b8923662f5aae88463f9cc5f15f765aa4c15c4acb9d15b27568f4ace452020ca5db8aa061bcf3f841513fc0de3f63c566f"
+    "sha512="
   ]
 }

@@ -33,11 +33,10 @@ pa_ppx_runtime_fat.cmx: $(CMO:.cmo=.cmx)
 
 META: META.pl
 	./META.pl > META
-install::
+
+install:: META
 	mkdir -p $(DESTDIR)/lib
-	./META.pl $(DESTDIR)/lib > META
 	$(NOT_OCAMLFIND) reinstall-if-diff pa_ppx_runtime_fat -destdir $(DESTDIR)/lib META $(TARGET) $(TARGET:.cma=.cmxa) $(TARGET:.cma=.a) pa_ppx_runtime_fat.cmx pa_ppx_runtime_fat.cmi $(wildcard *.cmt*)
-	$(RM) -f META
 
 clean::
 	rm -rf META camlp5.pa_ppx_runtime_fat

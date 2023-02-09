@@ -116,11 +116,9 @@ camlp5.pa_ppx_base.opt: $(TARGET:.cma=.cmxa)
 META: META.pl
 	./META.pl > META
 
-install::
+install:: META
 	mkdir -p $(DESTDIR)/lib
-	./META.pl $(DESTDIR)/lib > META
 	$(NOT_OCAMLFIND) reinstall-if-diff pa_ppx_base -destdir $(DESTDIR)/lib META $(TARGET) $(TARGET:.cma=.cmxa) $(TARGET:.cma=.a) pa_ppx_base.cmx pa_ppx_base.cmi $(wildcard *.cmt*)
-	$(RM) -f META
 
 clean::
 	rm -rf META camlp5.pa_ppx_base*

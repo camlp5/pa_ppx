@@ -30,11 +30,10 @@ camlp5.pa_ppx_expect_test.opt: $(TARGET:.cma=.cmxa)
 
 META: META.pl
 	./META.pl > META
-install::
-	./META.pl $(DESTDIR)/lib > META
+
+install:: META
 	mkdir -p $(DESTDIR)/lib
 	$(NOT_OCAMLFIND) reinstall-if-diff pa_ppx_expect_test -destdir $(DESTDIR)/lib META $(TARGET) $(TARGET:.cma=.a) $(TARGET:.cma=.cmxa) $(wildcard *.cmt*)
-	$(RM) -f META
 
 clean::
 	rm -rf META camlp5.pa_ppx_expect_test*

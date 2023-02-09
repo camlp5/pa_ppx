@@ -1,68 +1,31 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Tutorial &mdash; Pa_ppx  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-
-  
-  
-  
-  
-
-  
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/language_data.js"></script>
-    
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-
-    
+    <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Built-in PPX Rewriters" href="builtins.html" />
     <link rel="prev" title="Installation" href="installation.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
-
-          
-            <a href="index.html" class="icon icon-home" alt="Documentation Home"> Pa_ppx
-          
-
-          
+            <a href="index.html" class="icon icon-home"> Pa_ppx
           </a>
-
-          
-            
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -70,18 +33,7 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
@@ -108,74 +60,33 @@
 <li class="toctree-l1"><a class="reference internal" href="faq.html">Frequently Asked Questions</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">Pa_ppx</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-        
       <li>Tutorial</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-            
-            
               <a href="https://github.com/camlp5/camlp5/blob/master/doctutorial.rst" class="fa fa-github"> Edit on GitHub</a>
-            
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="tutorial">
+             
+  <section id="tutorial">
 <h1>Tutorial<a class="headerlink" href="#tutorial" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="organization-of-findlib-packages">
+<section id="organization-of-findlib-packages">
 <h2>Organization of Findlib Packages<a class="headerlink" href="#organization-of-findlib-packages" title="Permalink to this headline">¶</a></h2>
 <p>There are a bunch of findlib packages.  Maybe too many and too
 confusing, I can’t tell.  But the general idea is that for each
@@ -192,11 +103,11 @@ program, but don’t preprocess with it”.</p>
 <p>[I thought of having a “virtual package” that just required the both,
 but it turns out that findlib doesn’t support that (and I can see the
 reasoning there – it could be a source of hard-to-understand bugs).</p>
-</div>
-<div class="section" id="using-pa-ppx-ppx-rewriters">
+</section>
+<section id="using-pa-ppx-ppx-rewriters">
 <h2>Using <code class="docutils literal notranslate"><span class="pre">pa_ppx</span></code> PPX Rewriters<a class="headerlink" href="#using-pa-ppx-ppx-rewriters" title="Permalink to this headline">¶</a></h2>
 <p>This example can be found in <cite>tutorial/simple_show</cite>.</p>
-<div class="section" id="batch-compilation-with-make">
+<section id="batch-compilation-with-make">
 <h3>Batch compilation with Make<a class="headerlink" href="#batch-compilation-with-make" title="Permalink to this headline">¶</a></h3>
 <p>To use <code class="docutils literal notranslate"><span class="pre">pa_ppx</span></code> PPX rewriters, let’s start with a really simple file
 that works with the standard PPX rewriters (simple_show.ml):</p>
@@ -231,8 +142,8 @@ that works with the standard PPX rewriters (simple_show.ml):</p>
 <p>Sometimes more packages must be specified (e.g. for <code class="docutils literal notranslate"><span class="pre">expect_test</span></code>
 and <code class="docutils literal notranslate"><span class="pre">inline_test</span></code>) because <code class="docutils literal notranslate"><span class="pre">dune</span></code> is adding those
 under-the-covers, and these instructions are all Makefile-friendly.</p>
-</div>
-<div class="section" id="batch-compilation-with-dune">
+</section>
+<section id="batch-compilation-with-dune">
 <h3>Batch compilation with Dune<a class="headerlink" href="#batch-compilation-with-dune" title="Permalink to this headline">¶</a></h3>
 <p>Dune requires that we provide a command that will preprocess, but not
 compile.  Since this is cumbersome to do with ocamlfind, <cite>pa_ppx</cite>
@@ -280,11 +191,11 @@ build command in the <code class="docutils literal notranslate"><span class="pre
 and I didn’t want to modify it.  OTOH, I didn’t silence all warnings
 b/c if there are warnings produced by the generated code, I’d like to
 know about them.]</p>
-</div>
-<div class="section" id="in-the-toplevel">
+</section>
+<section id="in-the-toplevel">
 <h3>In the toplevel<a class="headerlink" href="#in-the-toplevel" title="Permalink to this headline">¶</a></h3>
 <p>It’s also straightforward to use <code class="docutils literal notranslate"><span class="pre">pa_ppx</span></code> PPX rewriters in the toplevel:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>        <span class="n">OCaml</span> <span class="n">version</span> <span class="mf">4.10</span><span class="o">.</span><span class="mi">0</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>        <span class="n">OCaml</span> <span class="n">version</span> <span class="mf">4.10.0</span>
 <span class="c1">#use &quot;topfind.camlp5&quot;;;</span>
 <span class="o">-</span> <span class="p">:</span> <span class="n">unit</span> <span class="o">=</span> <span class="p">()</span>
 <span class="c1"># #camlp5o ;;</span>
@@ -310,9 +221,9 @@ know about them.]</p>
   <span class="n">print_string</span> <span class="p">([</span><span class="o">%</span><span class="n">show</span><span class="p">:</span> <span class="n">a1</span><span class="p">]</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">))</span> <span class="p">;;</span>
 </pre></div>
 </div>
-</div>
-</div>
-<div class="section" id="writing-new-ppx-rewriters-upon-pa-ppx">
+</section>
+</section>
+<section id="writing-new-ppx-rewriters-upon-pa-ppx">
 <h2>Writing new PPX Rewriters upon Pa_ppx<a class="headerlink" href="#writing-new-ppx-rewriters-upon-pa-ppx" title="Permalink to this headline">¶</a></h2>
 <p>In this section, we’ll describe at a high level the process of PPX
 rewriter execution in <code class="docutils literal notranslate"><span class="pre">Pa_ppx</span></code>, and how that results in the process
@@ -360,8 +271,8 @@ then calling our rewrite functions from step 1.</p>
 <p>3. Then install these extensible functions into <code class="docutils literal notranslate"><span class="pre">Pa_ppx_base</span></code> with
 indications of when they should be run (before/after which other PPX
 rewriters).</p>
-</div>
-<div class="section" id="an-example-ppx-rewriter-based-on-pa-ppx">
+</section>
+<section id="an-example-ppx-rewriter-based-on-pa-ppx">
 <h2>An Example PPX Rewriter based on Pa_ppx<a class="headerlink" href="#an-example-ppx-rewriter-based-on-pa-ppx" title="Permalink to this headline">¶</a></h2>
 <p>NOTE WELL: This code is taken from <code class="docutils literal notranslate"><span class="pre">pa_ppx/pa_here_original</span></code>, an
 “original syntax” version of <code class="docutils literal notranslate"><span class="pre">pa_ppx/pa_here</span></code> . The function of
@@ -447,8 +358,8 @@ them:</p>
 <code class="docutils literal notranslate"><span class="pre">pa_ppx.import</span></code>, which should be run before <code class="docutils literal notranslate"><span class="pre">pa_ppx.deriving</span></code>, so
 that a type can be imported, and then have type-based code derived
 from that imported type.</p>
-</div>
-<div class="section" id="troubleshooting-ppx-rewriter-invocations">
+</section>
+<section id="troubleshooting-ppx-rewriter-invocations">
 <h2>Troubleshooting PPX Rewriter Invocations<a class="headerlink" href="#troubleshooting-ppx-rewriter-invocations" title="Permalink to this headline">¶</a></h2>
 <p>Everybody eventually uses a PPX rewriter that doesn’t produce the
 results they desire.  There are two ways of debugging that issue:</p>
@@ -456,7 +367,7 @@ results they desire.  There are two ways of debugging that issue:</p>
 <li><p>using <code class="docutils literal notranslate"><span class="pre">not-ocamlfind</span> <span class="pre">preprocess</span></code></p></li>
 <li><p>using the toplevel</p></li>
 </ol>
-<div class="section" id="debugging-using-not-ocamlfind-preprocess">
+<section id="debugging-using-not-ocamlfind-preprocess">
 <h3>Debugging using <code class="docutils literal notranslate"><span class="pre">not-ocamlfind</span> <span class="pre">preprocess</span></code><a class="headerlink" href="#debugging-using-not-ocamlfind-preprocess" title="Permalink to this headline">¶</a></h3>
 <p>Suppose that the <code class="docutils literal notranslate"><span class="pre">ocamlfind</span> <span class="pre">ocamlc</span></code> invocation above didn’t produce
 the results we desired.  For instance, suppose that we forgot the
@@ -499,8 +410,8 @@ wanted to print (official or revised); adding <code class="docutils literal notr
 <code class="docutils literal notranslate"><span class="pre">not-ocamlfind</span> <span class="pre">preprocess</span></code> by removing any flags/arguments that are
 meant only for ocamlc (so: linking, warnings, <code class="docutils literal notranslate"><span class="pre">-c</span></code>, etc) and adding
 a camlp5 printing package (so: <code class="docutils literal notranslate"><span class="pre">camlp5.pr_o</span></code> or <code class="docutils literal notranslate"><span class="pre">camlp5.pr_r</span></code>).</p>
-</div>
-<div class="section" id="debugging-using-the-ocaml-toplevel">
+</section>
+<section id="debugging-using-the-ocaml-toplevel">
 <h3>Debugging using the ocaml toplevel<a class="headerlink" href="#debugging-using-the-ocaml-toplevel" title="Permalink to this headline">¶</a></h3>
 <p>The other way to debug a <code class="docutils literal notranslate"><span class="pre">Pa_ppx</span></code> rewriter is via the Ocaml
 toplevel.  Camlp5 and <code class="docutils literal notranslate"><span class="pre">pa_ppx</span></code> packages can be loaded into the
@@ -549,64 +460,39 @@ toplevel in the usual way.</p>
 </div>
 </li>
 </ol>
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
 
 
            </div>
-           
           </div>
-          <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="builtins.html" class="btn btn-neutral float-right" title="Built-in PPX Rewriters" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="builtins.html" class="btn btn-neutral float-right" title="Built-in PPX Rewriters" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        
-        &copy; Copyright 2020, Chet Murthy. All rights reserved.
-
-    </p>
+    <p>&#169; Copyright 2020, Chet Murthy. All rights reserved..</p>
   </div>
-    
-    
-    
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
-    
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

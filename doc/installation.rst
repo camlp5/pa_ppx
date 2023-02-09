@@ -54,16 +54,6 @@ NOTE WELL that some of these won't install
 (e.g. ``expect_test_helpers`` b/c they're often not in-sync with other
 PPX rewriters).
 
-4. A few Perl packages
-
-  - ``IPC::System::Simple``
-  - ``String::ShellQuote``
-     
-   On Debian/Ubuntu systems, these can be installed with::
-
-  apt-get install libstring-shellquote-perl libipc-system-simple-perl
-
-
 Building and Installing
 -----------------------
 

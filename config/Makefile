@@ -7,6 +7,7 @@ OCAMLTOPLEVEL=ocaml
 CAMLP5LIB=$(shell $(OCAMLFIND) query camlp5)
 LAUNCH=env TOP=$(TOP) ocamlfind camlp5-buildscripts/LAUNCH --
 OCAMLFIND=$(LAUNCH) ocamlfind
+JOINMETA=ocamlfind camlp5-buildscripts/join_meta
 NOT_OCAMLFIND=$(LAUNCH) not-ocamlfind
 MKCAMLP5=$(LAUNCH) mkcamlp5 -verbose -I +dynlink
 MKCAMLP5OPT=$(LAUNCH) mkcamlp5.opt -verbose -I +dynlink

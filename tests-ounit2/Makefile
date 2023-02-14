@@ -24,7 +24,6 @@ PPXPACKAGES:=$(PPXPACKAGES),ppx_deriving.make
 PPXPACKAGES:=$(PPXPACKAGES),ppx_deriving_yojson
 export PPXPACKAGES:=$(PPXPACKAGES),ppx_here
 
-PAPACKAGES:=camlp5.pa_o.link
 PAPACKAGES:=$(PAPACKAGES),$(PACKAGEPREFIX)utils
 PAPACKAGES:=$(PAPACKAGES),$(PACKAGEPREFIX)dock.link
 PAPACKAGES:=$(PAPACKAGES),$(PACKAGEPREFIX)deriving_plugins.std
@@ -105,6 +104,10 @@ test_ppx_yojson.ppx.byte: test_ppx_yojson.ml stuff.cmo test_self_import.cmo
 
 test_passthru_hashrecons.byte: hCPassthru.cmo test_passthru_hashrecons.ml
 	$(LAUNCH) $(OCAMLFIND) ocamlc $(DEBUG) $(WARNERR) -package $(PACKAGES),$(PAPACKAGES) \
+	-linkpkg -syntax camlp5o $< -o $@
+
+test_deriving_params.byte: test_deriving_params.ml.pappx.cmo
+	$(LAUNCH) $(OCAMLFIND) ocamlc $(DEBUG) $(WARNERR) -package $(PACKAGES),$(PAPACKAGES),camlp5.pa_r.link \
 	-linkpkg -syntax camlp5o $< -o $@
 
 test_import0.cmo: stuff.cmo test_self_import.cmi

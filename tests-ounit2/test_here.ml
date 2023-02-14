@@ -13,9 +13,9 @@ let test_simplest ctxt =
 #ifdef PAPPX
 let pos = {
     Lexing.pos_fname = "test_here.ml.pappx.ml";
-    pos_lnum = 4;
-    pos_cnum = 43;
-    pos_bol = 32
+    pos_lnum = 6;
+    pos_cnum = 152;
+    pos_bol = 141
   } in
 #else
 let pos = {

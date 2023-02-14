@@ -1,3 +1,4 @@
+(** -syntax camlp5r *)
 module Ploc :
   sig
     include module type of Ploc with type t = Ploc.t;

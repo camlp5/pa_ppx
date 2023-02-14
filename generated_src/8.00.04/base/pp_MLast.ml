@@ -1,3 +1,4 @@
+(** -syntax camlp5r *)
 module Ploc =
   struct
     include Pa_ppx_runtime.Exceptions.Ploc;

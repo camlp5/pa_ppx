@@ -1,6 +1,8 @@
 #ifdef PAPPX
+(** -syntax camlp5o -package $(PAPACKAGES) *)
 let filemod = "Test_deriving_show"
 #else
+(** -package $(PPXPACKAGES) *)
 let filemod = "Test_deriving_show.ml.ppx"
 #endif
 open OUnit2

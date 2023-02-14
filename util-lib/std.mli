@@ -1,3 +1,4 @@
+(** -syntax camlp5o *)
 (****************************************************************************)
 (*                 The Calculus of Inductive Constructions                  *)
 (*                                                                          *)

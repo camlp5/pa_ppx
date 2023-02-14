@@ -1,3 +1,8 @@
+#ifdef PAPPX
+(** -syntax camlp5o -package $(PAPACKAGES),$(PACKAGEPREFIX)import,$(PACKAGEPREFIX)here *)
+#else
+(** -package $(PPXPACKAGES) *)
+#endif
 open OUnit2
 
 let here = [%here]

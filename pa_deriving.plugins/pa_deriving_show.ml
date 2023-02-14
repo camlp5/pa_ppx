@@ -1,3 +1,4 @@
+(** -syntax camlp5r *)
 (* camlp5r *)
 (* pa_deriving_show.ml,v *)
 (* Copyright (c) INRIA 2007-2017 *)

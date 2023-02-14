@@ -1,3 +1,4 @@
+(** -syntax camlp5r *)
 (* camlp5r *)
 (* pa_assert.ml,v *)
 (* Copyright (c) INRIA 2007-2017 *)

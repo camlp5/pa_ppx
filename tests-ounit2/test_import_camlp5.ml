@@ -1,3 +1,4 @@
+(** -syntax camlp5o -package $(PAPACKAGES),$(PACKAGEPREFIX)import -ppopt -pa_import-package -ppopt $(PACKAGES) -ppopt -pa_import-I -ppopt . *)
 open OUnit2
 
 module T : sig

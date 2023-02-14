@@ -1,3 +1,8 @@
+#ifdef PAPPX
+(** -syntax camlp5o -package $(PAPACKAGES) *)
+#else
+(** -package $(PPXPACKAGES) *)
+#endif
 open OUnit2
 
 type 'a btree = Node of 'a btree * 'a * 'a btree | Leaf

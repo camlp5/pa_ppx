@@ -1,4 +1,4 @@
-(* camlp5r *)
+(** -syntax camlp5r -package $(PACKAGEPREFIX)base,$(PACKAGEPREFIX)hashrecons *)
 (* pa_passthru.ml,v *)
 (* Copyright (c) INRIA 2007-2017 *)
 

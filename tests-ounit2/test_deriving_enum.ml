@@ -1,3 +1,8 @@
+#ifdef PAPPX
+(** -syntax camlp5o -package $(PAPACKAGES) *)
+#else
+(** -package $(PPXPACKAGES) *)
+#endif
 open OUnit2
 
 let get o = match o with Some v -> v | None -> assert false

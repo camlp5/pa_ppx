@@ -1,3 +1,4 @@
+(** -syntax camlp5o *)
 (* camlp5o *)
 (* pa_here.ml,v *)
 (* Copyright (c) INRIA 2007-2017 *)

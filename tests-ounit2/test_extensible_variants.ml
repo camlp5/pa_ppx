@@ -1,3 +1,4 @@
+(** -syntax camlp5o -package $(PAPACKAGES) *)
 let filemod = "Test_extensible_variants"
 open OUnit2
 module Pa_ppx_runtime = Pa_ppx_runtime_fat

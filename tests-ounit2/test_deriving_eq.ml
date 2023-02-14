@@ -1,3 +1,8 @@
+#ifdef PAPPX
+(** -syntax camlp5o -package $(PAPACKAGES) *)
+#else
+(** -package $(PPXPACKAGES) *)
+#endif
 open OUnit2
 
 (* Mostly it is sufficient to test that the derived code compiles. *)

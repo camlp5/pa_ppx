@@ -1,3 +1,4 @@
+(** -syntax camlp5r -package $(PAPACKAGES),$(PACKAGEPREFIX)deriving_plugins.params *)
 value filemod = "Test_deriving_params" ;
 open OUnit2 ;
 open Pa_ppx_base ;

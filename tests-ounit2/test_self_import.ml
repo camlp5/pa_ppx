@@ -1,4 +1,4 @@
-(* camlp5o *)
+(** -syntax camlp5o -package $(PACKAGEPREFIX)import,$(PACKAGEPREFIX)testutils -ppopt -pa_import-package -ppopt $(PACKAGES) -ppopt -pa_import-I -ppopt . *)
 
 type t = [%import: Test_self_import.t]
 type t' = [%import: Test_self_import.t']

@@ -27,10 +27,10 @@ all: $(TARGET) $(TARGET:.cma=.cmxa) camlp5.pa_ppx_deriving camlp5.pa_ppx_derivin
 doc: $(CMT) $(CMTI)
 
 camlp5.pa_ppx_deriving: $(TARGET)
-	$(MKCAMLP5) -package camlp5.pa_r,camlp5.pr_r,pa_ppx_base $(TARGET) -o $@
+	$(LAUNCH) $(MKCAMLP5) -package camlp5.pa_r,camlp5.pr_r,pa_ppx_base $(TARGET) -o $@
 
 camlp5.pa_ppx_deriving.opt: $(TARGET:.cma=.cmxa)
-	$(MKCAMLP5OPT) -package camlp5.pa_r,camlp5.pr_r,pa_ppx_base $(TARGET:.cma=.cmxa) -o $@
+	$(LAUNCH) $(MKCAMLP5OPT) -package camlp5.pa_r,camlp5.pr_r,pa_ppx_base $(TARGET:.cma=.cmxa) -o $@
 
 META: META.pl
 	./META.pl > META

@@ -13,7 +13,7 @@ Arg.(parse [
 ;;
 
 Fmt.(pf stdout {|# Specifications for the "pa_ppx" preprocessor:
-requires = "rresult,fmt,pa_ppx_deriving,pa_ppx_runtime,uint,pa_ppx_base"
+requires = "rresult,fmt,pa_ppx_deriving,pa_ppx_runtime,uint,pa_ppx_base.link"
 version = "%s"
 description = "pa_ppx params runtime support"
 

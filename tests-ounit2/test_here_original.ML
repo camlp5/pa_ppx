@@ -12,10 +12,10 @@ type position = [%import: Lexing.position] [@@deriving show]
 let test_simplest ctxt =
 #ifdef PAPPX
 let pos = {
-    Lexing.pos_fname = "test_here.ml.pappx.ml";
+    Lexing.pos_fname = "test_here_original.ml.pappx.ml";
     pos_lnum = 6;
-    pos_cnum = 152;
-    pos_bol = 141
+    pos_cnum = 170;
+    pos_bol = 159
   } in
 #else
 let pos = {

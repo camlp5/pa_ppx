@@ -34,7 +34,8 @@ PAPACKAGES:=$(PAPACKAGES),$(PACKAGEPREFIX)runtime_fat
 PAPACKAGES:=$(PAPACKAGES),$(PACKAGEPREFIX)hashrecons
 export PAPACKAGES:=$(PAPACKAGES),$(PACKAGEPREFIX)testutils
 
-ALL_PACKAGES := $(PACKAGES),$(PAPACKAGES),$(PPXPACKAGES)
+ALLSRC=$(shell ls *.pappx.ml hCPassthru.ml test_passthru_hashrecons.ml test_import_camlp5.ml test_import0.ml test_self_import.ml test_self_import.mli)
+ALLPACKAGES = $(PACKAGES),$(PAPACKAGES),$(PPXPACKAGES)
 
 CMO=papr_util.cmo hCPassthru.cmo
 CMI := $(CMO:.cmo=.cmi)
@@ -83,22 +84,24 @@ test: $(TESTS:.byte=)
 % : %.byte
 	mkdir -p _build && ./$<
 
+.SUFFIXES: .ML
 .SECONDARY:
 
-test_%.ml.pappx.ml: test_%.ml
+test_%.ml.pappx.ml: test_%.ML
 	cppo -D PAPPX $< > $@
+
+test_%.ml.ppx.ml: test_%.ML
+	cppo -U PAPPX $< > $@
 
 test_%.byte: test_%.ml.pappx.cmo
 	$(LAUNCH) $(OCAMLFIND) ocamlc $(DEBUG) $(WARNERR) -package $(PACKAGES),$(PAPACKAGES) \
 	-linkpkg -syntax camlp5o $< -o $@
 
-test_%.ppx.byte: test_%.ml stuff.cmo test_self_import.cmo
-	cppo -U PAPPX $< > $<.ppx.ml
-	$(NOT_OCAMLFIND) preprocess -package $(PACKAGES),oUnit,$(PPXPACKAGES) $<.ppx.ml > $<.ppx.ppo
-	$(OCAMLFIND) ocamlc $(DEBUG) -custom $(WARNERR) -package $(PACKAGES),oUnit,$(PPXPACKAGES) -linkpkg stuff.cmo test_self_import.cmo $<.ppx.ml -o $@
+test_%.ppx.byte: stuff.cmo test_self_import.cmo test_%.ml.ppx.cmo
+	$(OCAMLFIND) ocamlc $(DEBUG) -custom $(WARNERR) -package $(PACKAGES),oUnit,$(PPXPACKAGES) -linkpkg $^ -o $@
 
-test_ppx_yojson.ppx.byte: test_ppx_yojson.ml stuff.cmo test_self_import.cmo
-	cppo test_ppx_yojson.ml > test_ppx_yojson.ppx.ml
+test_ppx_yojson.ppx.byte: test_ppx_yojson.ML stuff.cmo test_self_import.cmo
+	cppo test_ppx_yojson.ML > test_ppx_yojson.ppx.ml
 	$(NOT_OCAMLFIND) preprocess -package $(PACKAGES),oUnit,$(PPXPACKAGES),ppx_sexp_conv test_ppx_yojson.ppx.ml >  test_ppx_yojson.ppx.ml.ppo
 	$(OCAMLFIND) ocamlc $(DEBUG) -custom $(WARNERR) -package $(PACKAGES),oUnit,$(PPXPACKAGES),ppx_sexp_conv -linkpkg stuff.cmo test_self_import.cmo test_ppx_yojson.ppx.ml -o $@
 
@@ -146,20 +149,3 @@ clean::
 	rm -f *.corrected *.pappx.ml *.ppx.ml *.ppo.ml
 
 test_self_import.cmo: test_self_import.ml test_self_import.cmi
-
-EXTERNAL := $(shell $(OCAMLFIND) query -predicates byte -format '%m' $(ALL_PACKAGES) | grep local-install)
-$(CMO) $(TESTS): $(EXTERNAL)
-
-depend::
-	echo "$(CMO) $(TESTS): $(EXTERNAL)" > .depend.NEW
-	$(OCAMLFIND) ocamldep $(DEBUG) $(WARNERR) -package $(PACKAGES) -syntax camlp5o \
-	testutil2.ml stuff.ml \
-	test_*.ppx.ml \
-	test_*.pappx.ml \
-	>> .depend.NEW
-	$(OCAMLFIND) ocamldep $(DEBUG) $(WARNERR) -package $(PACKAGES) -syntax camlp5r \
-	testutil.ml hCPassthru.ml \
-	>> .depend.NEW
-	mv .depend.NEW .depend
-
--include .depend

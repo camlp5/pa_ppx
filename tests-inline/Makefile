@@ -3,7 +3,7 @@
 
 WD=$(shell pwd)
 TOP=..
-include $(TOP)/config/Makefile
+include $(TOP)/config/Makefile.sub
 
 PACKAGEPREFIX=pa_ppx_
 

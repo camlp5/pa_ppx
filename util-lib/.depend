@@ -1,37 +1,30 @@
 std.cmo coll.cmo std2.cmo uf.cmo tsort0.cmo tsort.cmo pack.cmo hash.cmo std.cmi coll.cmi std2.cmi uf.cmi tsort0.cmi tsort.cmi pack.cmi hash.cmi std.cmx coll.cmx std2.cmx uf.cmx tsort0.cmx tsort.cmx pack.cmx hash.cmx: 
+std.cmo : \
+    std.cmi
+std.cmx : \
+    std.cmi
 coll.cmo : \
     std.cmi
 coll.cmx : \
     std.cmx
-hash.cmo : \
-    pack.cmi
-hash.cmx : \
-    pack.cmx
-pack.cmo : \
-    pack.cmi
-pack.cmx : \
-    pack.cmi
-pack.cmi :
 std2.cmo : \
     coll.cmo \
     std2.cmi
 std2.cmx : \
     coll.cmx \
     std2.cmi
-std2.cmi :
-std.cmo : \
-    std.cmi
-std.cmx : \
-    std.cmi
-std.cmi :
+uf.cmo : \
+    std.cmi \
+    uf.cmi
+uf.cmx : \
+    std.cmx \
+    uf.cmi
 tsort0.cmo : \
     uf.cmi \
     tsort0.cmi
 tsort0.cmx : \
     uf.cmx \
     tsort0.cmi
-tsort0.cmi : \
-    uf.cmi
 tsort.cmo : \
     tsort0.cmi \
     std2.cmi \
@@ -42,10 +35,17 @@ tsort.cmx : \
     std2.cmx \
     std.cmx \
     coll.cmx
-uf.cmo : \
-    std.cmi \
-    uf.cmi
-uf.cmx : \
-    std.cmx \
+pack.cmo : \
+    pack.cmi
+pack.cmx : \
+    pack.cmi
+hash.cmo : \
+    pack.cmi
+hash.cmx : \
+    pack.cmx
+std2.cmi :
+std.cmi :
+tsort0.cmi : \
     uf.cmi
 uf.cmi :
+pack.cmi :

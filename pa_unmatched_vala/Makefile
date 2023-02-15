@@ -6,18 +6,12 @@ TOP=..
 include $(TOP)/config/Makefile
 
 DESTDIR=
-RM=rm
 
 PACKAGES := $(PACKAGES),fmt,pa_ppx_base
 TARGET := pa_ppx_unmatched_vala.cma
 ML := pa_unmatched_vala.ml
 ALLSRC=$(ML)
 ALLPACKAGES=$(PACKAGES)
-CMO := $(ML:.ml=.cmo)
-CMI := $(ML:.ml=.cmi)
-CMX := $(ML:.ml=.cmx)
-CMT := $(ML:.ml=.cmt)
-CMTI := $(MLI:.mli=.cmti)
 
 all: $(TARGET) $(TARGET:.cma=.cmxa) camlp5.pa_ppx_unmatched_vala camlp5.pa_ppx_unmatched_vala.opt
 	$(MAKE) DESTDIR=$(WD)/$(TOP)/local-install/ install

@@ -6,7 +6,6 @@ TOP=..
 include $(TOP)/config/Makefile
 
 DESTDIR=
-RM=rm
 
 PACKAGES := $(PACKAGES),pa_ppx_deriving,pa_ppx_base,pa_ppx_unmatched_vala,camlp5.parser_quotations.link
 
@@ -25,11 +24,6 @@ ML=\
 
 ALLSRC=$(ML) $(MLI)
 ALLPACKAGES=$(PACKAGES)
-CMO := $(ML:.ml=.cmo)
-CMI := $(ML:.ml=.cmi)
-CMX := $(ML:.ml=.cmx)
-CMT := $(ML:.ml=.cmt)
-CMTI := $(MLI:.mli=.cmti)
 BATCHTOP=camlp5o.pa_ppx_deriving_plugins camlp5o.pa_ppx_deriving_plugins.opt \
 	camlp5r.pa_ppx_deriving_plugins camlp5r.pa_ppx_deriving_plugins.opt
 

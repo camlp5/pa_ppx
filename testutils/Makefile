@@ -6,18 +6,12 @@ TOP=..
 include $(TOP)/config/Makefile
 
 DESTDIR=
-RM=rm
 
 PACKAGES := unix,camlp5,oUnit,fmt,pcre,rresult,compiler-libs.common,yojson,sexplib0
 TARGET := pa_ppx_testutils.cma
 ML := papr_util.ml testutil.ml testutil2.ml
 ALLSRC=$(ML)
 ALLPACKAGES=$(PACKAGES)
-CMO := $(ML:.ml=.cmo)
-CMI := $(ML:.ml=.cmi)
-CMX := $(ML:.ml=.cmx)
-CMT := $(ML:.ml=.cmt)
-CMTI := $(MLI:.mli=.cmti)
 
 OCAMLCFLAGS := $(OCAMLCFLAGS) -for-pack Pa_ppx_testutils
 

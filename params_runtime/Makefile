@@ -6,7 +6,6 @@ TOP=..
 include $(TOP)/config/Makefile
 
 DESTDIR=
-RM=rm
 
 PACKAGES := rresult,fmt,camlp5,uint,pa_ppx_base,pa_ppx_deriving_plugins.std,camlp5.parser_quotations
 TARGET := pa_ppx_params.cma
@@ -14,11 +13,6 @@ ML := runtime.ml
 MLI := 
 ALLSRC=$(ML) $(MLI)
 ALLPACKAGES=$(PACKAGES)
-CMO := $(ML:.ml=.cmo)
-CMI := $(ML:.ml=.cmi)
-CMX := $(ML:.ml=.cmx)
-CMT := $(ML:.ml=.cmt)
-CMTI := $(MLI:.mli=.cmti)
 
 OCAMLCFLAGS := $(OCAMLCFLAGS) -for-pack Pa_ppx_params
 

@@ -6,7 +6,6 @@ TOP=..
 include $(TOP)/config/Makefile
 
 DESTDIR=
-RM=rm
 
 PACKAGES = rresult,fmt,camlp5,yojson,sexplib0
 TARGET = pa_ppx_runtime.cma
@@ -14,11 +13,6 @@ ML = runtime.ml exceptions.ml
 MLI = exceptions.mli
 ALLSRC=$(ML) $(MLI)
 ALLPACKAGES=$(PACKAGES)
-CMO = $(ML:.ml=.cmo)
-CMI = $(ML:.ml=.cmi)
-CMX = $(ML:.ml=.cmx)
-CMT = $(ML:.ml=.cmt)
-CMTI = $(MLI:.mli=.cmti)
 
 OCAMLCFLAGS := $(OCAMLCFLAGS) -for-pack Pa_ppx_runtime -linkall
 

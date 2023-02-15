@@ -6,18 +6,12 @@ TOP=..
 include $(TOP)/config/Makefile
 
 DESTDIR=
-RM=rm
 
 PACKAGES := $(PACKAGES),fmt,pa_ppx_base
 TARGET := pa_ppx_expect_test.cma
 ML := pa_expect_test.ml
 ALLSRC=$(ML)
 ALLPACKAGES=$(PACKAGES)
-CMO := $(ML:.ml=.cmo)
-CMI := $(ML:.ml=.cmi)
-CMX := $(ML:.ml=.cmx)
-CMT := $(ML:.ml=.cmt)
-CMTI := $(MLI:.mli=.cmti)
 
 all: $(TARGET) $(TARGET:.cma=.cmxa) camlp5.pa_ppx_expect_test camlp5.pa_ppx_expect_test.opt
 	$(MAKE) DESTDIR=$(WD)/$(TOP)/local-install/ install

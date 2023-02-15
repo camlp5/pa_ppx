@@ -17,7 +17,11 @@ OCAMLCFLAGS= $(INCLUDES)
 PACKAGES=unix,compiler-libs.common,camlp5,camlp5.extfun,camlp5.parser_quotations
 PRPACKAGE = camlp5.pr_o
 
-export PERL5LIB := $(TOP):$(PERL5LIB)
+CMO = $(ML:.ml=.cmo)
+CMI = $(ML:.ml=.cmi)
+CMX = $(ML:.ml=.cmx)
+CMT = $(ML:.ml=.cmt)
+CMTI = $(MLI:.mli=.cmti)
 
 top: all
 

@@ -8,13 +8,8 @@ include $(TOP)/config/Makefile
 PACKAGEPREFIX=pa_ppx_
 
 DESTDIR=
-RM=rm
 
 PACKAGES := $(PACKAGES),ounit2,fmt,pcre,rresult,compiler-libs.common,sexplib0
-
-CMO=
-CMI := $(CMO:.cmo=.cmi)
-CMX := $(CMO:.cmo=.cmx)
 
 TESTS= \
 	test_inline_test.byte \

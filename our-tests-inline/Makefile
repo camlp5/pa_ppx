@@ -8,15 +8,10 @@ include $(TOP)/config/Makefile
 PACKAGEPREFIX=pa_ppx_
 
 DESTDIR=
-RM=rm
 
 TESTRUNNER=$(TOP)/tests-inline/test-runner
 PACKAGES := $(PACKAGES),ounit2,fmt,bos,pcre,rresult,compiler-libs.common,sexplib0,str,threads.posix
 OCAMLCFLAGS += -thread
-
-CMO=
-CMI := $(CMO:.cmo=.cmi)
-CMX := $(CMO:.cmo=.cmx)
 
 ORIGINAL_TESTS= \
 	test_doc_comments_official_original.TEST \

@@ -8,7 +8,6 @@ include $(TOP)/config/Makefile
 export PACKAGEPREFIX=pa_ppx_
 
 DESTDIR=
-RM=rm
 
 export PACKAGES := $(PACKAGES),oUnit,fmt,str,pcre,result,rresult,compiler-libs.common,yojson,sexplib,sexplib0
 
@@ -37,9 +36,7 @@ export PAPACKAGES:=$(PAPACKAGES),$(PACKAGEPREFIX)testutils
 ALLSRC=$(shell ls *.pappx.ml hCPassthru.ml test_passthru_hashrecons.ml test_import_camlp5.ml test_import0.ml test_self_import.ml test_self_import.mli)
 ALLPACKAGES = $(PACKAGES),$(PAPACKAGES),$(PPXPACKAGES)
 
-CMO=papr_util.cmo hCPassthru.cmo
-CMI := $(CMO:.cmo=.cmi)
-CMX := $(CMO:.cmo=.cmx)
+ML=papr_util.ml hCPassthru.ml
 
 TESTS= \
 	test_utils.byte \

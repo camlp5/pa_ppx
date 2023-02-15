@@ -6,7 +6,6 @@ TOP=..
 include $(TOP)/config/Makefile
 
 DESTDIR=
-RM=rm
 
 PACKAGES := $(PACKAGES),fmt,bos,pa_ppx_base,pa_ppx_utils,camlp5.pa_r,camlp5.pa_lexer,pa_ppx_unmatched_vala
 TARGET := pa_ppx_dock.cma
@@ -14,13 +13,7 @@ ML := comment_lexer.ml pa_dock.ml
 MLI := pa_dock.mli
 ALLSRC=$(ML) $(MLI)
 ALLPACKAGES=$(PACKAGES)
-CMO := $(ML:.ml=.cmo)
-CMI := $(ML:.ml=.cmi)
-CMX := $(ML:.ml=.cmx)
-CMT := $(ML:.ml=.cmt)
-CMTI := $(MLI:.mli=.cmti)
 
-SYNTAX := camlp5r
 OCAMLCFLAGS := $(OCAMLCFLAGS) -for-pack Pa_ppx_dock -linkall
 
 all: $(TARGET) $(TARGET:.cma=.cmxa) camlp5.pa_ppx_dock camlp5.pa_ppx_dock.opt

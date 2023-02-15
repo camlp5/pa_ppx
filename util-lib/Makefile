@@ -6,7 +6,6 @@ TOP=..
 include $(TOP)/config/Makefile
 
 DESTDIR=
-RM=rm
 
 PACKAGES := $(PACKAGES),pcre
 TARGET := pa_ppx_utils.cma
@@ -14,11 +13,6 @@ ML := std.ml coll.ml std2.ml uf.ml tsort0.ml tsort.ml pack.ml hash.ml
 MLI := std2.mli  std.mli  tsort0.mli  uf.mli pack.mli
 ALLSRC = $(ML) $(MLI)
 ALLPACKAGES=$(PACKAGES)
-CMO := $(ML:.ml=.cmo)
-CMI := $(ML:.ml=.cmi)
-CMX := $(ML:.ml=.cmx)
-CMT := $(ML:.ml=.cmt)
-CMTI := $(MLI:.mli=.cmti)
 
 SYNTAX := camlp5o
 OCAMLCFLAGS := $(OCAMLCFLAGS) -for-pack Pa_ppx_utils

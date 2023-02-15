@@ -6,12 +6,12 @@ RM=rm
 NOT_OCAMLFIND=not-ocamlfind
 LAUNCH=env TOP=$(TOP) ocamlfind camlp5-buildscripts/LAUNCH --
 OCAMLFIND=ocamlfind
+JOINMETA=ocamlfind camlp5-buildscripts/join_meta
 YAWRAP=ocamlfind camlp5-buildscripts/ya-wrap-ocamlfind
 OCAMLTOPLEVEL=ocaml
 CAMLP5LIB=$(shell $(OCAMLFIND) query camlp5)
-MKCAMLP5=mkcamlp5
-MKCAMLP5OPT=mkcamlp5.opt
-CAMLP5R=camlp5r -I $(CAMLP5LIB)
+MKCAMLP5=mkcamlp5 -verbose -I +dynlink
+MKCAMLP5OPT=mkcamlp5.opt -verbose -I +dynlink
 INCLUDES=
 OCAMLCFLAGS= $(INCLUDES)
 PACKAGES=unix,compiler-libs.common,camlp5,camlp5.extfun,camlp5.parser_quotations

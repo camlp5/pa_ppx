@@ -161,5 +161,5 @@ clean::
 	set -e; for i in $(SYSDIRS) $(TESTDIRS); do cd $$i; $(MAKE) clean; cd ..; done
 	rm -rf docs local-install $(BATCHTOP) META
 
-depend:
+depend::
 	set -e; for i in $(SYSDIRS) $(TESTDIRS); do cd $$i; $(MAKE) depend; cd ..; done

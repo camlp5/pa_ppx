@@ -14,9 +14,7 @@ MKCAMLP5OPT=mkcamlp5.opt
 CAMLP5R=camlp5r -I $(CAMLP5LIB)
 INCLUDES=
 OCAMLCFLAGS= $(INCLUDES)
-PACKAGES=unix,compiler-libs.common,camlp5,camlp5.extfun
-PACKAGES := $(PACKAGES),camlp5.parser_quotations
-#PACKAGES := $(PACKAGES),camlp5.quotations
+PACKAGES=unix,compiler-libs.common,camlp5,camlp5.extfun,camlp5.parser_quotations
 PRPACKAGE = camlp5.pr_o
 
 export PERL5LIB := $(TOP):$(PERL5LIB)
@@ -50,3 +48,12 @@ clean::
 	$(RM) -rf *.cm* *.o *.a *.byte *.opt *.log *.cache *.ppo *ppo.ml _build/* .cmt *.odoc
 
 realclean:: clean
+
+EXTERNAL=$(shell $(LAUNCH) $(OCAMLFIND) query -predicates byte -format '%m' $(PACKAGES) | grep local-install)
+
+depend::
+	echo "$(CMO) $(CMI) $(CMX): $(EXTERNAL)" > .depend.NEW
+	$(LAUNCH) $(YAWRAP) $(OCAMLFIND) ocamldep -package $(PACKAGES) -- $(ALLSRC) >> .depend.NEW
+	mv .depend.NEW .depend
+
+-include .depend

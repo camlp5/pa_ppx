@@ -1,31 +1,33 @@
 base.cmo pp_MLast.cmo pp_parsetree.cmo ppxutil.cmo pa_passthru.cmo pa_normalize.cmo base.cmi pp_MLast.cmi pp_parsetree.cmi ppxutil.cmi pa_passthru.cmi pa_normalize.cmi base.cmx pp_MLast.cmx pp_parsetree.cmx ppxutil.cmx pa_passthru.cmx pa_normalize.cmx: ../local-install/lib/pa_ppx_utils/META ../local-install/lib/pa_ppx_runtime/META
-pa_normalize.cmo : \
-    ppxutil.cmi \
-    pa_passthru.cmi
-pa_normalize.cmx : \
-    ppxutil.cmx \
-    pa_passthru.cmx
-pa_passthru.cmo : \
-    ppxutil.cmi \
-    pa_passthru.cmi
-pa_passthru.cmx : \
-    ppxutil.cmx \
-    pa_passthru.cmi
-pa_passthru.cmi :
+base.cmo :
+base.cmx :
 pp_MLast.cmo : \
     pp_MLast.cmi
 pp_MLast.cmx : \
     pp_MLast.cmi
-pp_MLast.cmi :
 pp_parsetree.cmo : \
     pp_parsetree.cmi
 pp_parsetree.cmx : \
     pp_parsetree.cmi
-pp_parsetree.cmi :
 ppxutil.cmo : \
     pp_MLast.cmi \
     ppxutil.cmi
 ppxutil.cmx : \
     pp_MLast.cmx \
     ppxutil.cmi
+pa_passthru.cmo : \
+    ppxutil.cmi \
+    pa_passthru.cmi
+pa_passthru.cmx : \
+    ppxutil.cmx \
+    pa_passthru.cmi
+pa_normalize.cmo : \
+    ppxutil.cmi \
+    pa_passthru.cmi
+pa_normalize.cmx : \
+    ppxutil.cmx \
+    pa_passthru.cmx
 ppxutil.cmi :
+pa_passthru.cmi :
+pp_MLast.cmi :
+pp_parsetree.cmi :

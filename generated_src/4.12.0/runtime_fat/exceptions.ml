@@ -1,3 +1,4 @@
+(** -syntax camlp5r *)
 module Ploc =
   struct
     include Ploc;

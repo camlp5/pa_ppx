@@ -1,3 +1,4 @@
+(** -syntax camlp5r *)
 module Lexing =
   struct
     type position =

@@ -1,3 +1,4 @@
+(** -syntax camlp5r *)
 module Lexing :
   sig
     type position =

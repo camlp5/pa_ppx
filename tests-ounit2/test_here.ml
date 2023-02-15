@@ -20,9 +20,9 @@ let pos = {
 #else
 let pos = {
     Lexing.pos_fname = "test_here.ml";
-    pos_lnum = 3;
-    pos_cnum = 43;
-    pos_bol = 32
+    pos_lnum = 8;
+    pos_cnum = 93;
+    pos_bol = 82
   } in
 #endif
  assert_equal ~printer:show_position pos here

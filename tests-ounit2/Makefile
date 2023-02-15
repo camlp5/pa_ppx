@@ -110,6 +110,16 @@ test_deriving_params.byte: test_deriving_params.ml.pappx.cmo
 	$(LAUNCH) $(OCAMLFIND) ocamlc $(DEBUG) $(WARNERR) -package $(PACKAGES),$(PAPACKAGES),camlp5.pa_r.link \
 	-linkpkg -syntax camlp5o $< -o $@
 
+test_comment_lexer.byte: test_comment_lexer.ml.pappx.cmo
+	$(LAUNCH) $(OCAMLFIND) ocamlc $(DEBUG) $(WARNERR) -package $(PACKAGES),$(PAPACKAGES),camlp5.pa_o.link \
+	-linkpkg -syntax camlp5o $< -o $@
+
+test_here_original.ml: test_here.ml
+	cp $< $@
+	perl -p -i -e 's,test_here.ml.pappx.ml,test_here_original.ml.pappx.ml,' test_here_original.ml
+	perl -p -i -e 's,pos_bol = 141,pos_bol = 159,' test_here_original.ml
+	perl -p -i -e 's,pos_cnum = 152,pos_cnum = 170,' test_here_original.ml
+
 test_import0.cmo: stuff.cmo test_self_import.cmi
 test_import0.byte: test_import0.cmo
 	$(LAUNCH) $(OCAMLFIND) ocamlc $(DEBUG) $(WARNERR) -package $(PACKAGES),$(PACKAGEPREFIX)deriving_plugins.show,$(PACKAGEPREFIX)import,camlp5.pr_o,$(PACKAGEPREFIX)testutils \

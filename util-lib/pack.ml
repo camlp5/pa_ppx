@@ -91,69 +91,71 @@ let hex_char_of_int c =
   else
 	assert false
 
+let baset s ofs c = Bytes.set s ofs c
+
 let rec pack1 s ofs = function
-    `UCHAR c -> (s.[ofs] <- Char.unsafe_chr c; ofs+1)
+    `UCHAR c -> (baset s ofs (Char.unsafe_chr c); ofs+1)
 
-  | `SCHAR c -> (s.[ofs] <- Char.unsafe_chr c; ofs+1)
+  | `SCHAR c -> (baset s ofs (Char.unsafe_chr c); ofs+1)
 
-  | `SNETSHORT n -> (s.[ofs  ] <- Char.unsafe_chr (n asr 8);
-					 s.[ofs+1] <- Char.unsafe_chr n;
-					 ofs+2)
+  | `SNETSHORT n -> (baset s ofs (Char.unsafe_chr (n asr 8));
+		     baset s (ofs+1) (Char.unsafe_chr n);
+		     ofs+2)
 
-  | `UNETSHORT n -> (s.[ofs  ] <- Char.unsafe_chr (n asr 8);
-					 s.[ofs+1] <- Char.unsafe_chr n;
-					 ofs+2)
+  | `UNETSHORT n -> (baset s ofs (Char.unsafe_chr (n asr 8));
+		     baset s (ofs+1) (Char.unsafe_chr n);
+		     ofs+2)
 
-  | `SINTELSHORT n -> (s.[ofs+1] <- Char.unsafe_chr (n asr 8);
-					   s.[ofs  ] <- Char.unsafe_chr n;
-					   ofs+2)
+  | `SINTELSHORT n -> (baset s (ofs+1) (Char.unsafe_chr (n asr 8));
+		       baset s ofs (Char.unsafe_chr n);
+		       ofs+2)
 
-  | `UINTELSHORT n -> (s.[ofs+1] <- Char.unsafe_chr (n asr 8);
-					   s.[ofs  ] <- Char.unsafe_chr n;
-					   ofs+2)
+  | `UINTELSHORT n -> (baset s (ofs+1) (Char.unsafe_chr (n asr 8));
+		       baset s ofs (Char.unsafe_chr n);
+		       ofs+2)
 
-  | `NETINT n -> (s.[ofs  ] <- Char.unsafe_chr (n asr 24);
-				  s.[ofs+1] <- Char.unsafe_chr (n asr 16);
-				  s.[ofs+2] <- Char.unsafe_chr (n asr 8);
-				  s.[ofs+3] <- Char.unsafe_chr n;
+  | `NETINT n -> (baset s ofs (Char.unsafe_chr (n asr 24));
+		  baset s (ofs+1) (Char.unsafe_chr (n asr 16));
+		  baset s (ofs+2) (Char.unsafe_chr (n asr 8));
+		  baset s (ofs+3) (Char.unsafe_chr n);
+		  ofs+4)
+
+  | `INTELINT n -> (baset s (ofs+3) (Char.unsafe_chr (n asr 24));
+					baset s (ofs+2) (Char.unsafe_chr (n asr 16));
+					baset s (ofs+1) (Char.unsafe_chr (n asr 8));
+					baset s (ofs  ) (Char.unsafe_chr n);
 				  ofs+4)
 
-  | `INTELINT n -> (s.[ofs+3] <- Char.unsafe_chr (n asr 24);
-					s.[ofs+2] <- Char.unsafe_chr (n asr 16);
-					s.[ofs+1] <- Char.unsafe_chr (n asr 8);
-					s.[ofs  ] <- Char.unsafe_chr n;
-				  ofs+4)
-
-  | `NETINT32 n -> (s.[ofs  ] <- Char.unsafe_chr (Int32.to_int (Int32.logand (Int32.of_int 0xff) (Int32.shift_right n 24)));
-					s.[ofs+1] <- Char.unsafe_chr (Int32.to_int (Int32.logand (Int32.of_int 0xff) (Int32.shift_right n 16)));
-					s.[ofs+2] <- Char.unsafe_chr (Int32.to_int (Int32.logand (Int32.of_int 0xff) (Int32.shift_right n 8)));
-					s.[ofs+3] <- Char.unsafe_chr (Int32.to_int n);
+  | `NETINT32 n -> (baset s (ofs  ) (Char.unsafe_chr (Int32.to_int (Int32.logand (Int32.of_int 0xff) (Int32.shift_right n 24))));
+					baset s (ofs+1) (Char.unsafe_chr (Int32.to_int (Int32.logand (Int32.of_int 0xff) (Int32.shift_right n 16))));
+					baset s (ofs+2) (Char.unsafe_chr (Int32.to_int (Int32.logand (Int32.of_int 0xff) (Int32.shift_right n 8))));
+					baset s (ofs+3) (Char.unsafe_chr (Int32.to_int n));
 					ofs+4)
 
-  | `INTELINT32 n -> (s.[ofs+3] <- Char.unsafe_chr (Int32.to_int (Int32.logand (Int32.of_int 0xff) (Int32.shift_right n 24)));
-					  s.[ofs+2] <- Char.unsafe_chr (Int32.to_int (Int32.logand (Int32.of_int 0xff) (Int32.shift_right n 16)));
-					  s.[ofs+1] <- Char.unsafe_chr (Int32.to_int (Int32.logand (Int32.of_int 0xff) (Int32.shift_right n 8)));
-					  s.[ofs  ] <- Char.unsafe_chr (Int32.to_int n);
+  | `INTELINT32 n -> (baset s (ofs+3) (Char.unsafe_chr (Int32.to_int (Int32.logand (Int32.of_int 0xff) (Int32.shift_right n 24))));
+					  baset s (ofs+2) (Char.unsafe_chr (Int32.to_int (Int32.logand (Int32.of_int 0xff) (Int32.shift_right n 16))));
+					  baset s (ofs+1) (Char.unsafe_chr (Int32.to_int (Int32.logand (Int32.of_int 0xff) (Int32.shift_right n 8))));
+					  baset s (ofs  ) (Char.unsafe_chr (Int32.to_int n));
 					ofs+4)
 
-  | `NETINT64 n -> (s.[ofs  ] <- Char.unsafe_chr (Int64.to_int (Int64.logand (Int64.of_int 0xff) (Int64.shift_right n 56)));
-		    s.[ofs+1] <- Char.unsafe_chr (Int64.to_int (Int64.logand (Int64.of_int 0xff) (Int64.shift_right n 48)));
-		    s.[ofs+2] <- Char.unsafe_chr (Int64.to_int (Int64.logand (Int64.of_int 0xff) (Int64.shift_right n 40)));
-		    s.[ofs+3] <- Char.unsafe_chr (Int64.to_int (Int64.logand (Int64.of_int 0xff) (Int64.shift_right n 32)));
-		    s.[ofs+4] <- Char.unsafe_chr (Int64.to_int (Int64.logand (Int64.of_int 0xff) (Int64.shift_right n 24)));
-		    s.[ofs+5] <- Char.unsafe_chr (Int64.to_int (Int64.logand (Int64.of_int 0xff) (Int64.shift_right n 16)));
-		    s.[ofs+6] <- Char.unsafe_chr (Int64.to_int (Int64.logand (Int64.of_int 0xff) (Int64.shift_right n 8)));
-		    s.[ofs+7] <- Char.unsafe_chr (Int64.to_int (Int64.logand (Int64.of_int 0xff) n));
+  | `NETINT64 n -> (baset s (ofs  ) (Char.unsafe_chr (Int64.to_int (Int64.logand (Int64.of_int 0xff) (Int64.shift_right n 56))));
+		    baset s (ofs+1) (Char.unsafe_chr (Int64.to_int (Int64.logand (Int64.of_int 0xff) (Int64.shift_right n 48))));
+		    baset s (ofs+2) (Char.unsafe_chr (Int64.to_int (Int64.logand (Int64.of_int 0xff) (Int64.shift_right n 40))));
+		    baset s (ofs+3) (Char.unsafe_chr (Int64.to_int (Int64.logand (Int64.of_int 0xff) (Int64.shift_right n 32))));
+		    baset s (ofs+4) (Char.unsafe_chr (Int64.to_int (Int64.logand (Int64.of_int 0xff) (Int64.shift_right n 24))));
+		    baset s (ofs+5) (Char.unsafe_chr (Int64.to_int (Int64.logand (Int64.of_int 0xff) (Int64.shift_right n 16))));
+		    baset s (ofs+6) (Char.unsafe_chr (Int64.to_int (Int64.logand (Int64.of_int 0xff) (Int64.shift_right n 8))));
+		    baset s (ofs+7) (Char.unsafe_chr (Int64.to_int (Int64.logand (Int64.of_int 0xff) n)));
 		    ofs+8)
 
-  | `INTELINT64 n -> (s.[ofs+7] <- Char.unsafe_chr (Int64.to_int (Int64.logand (Int64.of_int 0xff) (Int64.shift_right n 56)));
-		      s.[ofs+6] <- Char.unsafe_chr (Int64.to_int (Int64.logand (Int64.of_int 0xff) (Int64.shift_right n 48)));
-		      s.[ofs+5] <- Char.unsafe_chr (Int64.to_int (Int64.logand (Int64.of_int 0xff) (Int64.shift_right n 40)));
-		      s.[ofs+4] <- Char.unsafe_chr (Int64.to_int (Int64.logand (Int64.of_int 0xff) (Int64.shift_right n 32)));
-		      s.[ofs+3] <- Char.unsafe_chr (Int64.to_int (Int64.logand (Int64.of_int 0xff) (Int64.shift_right n 24)));
-		      s.[ofs+2] <- Char.unsafe_chr (Int64.to_int (Int64.logand (Int64.of_int 0xff) (Int64.shift_right n 16)));
-		      s.[ofs+1] <- Char.unsafe_chr (Int64.to_int (Int64.logand (Int64.of_int 0xff) (Int64.shift_right n 8)));
-		      s.[ofs  ] <- Char.unsafe_chr (Int64.to_int n);
+  | `INTELINT64 n -> (baset s (ofs+7) (Char.unsafe_chr (Int64.to_int (Int64.logand (Int64.of_int 0xff) (Int64.shift_right n 56))));
+		      baset s (ofs+6) (Char.unsafe_chr (Int64.to_int (Int64.logand (Int64.of_int 0xff) (Int64.shift_right n 48))));
+		      baset s (ofs+5) (Char.unsafe_chr (Int64.to_int (Int64.logand (Int64.of_int 0xff) (Int64.shift_right n 40))));
+		      baset s (ofs+4) (Char.unsafe_chr (Int64.to_int (Int64.logand (Int64.of_int 0xff) (Int64.shift_right n 32))));
+		      baset s (ofs+3) (Char.unsafe_chr (Int64.to_int (Int64.logand (Int64.of_int 0xff) (Int64.shift_right n 24))));
+		      baset s (ofs+2) (Char.unsafe_chr (Int64.to_int (Int64.logand (Int64.of_int 0xff) (Int64.shift_right n 16))));
+		      baset s (ofs+1) (Char.unsafe_chr (Int64.to_int (Int64.logand (Int64.of_int 0xff) (Int64.shift_right n 8))));
+		      baset s (ofs  ) (Char.unsafe_chr (Int64.to_int n));
 		      ofs+8)
 
   | `STRING str -> (String.blit str 0 s ofs (String.length str);
@@ -181,12 +183,12 @@ let rec pack1 s ofs = function
 		  let hi_c = str.[n] in
 		  let lo_c = str.[n+1]
 		  in
-			s.[ofs] <- Char.unsafe_chr (((int_of_hex_char hi_c) lsl 4) + (int_of_hex_char lo_c));
+			baset s (ofs) (Char.unsafe_chr (((int_of_hex_char hi_c) lsl 4) + (int_of_hex_char lo_c)));
 			packrec (n+2) (ofs+1)
 		else if n < len then
 		  let hi_c = str.[n]
 		  in
-			s.[ofs] <- Char.unsafe_chr ((int_of_hex_char hi_c) lsl 4)
+			baset s (ofs) (Char.unsafe_chr ((int_of_hex_char hi_c) lsl 4))
 	  in
 		(packrec 0 ofs;
 		 ofs + (len+1)/2)
@@ -199,12 +201,12 @@ let rec pack1 s ofs = function
 		  let hi_c = str.[n] in
 		  let lo_c = str.[n+1]
 		  in
-			s.[ofs] <- Char.unsafe_chr (((int_of_hex_char hi_c) lsl 4) + (int_of_hex_char lo_c));
+			baset s (ofs) (Char.unsafe_chr (((int_of_hex_char hi_c) lsl 4) + (int_of_hex_char lo_c)));
 			packrec (n+2) (ofs+1)
 		else if n < src_ofs+len then
 		  let hi_c = str.[n]
 		  in
-			s.[ofs] <- Char.unsafe_chr ((int_of_hex_char hi_c) lsl 4)
+			baset s (ofs) (Char.unsafe_chr ((int_of_hex_char hi_c) lsl 4))
 	  in
 		(packrec src_ofs ofs;
 		 ofs + (len+1)/2)
@@ -216,12 +218,12 @@ let rec pack1 s ofs = function
 		  let lo_c = str.[n] in
 		  let hi_c = str.[n+1]
 		  in
-			s.[ofs] <- Char.unsafe_chr (((int_of_hex_char hi_c) lsl 4) + (int_of_hex_char lo_c));
+			baset s (ofs) (Char.unsafe_chr (((int_of_hex_char hi_c) lsl 4) + (int_of_hex_char lo_c)));
 			packrec (n+2) (ofs+1)
 		else if n < len then
 		  let lo_c = str.[n]
 		  in
-			s.[ofs] <- Char.unsafe_chr (int_of_hex_char lo_c)
+			baset s (ofs) (Char.unsafe_chr (int_of_hex_char lo_c))
 	  in
 		(packrec 0 ofs;
 		 ofs + (len+1)/2)
@@ -341,14 +343,14 @@ let unpack_hexbestring n s ofs =
 	if spos < sbound then
 	  let c = Char.code s.[spos] in
 
-		dst.[dpos  ] <- hex_char_of_int ((c asr 4) land 0x0f);
-		dst.[dpos+1] <- hex_char_of_int (c land 0x0f);
+		baset dst dpos  (hex_char_of_int ((c asr 4) land 0x0f));
+		baset dst (dpos+1) (hex_char_of_int (c land 0x0f));
 		unrec (spos+1) (dpos+2)
 
 	else if spos < sbound then
 	  let c = Char.code s.[spos] in
 
-		dst.[dpos  ] <- hex_char_of_int ((c asr 4) land 0xf0)
+		baset dst dpos (hex_char_of_int ((c asr 4) land 0xf0))
   in
 	unrec ofs 0;
 	dst
@@ -362,14 +364,14 @@ let unpack_hexlestring n s ofs =
 	if spos < sbound then
 	  let c = Char.code s.[spos] in
 
-		dst.[dpos+1] <- hex_char_of_int ((c asr 4) land 0x0f);
-		dst.[dpos  ] <- hex_char_of_int (c land 0x0f);
+		baset dst (dpos+1) (hex_char_of_int ((c asr 4) land 0x0f));
+		baset dst dpos (hex_char_of_int (c land 0x0f));
 		unrec (spos+1) (dpos+2)
 
 	else if spos < sbound then
 	  let c = Char.code s.[spos] in
 
-		dst.[dpos  ] <- hex_char_of_int (c land 0x0f)
+		baset dst dpos (hex_char_of_int (c land 0x0f))
   in
 	unrec ofs 0;
 	dst

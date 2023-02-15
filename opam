@@ -44,6 +44,7 @@ depends: [
   "yojson" { >= "1.7.0" }
   "sexplib0"
   "bos" { >= "0.2.0" }
+  "fmt"
   "uint" { >= "2.0.1" }
   "ounit"
   "sexplib" { with-test & >= "v0.14.0" }

@@ -28,9 +28,6 @@ camlp5.pa_ppx_deriving: $(TARGET)
 camlp5.pa_ppx_deriving.opt: $(TARGET:.cma=.cmxa)
 	$(LAUNCH) $(MKCAMLP5OPT) -package camlp5.pa_r,camlp5.pr_r,pa_ppx_base $(TARGET:.cma=.cmxa) -o $@
 
-META: META.pl
-	./META.pl > META
-
 install:: META
 	mkdir -p $(DESTDIR)/lib
 	$(NOT_OCAMLFIND) reinstall-if-diff pa_ppx_deriving -destdir $(DESTDIR)/lib META $(TARGET) $(TARGET:.cma=.cmxa) $(TARGET:.cma=.a) $(MLI:.mli=.cmi) $(CMX) $(wildcard *.cmt*)

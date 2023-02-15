@@ -46,9 +46,6 @@ camlp5o.pa_ppx_deriving_plugins: $(KITS)
 camlp5o.pa_ppx_deriving_plugins.opt: $(KITS:.cmo=.cmx)
 	$(LAUNCH) $(MKCAMLP5OPT) -package camlp5.pa_o,camlp5.pr_o,pa_ppx_deriving $(KITS:.cmo=.cmx) -o $@
 
-META: META.pl
-	./META.pl > META
-
 install:: $(BATCHTOP) META
 	mkdir -p $(DESTDIR)/lib
 	$(NOT_OCAMLFIND) reinstall-if-diff pa_ppx_deriving_plugins -destdir $(DESTDIR)/lib META $(CMO) $(CMX) $(MLI:.mli=.cmi) $(KITS:.cmo=.o) $(wildcard *.cmt*) $(BATCHTOP)

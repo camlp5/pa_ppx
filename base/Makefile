@@ -118,9 +118,6 @@ camlp5.pa_ppx_base: $(TARGET)
 camlp5.pa_ppx_base.opt: $(TARGET:.cma=.cmxa)
 	$(MKCAMLP5OPT) -package fmt,rresult,camlp5.pa_r,camlp5.pr_r,pa_ppx_utils,pa_ppx_runtime,compiler-libs.common $(TARGET:.cma=.cmxa) -o $@
 
-META: META.pl
-	./META.pl > META
-
 install:: META
 	mkdir -p $(DESTDIR)/lib
 	$(NOT_OCAMLFIND) reinstall-if-diff pa_ppx_base -destdir $(DESTDIR)/lib META $(TARGET) $(TARGET:.cma=.cmxa) $(TARGET:.cma=.a) pa_ppx_base.cmx pa_ppx_base.cmi $(wildcard *.cmt*)

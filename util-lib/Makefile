@@ -28,9 +28,6 @@ pa_ppx_utils.cmo pa_ppx_utils.cmi: $(CMO)
 pa_ppx_utils.cmx: $(CMO:.cmo=.cmx)
 	$(OCAMLFIND) ocamlopt $(DEBUG) -pack -o pa_ppx_utils.cmx $^
 
-META: META.pl
-	./META.pl > META
-
 install:: META
 	mkdir -p $(DESTDIR)/lib
 	$(NOT_OCAMLFIND) reinstall-if-diff pa_ppx_utils -destdir $(DESTDIR)/lib META $(TARGET) $(TARGET:.cma=.cmxa) $(TARGET:.cma=.a) pa_ppx_utils.cmx pa_ppx_utils.cmi $(wildcard *.cmt*)

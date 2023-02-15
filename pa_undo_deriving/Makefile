@@ -25,14 +25,9 @@ camlp5.pa_ppx_undo_deriving: $(TARGET)
 camlp5.pa_ppx_undo_deriving.opt: $(TARGET:.cma=.cmxa)
 	$(MKCAMLP5OPT) -package $(PACKAGES),pa_ppx_base $(TARGET:.cma=.cmxa) -o $@
 
-META: META.pl
-	./META.pl > META
-
-install::
-	./META.pl $(DESTDIR)/lib > META
+install:: META
 	mkdir -p $(DESTDIR)/lib
 	$(NOT_OCAMLFIND) reinstall-if-diff pa_ppx_undo_deriving -destdir $(DESTDIR)/lib META $(TARGET) $(TARGET:.cma=.a) $(TARGET:.cma=.cmxa) $(wildcard *.cmt*)
-	$(RM) -f META
 
 clean::
 	rm -rf META camlp5.pa_ppx_undo_deriving*

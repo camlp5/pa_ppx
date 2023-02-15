@@ -27,9 +27,6 @@ pa_ppx_runtime.cmo: $(CMO)
 pa_ppx_runtime.cmx: $(CMO:.cmo=.cmx)
 	$(OCAMLFIND) ocamlopt $(DEBUG) -pack -o pa_ppx_runtime.cmx $^
 
-META: META.pl
-	./META.pl > META
-
 install:: META
 	mkdir -p $(DESTDIR)/lib
 	$(NOT_OCAMLFIND) reinstall-if-diff pa_ppx_runtime -destdir $(DESTDIR)/lib META $(TARGET) $(TARGET:.cma=.cmxa) $(TARGET:.cma=.a) pa_ppx_runtime.cmx pa_ppx_runtime.cmi $(wildcard *.cmt*)

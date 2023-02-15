@@ -14,6 +14,7 @@ ML := base.ml pp_MLast.ml pp_parsetree.ml ppxutil.ml pa_passthru.ml pa_normalize
 MLI := ppxutil.mli pa_passthru.mli pp_MLast.mli pp_parsetree.mli
 
 ALLSRC := $(ML) $(MLI)
+ALLPACKAGES := $(PACKAGES)
 CMO := $(ML:.ml=.cmo)
 CMI := $(ML:.ml=.cmi)
 CMX := $(ML:.ml=.cmx)

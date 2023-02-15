@@ -12,6 +12,8 @@ PACKAGES := $(PACKAGES),pa_ppx_base,fmt,bos,compiler-libs.common
 
 TARGET=pa_undo_deriving.cma
 ML=pa_undo_deriving.ml
+ALLSRC=$(ML)
+ALLPACKAGES=$(PACKAGES)
 CMO := $(ML:.ml=.cmo)
 CMI := $(ML:.ml=.cmi)
 CMX := $(ML:.ml=.cmx)
@@ -49,13 +51,3 @@ $(TARGET:.cma=.cmxa): $(CMO:.cmo=.cmx)
 
 $(TARGET): $(CMO)
 $(TARGET:.cma=.cmxa): $(CMO:.cmo=.cmx)
-
-EXTERNAL := $(shell $(OCAMLFIND) query -predicates byte -format '%m' $(PACKAGES) | grep local-install)
-$(CMO) $(CMI) $(CMX): $(EXTERNAL)
-
-depend::
-	echo "$(CMO) $(CMI) $(CMX): $(EXTERNAL)" > .depend.NEW
-	$(OCAMLFIND) ocamldep $(DEBUG) -package $(PACKAGES) -syntax camlp5r *.ml *.mli >> .depend.NEW \
-		&& mv .depend.NEW .depend
-
--include .depend

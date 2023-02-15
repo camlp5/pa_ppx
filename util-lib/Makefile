@@ -12,6 +12,8 @@ PACKAGES := $(PACKAGES),pcre
 TARGET := pa_ppx_utils.cma
 ML := std.ml coll.ml std2.ml uf.ml tsort0.ml tsort.ml pack.ml hash.ml
 MLI := std2.mli  std.mli  tsort0.mli  uf.mli pack.mli
+ALLSRC = $(ML) $(MLI)
+ALLPACKAGES=$(PACKAGES)
 CMO := $(ML:.ml=.cmo)
 CMI := $(ML:.ml=.cmi)
 CMX := $(ML:.ml=.cmx)
@@ -50,13 +52,3 @@ $(TARGET:.cma=.cmxa): pa_ppx_utils.cmx
 
 $(TARGET): $(CMO)
 $(TARGET:.cma=.cmxa): $(CMO:.cmo=.cmx)
-
-EXTERNAL := $(shell $(OCAMLFIND) query -predicates byte -format '%m' $(PACKAGES) | grep local-install)
-$(CMO) $(CMI) $(CMX): $(EXTERNAL)
-
-depend::
-	echo "$(CMO) $(CMI) $(CMX): $(EXTERNAL)" > .depend.NEW
-	$(OCAMLFIND) ocamldep $(DEBUG) -package $(PACKAGES) -syntax $(SYNTAX) *.ml *.mli >> .depend.NEW \
-		&& mv .depend.NEW .depend
-
--include .depend

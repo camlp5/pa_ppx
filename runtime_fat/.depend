@@ -1,4 +1,6 @@
 runtime.cmo exceptions.cmo runtime.cmi exceptions.cmi runtime.cmx exceptions.cmx: 
+runtime.cmo :
+runtime.cmx :
 exceptions.cmo : \
     runtime.cmo \
     exceptions.cmi
@@ -6,5 +8,3 @@ exceptions.cmx : \
     runtime.cmx \
     exceptions.cmi
 exceptions.cmi :
-runtime.cmo :
-runtime.cmx :

@@ -12,6 +12,8 @@ PACKAGES := $(PACKAGES),fmt,bos,pa_ppx_base,pa_ppx_utils,camlp5.pa_r,camlp5.pa_l
 TARGET := pa_ppx_dock.cma
 ML := comment_lexer.ml pa_dock.ml
 MLI := pa_dock.mli
+ALLSRC=$(ML) $(MLI)
+ALLPACKAGES=$(PACKAGES)
 CMO := $(ML:.ml=.cmo)
 CMI := $(ML:.ml=.cmi)
 CMX := $(ML:.ml=.cmx)
@@ -56,13 +58,3 @@ $(TARGET:.cma=.cmxa): $(TARGET:.cma=.cmx)
 
 $(TARGET): $(CMO)
 $(TARGET:.cma=.cmxa): $(CMO:.cmo=.cmx)
-
-EXTERNAL := $(shell $(OCAMLFIND) query -predicates byte -format '%m' $(PACKAGES) | grep local-install)
-$(CMO) $(CMI) $(CMX): $(EXTERNAL)
-
-depend::
-	echo "$(CMO) $(CMI) $(CMX): $(EXTERNAL)" > .depend.NEW
-	$(OCAMLFIND) ocamldep $(DEBUG) -package $(PACKAGES) -syntax camlp5r *.ml *.mli >> .depend.NEW \
-		&& mv .depend.NEW .depend
-
--include .depend

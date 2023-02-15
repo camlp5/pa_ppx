@@ -12,6 +12,8 @@ PACKAGES = rresult,fmt,camlp5,yojson,sexplib0
 TARGET = pa_ppx_runtime.cma
 ML = runtime.ml exceptions.ml
 MLI = exceptions.mli
+ALLSRC=$(ML) $(MLI)
+ALLPACKAGES=$(PACKAGES)
 CMO = $(ML:.ml=.cmo)
 CMI = $(ML:.ml=.cmi)
 CMX = $(ML:.ml=.cmx)
@@ -95,13 +97,3 @@ refold-exn: exceptions.ml
 	-syntax camlp5r \
 	$< > $@.NEW
 	mv $@.NEW  exceptions.REFOLD.ml
-
-EXTERNAL = $(shell $(OCAMLFIND) query -predicates byte -format '%m' $(PACKAGES) | grep local-install)
-$(CMO) $(CMI) $(CMX): $(EXTERNAL)
-
-depend::
-	echo "$(CMO) $(CMI) $(CMX): $(EXTERNAL)" > .depend.NEW
-	$(OCAMLFIND) ocamldep -package $(PACKAGES) -syntax camlp5r runtime.ml exceptions.ml exceptions.mli >> .depend.NEW \
-		&& mv .depend.NEW .depend
-
--include .depend

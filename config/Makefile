@@ -49,11 +49,11 @@ clean::
 
 realclean:: clean
 
-EXTERNAL=$(shell $(LAUNCH) $(OCAMLFIND) query -predicates byte -format '%m' $(PACKAGES) | grep local-install)
+EXTERNAL=$(shell $(LAUNCH) $(OCAMLFIND) query -predicates byte -format '%m' $(ALLPACKAGES) | grep local-install)
 
 depend::
 	echo "$(CMO) $(CMI) $(CMX): $(EXTERNAL)" > .depend.NEW
-	$(LAUNCH) $(YAWRAP) $(OCAMLFIND) ocamldep -package $(PACKAGES) -- $(ALLSRC) >> .depend.NEW
+	$(LAUNCH) $(YAWRAP) $(OCAMLFIND) ocamldep -package $(ALLPACKAGES) -- $(ALLSRC) >> .depend.NEW
 	mv .depend.NEW .depend
 
 -include .depend

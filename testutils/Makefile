@@ -10,7 +10,10 @@ RM=rm
 
 PACKAGES := unix,camlp5,oUnit,fmt,pcre,rresult,compiler-libs.common,yojson,sexplib0
 TARGET := pa_ppx_testutils.cma
-CMO := papr_util.cmo testutil.cmo testutil2.cmo
+ML := papr_util.ml testutil.ml testutil2.ml
+ALLSRC=$(ML)
+ALLPACKAGES=$(PACKAGES)
+CMO := $(ML:.ml=.cmo)
 CMI := $(ML:.ml=.cmi)
 CMX := $(ML:.ml=.cmx)
 CMT := $(ML:.ml=.cmt)
@@ -53,18 +56,3 @@ $(TARGET:.cma=.cmxa): pa_ppx_testutils.cmx
 
 $(TARGET): $(CMO)
 $(TARGET:.cma=.cmxa): $(CMO:.cmo=.cmx)
-
-EXTERNAL := $(shell $(OCAMLFIND) query -predicates byte  -format '%m' $(PACKAGES) | grep local-install)
-$(CMO) $(CMI) $(CMX): $(EXTERNAL)
-
-depend::
-	echo "$(CMO) $(CMI) $(CMX): $(EXTERNAL)" > .depend.NEW
-	$(OCAMLFIND) ocamldep $(DEBUG) $(WARNERR) -package $(PACKAGES) -syntax camlp5o \
-	testutil2.ml \
-	>> .depend.NEW
-	$(OCAMLFIND) ocamldep $(DEBUG) $(WARNERR) -package $(PACKAGES) -syntax camlp5r \
-	testutil.ml \
-	>> .depend.NEW
-	mv .depend.NEW .depend
-
--include .depend

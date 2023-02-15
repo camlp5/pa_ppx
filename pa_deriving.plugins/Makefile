@@ -23,6 +23,8 @@ ML=\
 	pa_deriving_yojson.ml \
 	pa_deriving_sexp.ml \
 
+ALLSRC=$(ML) $(MLI)
+ALLPACKAGES=$(PACKAGES)
 CMO := $(ML:.ml=.cmo)
 CMI := $(ML:.ml=.cmi)
 CMX := $(ML:.ml=.cmx)
@@ -59,13 +61,3 @@ install:: $(BATCHTOP) META
 
 clean::
 	rm -rf META camlp5*.pa_ppx_deriving_plugins*
-
-EXTERNAL := $(shell $(OCAMLFIND) query -predicates byte -format '%m' $(PACKAGES) | grep local-install)
-$(CMO) $(CMI) $(CMX): $(EXTERNAL)
-
-depend::
-	echo "$(CMO) $(CMI) $(CMX): $(EXTERNAL)" > .depend.NEW
-	$(OCAMLFIND) ocamldep $(DEBUG) -package $(PACKAGES) -syntax camlp5r *.ml *.mli >> .depend.NEW \
-		&& mv .depend.NEW .depend
-
--include .depend

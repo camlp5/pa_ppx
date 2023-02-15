@@ -1,28 +1,28 @@
 pa_deriving.cmo surveil.cmo pa_rebindto.cmo deriving_harness.cmo pa_deriving_base.cmo pa_deriving.cmi surveil.cmi pa_rebindto.cmi deriving_harness.cmi pa_deriving_base.cmi pa_deriving.cmx surveil.cmx pa_rebindto.cmx deriving_harness.cmx pa_deriving_base.cmx: ../local-install/lib/pa_ppx_utils/META ../local-install/lib/pa_ppx_base/META ../local-install/lib/pa_ppx_base/META
-deriving_harness.cmo : \
-    surveil.cmi \
-    pa_deriving.cmi
-deriving_harness.cmx : \
-    surveil.cmx \
-    pa_deriving.cmx
 pa_deriving.cmo : \
     pa_deriving.cmi
 pa_deriving.cmx : \
     pa_deriving.cmi
-pa_deriving.cmi :
-pa_deriving_base.cmo : \
-    surveil.cmi \
-    pa_deriving_base.cmi
-pa_deriving_base.cmx : \
-    surveil.cmx \
-    pa_deriving_base.cmi
-pa_deriving_base.cmi :
-pa_rebindto.cmo :
-pa_rebindto.cmx :
 surveil.cmo : \
     pa_deriving.cmi \
     surveil.cmi
 surveil.cmx : \
     pa_deriving.cmx \
     surveil.cmi
+pa_rebindto.cmo :
+pa_rebindto.cmx :
+deriving_harness.cmo : \
+    surveil.cmi \
+    pa_deriving.cmi
+deriving_harness.cmx : \
+    surveil.cmx \
+    pa_deriving.cmx
+pa_deriving_base.cmo : \
+    surveil.cmi \
+    pa_deriving_base.cmi
+pa_deriving_base.cmx : \
+    surveil.cmx \
+    pa_deriving_base.cmi
 surveil.cmi :
+pa_deriving_base.cmi :
+pa_deriving.cmi :

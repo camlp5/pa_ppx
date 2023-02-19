@@ -36,110 +36,61 @@ value unpack_orpat p =
   orec p
 ;
 
-value pack_orpat l = do {
-  assert (l <> []) ;
-  List.fold_left (fun a b -> let loc = loc_of_patt b in <:patt< $a$ | $b$ >>) (List.hd l) (List.tl l)
-}
-;
-
 value strip_vars p =
   let rec strec = fun [
     <:patt:< $lid:_$ >> -> <:patt< _ >>
+  | <:patt:< ($p$ as $lid:_$) >> -> strec p
   | <:patt:< $a$ $b$ >> -> <:patt:< $strec a$ $strec b$ >>
   | <:patt:< $a$ | $b$ >> -> <:patt:< $strec a$ | $strec b$ >>
+  | <:patt:< ( $list:l$ ) >> -> <:patt:< ( $list:List.map strec l$ ) >>
+  | <:patt:< { $list:l$ } >> ->
+     let strboth (l,v) = (strec l, strec v) in
+     <:patt:< { $list:List.map strboth l$ } >>
   | p -> p
   ] in
   strec p
 ;
 
-value covers a b =
-  let rec covrec = fun [
-    (<:patt< $a1$ $b1$ >>, <:patt< $a2$ $b2$ >>) -> covrec (a1, a2) && covrec(b1, b2)
-  | (<:patt< _ >>, p) -> True
-  | (p, q) -> Reloc.eq_patt p q
-  ] in
-  covrec (a,b)
+value or_pattern_of_list loc pl =
+  List.fold_left (fun p q -> <:patt< $p$ | $q$ >>) (List.hd pl) (List.tl pl)
 ;
 
-module HasVaVal = struct
-  value rec patt = fun [
-    <:patt< Ploc.VaVal $_$ >> -> True
-  | <:patt< $a$ $b$ >> -> patt a || patt b
-  | <:patt< MLast . $uid:_$  >> -> False
-  | _ -> False
-  ]
+value new_vala_covering_pattern p =
+  let rec genrec p = match p with [
+      <:patt:< Ploc.VaVal $_$ >> -> or_pattern_of_list loc [p ; <:patt:< Ploc.VaAnt _ >>]
+    | <:patt:< $a$ $b$ >> ->
+       let a = genrec a in
+       let b = genrec b in
+       <:patt:< $a$ $b$ >>
+    | <:patt:< { $list:l$ } >> ->
+       let l = List.map (fun (l,v) -> (l, genrec v)) l in
+       <:patt:< { $list:l$ } >>
+    | p -> p
+    ]
+  in
+  genrec p
 ;
-end
-;
-
-value rec has_vaval = fun [
-  <:patt< $a$ | $b$ >> -> has_vaval a || has_vaval b
-| p -> HasVaVal.patt p
-]
-;
-
-value erase_vaval p = do {
-  assert (not (is_orpat p)) ;
-  let rec erec = fun [
-    <:patt:< Ploc.VaVal $_$ >> -> <:patt< _ >>
-  | <:patt:< $a$ $b$ >> -> <:patt< $(erec a)$ $(erec b)$ >>
-  | p -> p
-  ] in
-  erec p
-}
-;
-
-module PattSet = struct
-  type t = list patt ;
-  value mt = [] ;
-
-  value norm p = do {
-    assert (not (is_orpat p)) ;
-    let p = strip_vars p in
-    Reloc.patt (fun _ -> Ploc.dummy) 0 p };
-
-  value mem p s =
-    List.exists (fun covp -> covers covp p) s ;
-
-  value add s p =
-    let p = norm p in
-    if mem p s then s else [ p :: s ] ;
-
-end ;
 
 value rewrite_unmatched_vala_branches branches = do {
   assert (is_unmatched_vala_branches branches) ;
-  let (prefix, ((_, _, uvb_exp) as uvb), suffix) = sep_unmatched_vala_branch branches in
+  let (prefix, ((uvpat, _, uvb_exp) as uvb), suffix) = sep_unmatched_vala_branch branches in
+  let loc = loc_of_patt uvpat in
   let branchpats = List.map (fun (p, _, _) -> p) prefix in
-  let branchpats = List.concat (List.map unpack_orpat branchpats) in
-
-  let seen = List.fold_left PattSet.add PattSet.mt branchpats in
-  let patll = List.map (fun p ->
-      if has_vaval p then [strip_vars (erase_vaval p)] else []
-   ) branchpats in
-  let patl = List.concat patll in
-  let (_,rev_patl) = List.fold_left (fun (seen,acc) p ->
-      if PattSet.mem p seen then (seen, acc) else (PattSet.add seen p, [p :: acc]))
-      (seen, []) patl in
-  let patl = List.rev rev_patl in
-  let newbranches = List.map (fun p -> (p, <:vala< None >>, uvb_exp)) patl in
-  if patl = [] then prefix @ suffix
-  else
-(*
-    let orpat = pack_orpat patl in
-    prefix @ [ (orpat, <:vala< None >>, uvb_exp) ] @ suffix
-*)
-    prefix @ newbranches @ suffix
+  let branchpats = List.concat_map unpack_orpat branchpats in
+  let branchpats = List.map strip_vars branchpats in
+  let newpat = or_pattern_of_list loc (List.map new_vala_covering_pattern branchpats) in
+  let newbranch = (newpat, <:vala< None >>, uvb_exp) in
+    prefix @ [newbranch] @ suffix
 }
 ;
 
 value rewrite_expr arg = fun [
   <:expr:< fun [ $list:l$ ] >> ->
   let l = rewrite_unmatched_vala_branches l in
-  <:expr< fun [ $list:l$ ] >>
+  <:expr< fun [ $list:l$ ] [@warning "-12";] >>
 | <:expr:< match $e$ with [ $list:l$ ] >> ->
   let l = rewrite_unmatched_vala_branches l in
-  <:expr< match $e$ with [ $list:l$ ] >>
+  <:expr< match $e$ with [ $list:l$ ] [@warning "-12";] >>
 | _ -> assert False
 ]
 ;

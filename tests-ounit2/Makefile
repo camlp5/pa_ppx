@@ -78,6 +78,9 @@ all: $(CMO) $(TESTS)
 
 test: $(TESTS:.byte=)
 
+toplevel::
+	$(LAUNCH) ocaml -nopromptcont
+
 % : %.byte
 	mkdir -p _build && ./$<
 

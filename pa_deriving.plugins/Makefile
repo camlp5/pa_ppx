@@ -33,19 +33,17 @@ all: $(CMO) $(BATCHTOP)
 
 doc: $(CMT) $(CMTI)
 
-KITS=$(CMO)
+camlp5r.pa_ppx_deriving_plugins: $(CMO)
+	$(LAUNCH) $(MKCAMLP5) -package camlp5.pa_r,camlp5.pr_r,pa_ppx_deriving $(CMO) -o $@
 
-camlp5r.pa_ppx_deriving_plugins: $(KITS)
-	$(LAUNCH) $(MKCAMLP5) -package camlp5.pa_r,camlp5.pr_r,pa_ppx_deriving $(KITS) -o $@
+camlp5r.pa_ppx_deriving_plugins.opt: $(CMX)
+	$(LAUNCH) $(MKCAMLP5OPT) -package camlp5.pa_r,camlp5.pr_r,pa_ppx_deriving $(CMX) -o $@
 
-camlp5r.pa_ppx_deriving_plugins.opt: $(KITS:.cmo=.cmx)
-	$(LAUNCH) $(MKCAMLP5OPT) -package camlp5.pa_r,camlp5.pr_r,pa_ppx_deriving $(KITS:.cmo=.cmx) -o $@
+camlp5o.pa_ppx_deriving_plugins: $(CMO)
+	$(LAUNCH) $(MKCAMLP5) -package camlp5.pa_o,camlp5.pr_o,pa_ppx_deriving $(CMO) -o $@
 
-camlp5o.pa_ppx_deriving_plugins: $(KITS)
-	$(LAUNCH) $(MKCAMLP5) -package camlp5.pa_o,camlp5.pr_o,pa_ppx_deriving $(KITS) -o $@
-
-camlp5o.pa_ppx_deriving_plugins.opt: $(KITS:.cmo=.cmx)
-	$(LAUNCH) $(MKCAMLP5OPT) -package camlp5.pa_o,camlp5.pr_o,pa_ppx_deriving $(KITS:.cmo=.cmx) -o $@
+camlp5o.pa_ppx_deriving_plugins.opt: $(CMX)
+	$(LAUNCH) $(MKCAMLP5OPT) -package camlp5.pa_o,camlp5.pr_o,pa_ppx_deriving $(CMX) -o $@
 
 TARGET_INSTALL_FILES= $(FILES_TARGET_INSTALL_FILES)
 install:: default_install

@@ -19,17 +19,17 @@ description = "pa_ppx_deriving base support"
 # For linking
 package "link" (
 requires = "camlp5,fmt,pa_ppx_base.link"
-archive(byte) = "pa_deriving.cma"
-archive(native) = "pa_deriving.cmxa"
+archive(byte) = "pa_ppx_deriving.cma"
+archive(native) = "pa_ppx_deriving.cmxa"
 )
 requires = "camlp5,fmt,pa_ppx_runtime"
 
 # For the toploop:
 requires(byte,toploop) = "camlp5,fmt,pa_ppx_base,pa_ppx_runtime"
-archive(byte,toploop) = "pa_deriving.cma"
+archive(byte,toploop) = "pa_ppx_deriving.cma"
 
   # For the preprocessor itself:
   requires(syntax,preprocessor) = "camlp5,fmt,pa_ppx_base"
-  archive(syntax,preprocessor,-native) = "pa_deriving.cma"
-  archive(syntax,preprocessor,native) = "pa_deriving.cmxa"
+  archive(syntax,preprocessor,-native) = "pa_ppx_deriving.cma"
+  archive(syntax,preprocessor,native) = "pa_ppx_deriving.cmxa"
 |} version)

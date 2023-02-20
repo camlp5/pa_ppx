@@ -8,8 +8,9 @@ include $(TOP)/config/Makefile.sub
 DESTDIR=
 
 PACKAGES := $(PACKAGES),fmt,pa_ppx_base
-TARGET := pa_ppx_unmatched_vala.cma
-ML := pa_unmatched_vala.ml
+TARGET_PACKAGE = pa_ppx_unmatched_vala
+TARGET = $(TARGET_PACKAGE).cma
+ML = pa_ppx_unmatched_vala.ml
 ALLSRC=$(ML)
 ALLPACKAGES=$(PACKAGES)
 
@@ -19,23 +20,19 @@ all: $(TARGET) $(TARGET:.cma=.cmxa) camlp5.pa_ppx_unmatched_vala camlp5.pa_ppx_u
 doc: $(CMT) $(CMTI)
 
 camlp5.pa_ppx_unmatched_vala: $(TARGET)
-	$(MKCAMLP5) -package fmt,camlp5.pa_r,camlp5.pr_r,pa_ppx_base $(TARGET) -o $@
+	$(LAUNCH) $(MKCAMLP5) -package fmt,camlp5.pa_r,camlp5.pr_r,pa_ppx_base $(TARGET) -o $@
 
 camlp5.pa_ppx_unmatched_vala.opt: $(TARGET:.cma=.cmxa)
-	$(MKCAMLP5OPT) -package fmt,camlp5.pa_r,camlp5.pr_r,pa_ppx_base $(TARGET:.cma=.cmxa) -o $@
+	$(LAUNCH) $(MKCAMLP5OPT) -package fmt,camlp5.pa_r,camlp5.pr_r,pa_ppx_base $(TARGET:.cma=.cmxa) -o $@
 
-install:: META
-	mkdir -p $(DESTDIR)/lib
-	$(NOT_OCAMLFIND) reinstall-if-diff pa_ppx_unmatched_vala -destdir $(DESTDIR)/lib META $(TARGET) $(TARGET:.cma=.cmxa) $(TARGET:.cma=.a) $(CMO:.cmo=.cmx) $(wildcard *.cmt*)
+TARGET_INSTALL_FILES= $(DEFAULT_TARGET_INSTALL_FILES)
+install:: default_install
 
 clean::
 	rm -rf META camlp5.pa_ppx_unmatched_vala*
 
-$(TARGET): $(CMO)
-	$(OCAMLFIND) ocamlc $(DEBUG) $(CMO) -a -o $(TARGET)
+$(TARGET): $(TARGET_PACKAGE).cmo
+	$(OCAMLFIND) ocamlc $(DEBUG) $^ -a -o $(TARGET)
 
-$(TARGET:.cma=.cmxa): $(CMO:.cmo=.cmx)
-	$(OCAMLFIND) ocamlopt $(DEBUG) $(CMO:.cmo=.cmx) -a -o $(TARGET:.cma=.cmxa)
-
-$(TARGET): $(CMO)
-$(TARGET:.cma=.cmxa): $(CMO:.cmo=.cmx)
+$(TARGET:.cma=.cmxa): $(TARGET_PACKAGE).cmx
+	$(OCAMLFIND) ocamlopt $(DEBUG) $^ -a -o $(TARGET:.cma=.cmxa)

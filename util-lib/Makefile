@@ -8,13 +8,13 @@ include $(TOP)/config/Makefile.sub
 DESTDIR=
 
 PACKAGES := $(PACKAGES),pcre
-TARGET := pa_ppx_utils.cma
-ML := std.ml coll.ml std2.ml uf.ml tsort0.ml tsort.ml pack.ml hash.ml
-MLI := std2.mli  std.mli  tsort0.mli  uf.mli pack.mli
+TARGET_PACKAGE=pa_ppx_utils
+TARGET=$(TARGET_PACKAGE).cma
+ML = std.ml coll.ml std2.ml uf.ml tsort0.ml tsort.ml pack.ml hash.ml
+MLI = std2.mli  std.mli  tsort0.mli  uf.mli pack.mli
 ALLSRC = $(ML) $(MLI)
 ALLPACKAGES=$(PACKAGES)
 
-SYNTAX := camlp5o
 OCAMLCFLAGS := $(OCAMLCFLAGS) -for-pack Pa_ppx_utils
 
 all: $(TARGET) $(TARGET:.cma=.cmxa)
@@ -22,24 +22,20 @@ all: $(TARGET) $(TARGET:.cma=.cmxa)
 
 doc: $(CMT) $(CMTI)
 
-pa_ppx_utils.cmo pa_ppx_utils.cmi: $(CMO)
-	$(OCAMLFIND) ocamlc $(DEBUG) -pack -o pa_ppx_utils.cmo $^
-
-pa_ppx_utils.cmx: $(CMO:.cmo=.cmx)
-	$(OCAMLFIND) ocamlopt $(DEBUG) -pack -o pa_ppx_utils.cmx $^
-
-install:: META
-	mkdir -p $(DESTDIR)/lib
-	$(NOT_OCAMLFIND) reinstall-if-diff pa_ppx_utils -destdir $(DESTDIR)/lib META $(TARGET) $(TARGET:.cma=.cmxa) $(TARGET:.cma=.a) pa_ppx_utils.cmx pa_ppx_utils.cmi $(wildcard *.cmt*)
+TARGET_INSTALL_FILES= $(DEFAULT_TARGET_INSTALL_FILES)
+install:: default_install
 
 clean::
 	rm -rf META
 
-$(TARGET): pa_ppx_utils.cmo
+$(TARGET_PACKAGE).cmo $(TARGET_PACKAGE).cmi: $(CMO)
+	$(OCAMLFIND) ocamlc $(DEBUG) -pack -o $(TARGET_PACKAGE).cmo $^
+
+$(TARGET_PACKAGE).cmx: $(CMO:.cmo=.cmx)
+	$(OCAMLFIND) ocamlopt $(DEBUG) -pack -o $(TARGET_PACKAGE).cmx $^
+
+$(TARGET): $(TARGET_PACKAGE).cmo
 	$(OCAMLFIND) ocamlc $(DEBUG) $^ -a -o $(TARGET)
 
-$(TARGET:.cma=.cmxa): pa_ppx_utils.cmx
+$(TARGET:.cma=.cmxa): $(TARGET_PACKAGE).cmx
 	$(OCAMLFIND) ocamlopt $(DEBUG) $^ -a -o $(TARGET:.cma=.cmxa)
-
-$(TARGET): $(CMO)
-$(TARGET:.cma=.cmxa): $(CMO:.cmo=.cmx)

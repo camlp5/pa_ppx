@@ -9,8 +9,9 @@ DESTDIR=
 
 PACKAGES := $(PACKAGES),pa_ppx_base,fmt,bos,compiler-libs.common,findlib.internal
 
-TARGET=pa_import.cma
-ML=pa_import.ml
+TARGET_PACKAGE=pa_ppx_import
+TARGET=$(TARGET_PACKAGE).cma
+ML=pa_ppx_import.ml
 ALLSRC=$(ML) $(MLI)
 ALLPACKAGES=$(PACKAGES)
 
@@ -20,14 +21,13 @@ all: $(TARGET) $(TARGET:.cma=.cmxa) camlp5.pa_ppx_import camlp5.pa_ppx_import.op
 doc: $(CMT) $(CMTI)
 
 camlp5.pa_ppx_import: $(TARGET)
-	$(MKCAMLP5) -package $(PACKAGES),pa_ppx_base $(TARGET) -o $@
+	$(LAUNCH) $(MKCAMLP5) -package $(PACKAGES),pa_ppx_base $(TARGET) -o $@
 
 camlp5.pa_ppx_import.opt: $(TARGET:.cma=.cmxa)
-	$(MKCAMLP5OPT) -package $(PACKAGES),pa_ppx_base $(TARGET:.cma=.cmxa) -o $@
+	$(LAUNCH) $(MKCAMLP5OPT) -package $(PACKAGES),pa_ppx_base $(TARGET:.cma=.cmxa) -o $@
 
-install:: META
-	mkdir -p $(DESTDIR)/lib
-	$(NOT_OCAMLFIND) reinstall-if-diff pa_ppx_import -destdir $(DESTDIR)/lib META $(TARGET) $(TARGET:.cma=.cmxa) $(TARGET:.cma=.a) $(CMI) $(wildcard *.cmt*)
+TARGET_INSTALL_FILES= $(DEFAULT_TARGET_INSTALL_FILES)
+install:: default_install
 
 clean::
 	rm -rf META camlp5.pa_ppx_import*

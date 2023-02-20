@@ -22,8 +22,17 @@ CMI = $(ML:.ml=.cmi)
 CMX = $(ML:.ml=.cmx)
 CMT = $(ML:.ml=.cmt)
 CMTI = $(MLI:.mli=.cmti)
+DEFAULT_INSTALL_FILES = $(MLI) $(wildcard *.cmt*)
 
 top: all
+
+DEFAULT_TARGET_INSTALL_FILES= $(TARGET) $(TARGET:.cma=.cmxa) $(TARGET:.cma=.a) $(TARGET:.cma=.cmi) $(TARGET:.cma=.cmx)
+default_install:: META $(TARGET_INSTALL_FILES) $(DEFAULT_INSTALL_FILES)
+	mkdir -p $(DESTDIR)/lib
+	$(NOT_OCAMLFIND) reinstall-if-diff $(TARGET_PACKAGE) -destdir $(DESTDIR)/lib META $(DEFAULT_INSTALL_FILES) $(TARGET_INSTALL_FILES)
+
+default_uninstall::
+	$(NOT_OCAMLFIND) remove $(TARGET_PACKAGE) -destdir $(DESTDIR)/lib
 
 .mli.cmi:
 	$(LAUNCH) $(YAWRAP) $(OCAMLFIND) ocamlc $(DEBUG) $(OCAMLCFLAGS) -package $(PACKAGES) -c $<

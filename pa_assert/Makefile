@@ -8,8 +8,9 @@ include $(TOP)/config/Makefile.sub
 DESTDIR=
 
 PACKAGES := $(PACKAGES),fmt,pa_ppx_base
-TARGET := pa_ppx_assert.cma
-ML := pa_assert.ml
+TARGET_PACKAGE := pa_ppx_assert
+TARGET := $(TARGET_PACKAGE).cma
+ML := pa_ppx_assert.ml
 ALLSRC=$(ML)
 ALLPACKAGES=$(PACKAGES)
 
@@ -19,14 +20,13 @@ all: $(TARGET) $(TARGET:.cma=.cmxa) camlp5.pa_ppx_assert camlp5.pa_ppx_assert.op
 doc: $(CMT) $(CMTI)
 
 camlp5.pa_ppx_assert: $(TARGET)
-	$(MKCAMLP5) -package fmt,camlp5.pa_r,camlp5.pr_r,pa_ppx_base $(TARGET) -o $@
+	$(LAUNCH) $(MKCAMLP5) -package fmt,camlp5.pa_r,camlp5.pr_r,pa_ppx_base $(TARGET) -o $@
 
 camlp5.pa_ppx_assert.opt: $(TARGET:.cma=.cmxa)
-	$(MKCAMLP5OPT) -package fmt,camlp5.pa_r,camlp5.pr_r,pa_ppx_base $(TARGET:.cma=.cmxa) -o $@
+	$(LAUNCH) $(MKCAMLP5OPT) -package fmt,camlp5.pa_r,camlp5.pr_r,pa_ppx_base $(TARGET:.cma=.cmxa) -o $@
 
-install:: META
-	mkdir -p $(DESTDIR)/lib
-	$(NOT_OCAMLFIND) reinstall-if-diff pa_ppx_assert -destdir $(DESTDIR)/lib META $(TARGET) $(TARGET:.cma=.cmxa) $(TARGET:.cma=.a) $(CMO:.cmo=.cmx) $(MLI:.mli=.cmi) $(wildcard *.cmt*)
+TARGET_INSTALL_FILES= $(DEFAULT_TARGET_INSTALL_FILES)
+install:: default_install
 
 clean::
 	rm -rf META camlp5.pa_ppx_assert*
@@ -36,6 +36,3 @@ $(TARGET): $(CMO)
 
 $(TARGET:.cma=.cmxa): $(CMO:.cmo=.cmx)
 	$(OCAMLFIND) ocamlopt $(DEBUG) $(CMO:.cmo=.cmx) -a -o $(TARGET:.cma=.cmxa)
-
-$(TARGET): $(CMO)
-$(TARGET:.cma=.cmxa): $(CMO:.cmo=.cmx)

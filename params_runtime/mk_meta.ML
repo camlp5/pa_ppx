@@ -18,9 +18,9 @@ version = "%s"
 description = "pa_ppx params runtime support"
 
 # For linking
-archive(byte) = "pa_ppx_params.cma"
-archive(native) = "pa_ppx_params.cmxa"
+archive(byte) = "pa_ppx_params_runtime.cma"
+archive(native) = "pa_ppx_params_runtime.cmxa"
 
 # For the toploop:
-archive(byte,toploop) = "pa_ppx_params.cma"
+archive(byte,toploop) = "pa_ppx_params_runtimeu.cma"
 |} version)

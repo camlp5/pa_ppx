@@ -8,8 +8,9 @@ include $(TOP)/config/Makefile.sub
 DESTDIR=
 
 PACKAGES := $(PACKAGES),fmt,pa_ppx_base
-TARGET := pa_ppx_expect_test.cma
-ML := pa_expect_test.ml
+TARGET_PACKAGE = pa_ppx_expect_test
+TARGET = $(TARGET_PACKAGE).cma
+ML = pa_ppx_expect_test.ml
 ALLSRC=$(ML)
 ALLPACKAGES=$(PACKAGES)
 
@@ -19,14 +20,13 @@ all: $(TARGET) $(TARGET:.cma=.cmxa) camlp5.pa_ppx_expect_test camlp5.pa_ppx_expe
 doc: $(CMT) $(CMTI)
 
 camlp5.pa_ppx_expect_test: $(TARGET)
-	$(MKCAMLP5) -package fmt,camlp5.pa_r,camlp5.pr_r,pa_ppx_base $(TARGET) -o $@
+	$(LAUNCH) $(MKCAMLP5) -package fmt,camlp5.pa_r,camlp5.pr_r,pa_ppx_base $(TARGET) -o $@
 
 camlp5.pa_ppx_expect_test.opt: $(TARGET:.cma=.cmxa)
-	$(MKCAMLP5OPT) -package fmt,camlp5.pa_r,camlp5.pr_r,pa_ppx_base $(TARGET:.cma=.cmxa) -o $@
+	$(LAUNCH) $(MKCAMLP5OPT) -package fmt,camlp5.pa_r,camlp5.pr_r,pa_ppx_base $(TARGET:.cma=.cmxa) -o $@
 
-install:: META
-	mkdir -p $(DESTDIR)/lib
-	$(NOT_OCAMLFIND) reinstall-if-diff pa_ppx_expect_test -destdir $(DESTDIR)/lib META $(TARGET) $(TARGET:.cma=.a) $(TARGET:.cma=.cmxa) $(wildcard *.cmt*)
+TARGET_INSTALL_FILES= $(DEFAULT_TARGET_INSTALL_FILES)
+install:: default_install
 
 clean::
 	rm -rf META camlp5.pa_ppx_expect_test*

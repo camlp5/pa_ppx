@@ -7,7 +7,7 @@ open Ppxutil ;
 open MLast ;
 open Pp_MLast ;
 open Pa_ppx_runtime.Exceptions ;
-open Pa_ppx_params.Runtime ;
+open Pa_ppx_params_runtime.Runtime ;
 open Pa_ppx_testutils ;
 
 type a0 = bool        [@@deriving (params { validators = { a0 = fun x -> Result.Ok x } }, eq);] ;

@@ -8,7 +8,8 @@ include $(TOP)/config/Makefile.sub
 DESTDIR=
 
 PACKAGES = rresult,fmt,camlp5,yojson,sexplib0
-TARGET = pa_ppx_runtime.cma
+TARGET_PACKAGE = pa_ppx_runtime
+TARGET = $(TARGET_PACKAGE).cma
 ML = runtime.ml exceptions.ml
 MLI = exceptions.mli
 ALLSRC=$(ML) $(MLI)
@@ -21,27 +22,11 @@ all: $(TARGET) $(TARGET:.cma=.cmxa)
 
 doc: $(CMT) $(CMTI)
 
-pa_ppx_runtime.cmo: $(CMO)
-	$(OCAMLFIND) ocamlc $(DEBUG) -pack -o pa_ppx_runtime.cmo $^
-
-pa_ppx_runtime.cmx: $(CMO:.cmo=.cmx)
-	$(OCAMLFIND) ocamlopt $(DEBUG) -pack -o pa_ppx_runtime.cmx $^
-
-install:: META
-	mkdir -p $(DESTDIR)/lib
-	$(NOT_OCAMLFIND) reinstall-if-diff pa_ppx_runtime -destdir $(DESTDIR)/lib META $(TARGET) $(TARGET:.cma=.cmxa) $(TARGET:.cma=.a) pa_ppx_runtime.cmx pa_ppx_runtime.cmi $(wildcard *.cmt*)
+TARGET_INSTALL_FILES= $(DEFAULT_TARGET_INSTALL_FILES)
+install:: default_install
 
 clean::
 	rm -rf META camlp5.pa_ppx_runtime
-
-$(TARGET): pa_ppx_runtime.cmo
-	$(OCAMLFIND) ocamlc $(DEBUG) pa_ppx_runtime.cmo -a -o $(TARGET)
-
-$(TARGET:.cma=.cmxa): pa_ppx_runtime.cmx
-	$(OCAMLFIND) ocamlopt $(DEBUG) pa_ppx_runtime.cmx -a -o $(TARGET:.cma=.cmxa)
-
-$(TARGET): $(CMO)
-$(TARGET:.cma=.cmxa): $(CMO:.cmo=.cmx)
 
 initialize-exn-i:: exceptions.ORIG.mli
 	echo "(** -syntax camlp5r *)" > $@.NEW
@@ -88,3 +73,15 @@ refold-exn: exceptions.ml
 	-syntax camlp5r \
 	$< > $@.NEW
 	mv $@.NEW  exceptions.REFOLD.ml
+
+$(TARGET_PACKAGE).cmo $(TARGET_PACKAGE).cmi: $(CMO)
+	$(OCAMLFIND) ocamlc $(DEBUG) -pack -o $(TARGET_PACKAGE).cmo $^
+
+$(TARGET_PACKAGE).cmx: $(CMO:.cmo=.cmx)
+	$(OCAMLFIND) ocamlopt $(DEBUG) -pack -o $(TARGET_PACKAGE).cmx $^
+
+$(TARGET): $(TARGET_PACKAGE).cmo
+	$(OCAMLFIND) ocamlc $(DEBUG) $^ -a -o $(TARGET)
+
+$(TARGET:.cma=.cmxa): $(TARGET_PACKAGE).cmx
+	$(OCAMLFIND) ocamlopt $(DEBUG) $^ -a -o $(TARGET:.cma=.cmxa)

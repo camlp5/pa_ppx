@@ -7,6 +7,7 @@ include $(TOP)/config/Makefile.sub
 
 DESTDIR=
 
+TARGET_PACKAGE=pa_ppx_deriving_plugins
 PACKAGES := $(PACKAGES),pa_ppx_deriving,pa_ppx_base,pa_ppx_unmatched_vala,camlp5.parser_quotations.link
 
 ML=\
@@ -46,9 +47,8 @@ camlp5o.pa_ppx_deriving_plugins: $(KITS)
 camlp5o.pa_ppx_deriving_plugins.opt: $(KITS:.cmo=.cmx)
 	$(LAUNCH) $(MKCAMLP5OPT) -package camlp5.pa_o,camlp5.pr_o,pa_ppx_deriving $(KITS:.cmo=.cmx) -o $@
 
-install:: $(BATCHTOP) META
-	mkdir -p $(DESTDIR)/lib
-	$(NOT_OCAMLFIND) reinstall-if-diff pa_ppx_deriving_plugins -destdir $(DESTDIR)/lib META $(CMO) $(CMX) $(MLI:.mli=.cmi) $(KITS:.cmo=.o) $(wildcard *.cmt*) $(BATCHTOP)
+TARGET_INSTALL_FILES= $(CMO) $(CMX) $(CMI) $(KITS:.cmo=.o) $(BATCHTOP)
+install:: default_install
 
 clean::
 	rm -rf META camlp5*.pa_ppx_deriving_plugins*

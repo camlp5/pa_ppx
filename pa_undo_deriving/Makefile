@@ -9,7 +9,8 @@ DESTDIR=
 
 PACKAGES := $(PACKAGES),pa_ppx_base,fmt,bos,compiler-libs.common
 
-TARGET=pa_undo_deriving.cma
+TARGET_PACKAGE=pa_undo_deriving
+TARGET=$(TARGET_PACKAGE).cma
 ML=pa_undo_deriving.ml
 ALLSRC=$(ML)
 ALLPACKAGES=$(PACKAGES)
@@ -20,14 +21,13 @@ all: $(TARGET) $(TARGET:.cma=.cmxa) camlp5.pa_ppx_undo_deriving camlp5.pa_ppx_un
 doc: $(CMT) $(CMTI)
 
 camlp5.pa_ppx_undo_deriving: $(TARGET)
-	$(MKCAMLP5) -package $(PACKAGES),pa_ppx_base $(TARGET) -o $@
+	$(LAUNCH) $(MKCAMLP5) -package $(PACKAGES),pa_ppx_base $(TARGET) -o $@
 
 camlp5.pa_ppx_undo_deriving.opt: $(TARGET:.cma=.cmxa)
-	$(MKCAMLP5OPT) -package $(PACKAGES),pa_ppx_base $(TARGET:.cma=.cmxa) -o $@
+	$(LAUNCH) $(MKCAMLP5OPT) -package $(PACKAGES),pa_ppx_base $(TARGET:.cma=.cmxa) -o $@
 
-install:: META
-	mkdir -p $(DESTDIR)/lib
-	$(NOT_OCAMLFIND) reinstall-if-diff pa_ppx_undo_deriving -destdir $(DESTDIR)/lib META $(TARGET) $(TARGET:.cma=.a) $(TARGET:.cma=.cmxa) $(wildcard *.cmt*)
+TARGET_INSTALL_FILES= $(DEFAULT_TARGET_INSTALL_FILES)
+install:: default_install
 
 clean::
 	rm -rf META camlp5.pa_ppx_undo_deriving*

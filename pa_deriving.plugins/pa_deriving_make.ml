@@ -9,6 +9,7 @@ open Pa_ppx_utils ;
 open Pa_ppx_base ;
 open Pa_passthru ;
 open Ppxutil ;
+open Pa_ppx_deriving ;
 open Surveil ;
 open Pa_deriving_base ;
 

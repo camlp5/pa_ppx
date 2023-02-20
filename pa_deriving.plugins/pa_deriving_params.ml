@@ -7,6 +7,7 @@ open MLast;
 open Pa_ppx_base ;
 open Pa_passthru ;
 open Ppxutil ;
+open Pa_ppx_deriving ;
 open Surveil ;
 open Pa_deriving_base ;
 
@@ -214,7 +215,7 @@ value generate_param_parser_expression arg ty =
     <:expr< Pa_ppx_base.Ppxutil.convert_down_list_expr $genrec ty$ >>
 
   | <:ctyp:< ne_list $ty$ >> ->
-    <:expr< Pa_ppx_params.Runtime.convert_down_ne_list_expr $genrec ty$ >>
+    <:expr< Pa_ppx_params_runtime.Runtime.convert_down_ne_list_expr $genrec ty$ >>
 
   | <:ctyp:< [ $list:branches$ ] >> as z ->
       let branches =

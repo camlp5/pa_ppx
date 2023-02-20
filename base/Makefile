@@ -8,12 +8,13 @@ include $(TOP)/config/Makefile.sub
 DESTDIR=
 
 PACKAGES := $(PACKAGES),rresult,fmt,pa_ppx_utils,pa_ppx_runtime,compiler-libs.common
-TARGET := pa_ppx_base.cma
-ML := base.ml pp_MLast.ml pp_parsetree.ml ppxutil.ml pa_passthru.ml pa_normalize.ml
-MLI := ppxutil.mli pa_passthru.mli pp_MLast.mli pp_parsetree.mli
+TARGET_PACKAGE := pa_ppx_base
+TARGET := $(TARGET_PACKAGE).cma
+ML = base.ml pp_MLast.ml pp_parsetree.ml ppxutil.ml pa_passthru.ml pa_normalize.ml
+MLI = ppxutil.mli pa_passthru.mli pp_MLast.mli pp_parsetree.mli
 
-ALLSRC := $(ML) $(MLI)
-ALLPACKAGES := $(PACKAGES)
+ALLSRC = $(ML) $(MLI)
+ALLPACKAGES = $(PACKAGES)
 
 OCAMLCFLAGS := $(OCAMLCFLAGS) -for-pack Pa_ppx_base -linkall
 
@@ -21,12 +22,6 @@ all: $(TARGET) $(TARGET:.cma=.cmxa) camlp5.pa_ppx_base camlp5.pa_ppx_base.opt
 	$(MAKE) DESTDIR=$(WD)/$(TOP)/local-install/ install
 
 doc: $(CMT) $(CMTI)
-
-pa_ppx_base.cmo: $(CMO)
-	$(OCAMLFIND) ocamlc $(DEBUG) -pack -bin-annot -o pa_ppx_base.cmo $^
-
-pa_ppx_base.cmx: $(CMO:.cmo=.cmx)
-	$(OCAMLFIND) ocamlopt $(DEBUG) -pack -bin-annot -o pa_ppx_base.cmx $^
 
 initialize-pp-MLast-i:: pp_MLast.ORIG.mli
 	echo "(** -syntax camlp5r *)" > $@.NEW
@@ -113,23 +108,25 @@ refold-pp-parsetree: pp_parsetree.ml
 	mv $@.NEW  pp_parsetree.REFOLD.ml
 
 camlp5.pa_ppx_base: $(TARGET)
-	$(MKCAMLP5) -package fmt,rresult,camlp5.pa_r,camlp5.pr_r,pa_ppx_utils,pa_ppx_runtime,compiler-libs.common $(TARGET) -o $@
+	$(LAUNCH) $(MKCAMLP5) -package fmt,rresult,camlp5.pa_r,camlp5.pr_r,pa_ppx_utils,pa_ppx_runtime,compiler-libs.common $(TARGET) -o $@
 
 camlp5.pa_ppx_base.opt: $(TARGET:.cma=.cmxa)
-	$(MKCAMLP5OPT) -package fmt,rresult,camlp5.pa_r,camlp5.pr_r,pa_ppx_utils,pa_ppx_runtime,compiler-libs.common $(TARGET:.cma=.cmxa) -o $@
+	$(LAUNCH) $(MKCAMLP5OPT) -package fmt,rresult,camlp5.pa_r,camlp5.pr_r,pa_ppx_utils,pa_ppx_runtime,compiler-libs.common $(TARGET:.cma=.cmxa) -o $@
 
-install:: META
-	mkdir -p $(DESTDIR)/lib
-	$(NOT_OCAMLFIND) reinstall-if-diff pa_ppx_base -destdir $(DESTDIR)/lib META $(TARGET) $(TARGET:.cma=.cmxa) $(TARGET:.cma=.a) pa_ppx_base.cmx pa_ppx_base.cmi $(wildcard *.cmt*)
+TARGET_INSTALL_FILES= $(DEFAULT_TARGET_INSTALL_FILES)
+install:: default_install
 
 clean::
 	rm -rf META camlp5.pa_ppx_base*
 
-$(TARGET): pa_ppx_base.cmo
-	$(OCAMLFIND) ocamlc $(DEBUG) $< -a -o $(TARGET)
+$(TARGET_PACKAGE).cmo $(TARGET_PACKAGE).cmi: $(CMO)
+	$(OCAMLFIND) ocamlc $(DEBUG) -pack -o $(TARGET_PACKAGE).cmo $^
 
-$(TARGET:.cma=.cmxa): pa_ppx_base.cmx
-	$(OCAMLFIND) ocamlopt $(DEBUG) $< -a -o $(TARGET:.cma=.cmxa)
+$(TARGET_PACKAGE).cmx: $(CMO:.cmo=.cmx)
+	$(OCAMLFIND) ocamlopt $(DEBUG) -pack -o $(TARGET_PACKAGE).cmx $^
 
-$(TARGET): $(CMO)
-$(TARGET:.cma=.cmxa): $(CMO:.cmo=.cmx)
+$(TARGET): $(TARGET_PACKAGE).cmo
+	$(OCAMLFIND) ocamlc $(DEBUG) $^ -a -o $(TARGET)
+
+$(TARGET:.cma=.cmxa): $(TARGET_PACKAGE).cmx
+	$(OCAMLFIND) ocamlopt $(DEBUG) $^ -a -o $(TARGET:.cma=.cmxa)

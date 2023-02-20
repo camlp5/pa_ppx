@@ -26,7 +26,7 @@ camlp5.pa_ppx_undo_deriving: $(TARGET)
 camlp5.pa_ppx_undo_deriving.opt: $(TARGET:.cma=.cmxa)
 	$(LAUNCH) $(MKCAMLP5OPT) -package $(PACKAGES),pa_ppx_base $(TARGET:.cma=.cmxa) -o $@
 
-TARGET_INSTALL_FILES= $(DEFAULT_TARGET_INSTALL_FILES)
+TARGET_INSTALL_FILES= $(ARCHIVE_TARGET_INSTALL_FILES)
 install:: default_install
 
 clean::

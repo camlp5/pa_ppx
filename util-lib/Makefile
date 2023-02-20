@@ -22,7 +22,7 @@ all: $(TARGET) $(TARGET:.cma=.cmxa)
 
 doc: $(CMT) $(CMTI)
 
-TARGET_INSTALL_FILES= $(DEFAULT_TARGET_INSTALL_FILES)
+TARGET_INSTALL_FILES= $(ARCHIVE_TARGET_INSTALL_FILES)
 install:: default_install
 
 clean::

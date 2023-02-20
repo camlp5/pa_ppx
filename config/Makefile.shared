@@ -26,7 +26,8 @@ DEFAULT_INSTALL_FILES = $(MLI) $(wildcard *.cmt*)
 
 top: all
 
-DEFAULT_TARGET_INSTALL_FILES= $(TARGET) $(TARGET:.cma=.cmxa) $(TARGET:.cma=.a) $(TARGET:.cma=.cmi) $(TARGET:.cma=.cmx)
+ARCHIVE_TARGET_INSTALL_FILES= $(TARGET) $(TARGET:.cma=.cmxa) $(TARGET:.cma=.a) $(TARGET:.cma=.cmi) $(TARGET:.cma=.cmx)
+FILES_TARGET_INSTALL_FILES= $(CMO) $(CMX) $(CMI) $(KITS:.cmo=.o)
 default_install:: META $(TARGET_INSTALL_FILES) $(DEFAULT_INSTALL_FILES)
 	mkdir -p $(DESTDIR)/lib
 	$(NOT_OCAMLFIND) reinstall-if-diff $(TARGET_PACKAGE) -destdir $(DESTDIR)/lib META $(DEFAULT_INSTALL_FILES) $(TARGET_INSTALL_FILES)

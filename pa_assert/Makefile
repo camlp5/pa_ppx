@@ -25,7 +25,7 @@ camlp5.pa_ppx_assert: $(TARGET)
 camlp5.pa_ppx_assert.opt: $(TARGET:.cma=.cmxa)
 	$(LAUNCH) $(MKCAMLP5OPT) -package fmt,camlp5.pa_r,camlp5.pr_r,pa_ppx_base $(TARGET:.cma=.cmxa) -o $@
 
-TARGET_INSTALL_FILES= $(DEFAULT_TARGET_INSTALL_FILES)
+TARGET_INSTALL_FILES= $(ARCHIVE_TARGET_INSTALL_FILES)
 install:: default_install
 
 clean::

@@ -27,7 +27,7 @@ testutil2.cmo: testutil2.ml
 testutil2.cmx: testutil2.ml
 	$(OCAMLFIND) ocamlopt $(OCAMLCFLAGS) $(DEBUG) $(WARNERR) -package $(PACKAGES) -syntax camlp5o -c $<
 
-TARGET_INSTALL_FILES= $(DEFAULT_TARGET_INSTALL_FILES)
+TARGET_INSTALL_FILES= $(ARCHIVE_TARGET_INSTALL_FILES)
 install:: default_install
 
 clean::

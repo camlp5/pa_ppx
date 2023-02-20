@@ -47,7 +47,7 @@ camlp5o.pa_ppx_deriving_plugins: $(KITS)
 camlp5o.pa_ppx_deriving_plugins.opt: $(KITS:.cmo=.cmx)
 	$(LAUNCH) $(MKCAMLP5OPT) -package camlp5.pa_o,camlp5.pr_o,pa_ppx_deriving $(KITS:.cmo=.cmx) -o $@
 
-TARGET_INSTALL_FILES= $(CMO) $(CMX) $(CMI) $(KITS:.cmo=.o) $(BATCHTOP)
+TARGET_INSTALL_FILES= $(FILES_TARGET_INSTALL_FILES)
 install:: default_install
 
 clean::

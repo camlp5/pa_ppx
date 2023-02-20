@@ -960,12 +960,14 @@ value rewrite_class_signature arg loc l =
 
 value wrap_implem arg z = do {
   let (sil, status) = z in
-  let loc = sil |> List.hd |> snd in
-  let fname = Ctxt.filename arg in
-  let l = comments_of_file fname in
-  let m = make_comment_map l in
-  init arg m ;
-  (sil, status)
+  if sil = [] then z else do {
+    let loc = sil |> List.hd |> snd in
+    let fname = Ctxt.filename arg in
+    let l = comments_of_file fname in
+    let m = make_comment_map l in
+    init arg m ;
+    (sil, status)
+  }
 }
 ;
 
@@ -982,12 +984,14 @@ value rewrite_interf arg (sil, status) =
 
 value wrap_interf arg z = do {
   let (sil, status) = z in
-  let loc = sil |> List.hd |> snd in
-  let fname = Ctxt.filename arg in
-  let l = comments_of_file fname in
-  let m = make_comment_map l in
-  init arg m ;
- (sil, status)
+  if sil = [] then z else do {
+    let loc = sil |> List.hd |> snd in
+    let fname = Ctxt.filename arg in
+    let l = comments_of_file fname in
+    let m = make_comment_map l in
+    init arg m ;
+    (sil, status)
+  }
 }
 ;
 

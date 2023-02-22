@@ -349,6 +349,11 @@ value import_type arg (newtname,new_formals) t =
     else Ctyp.wrap_attrs (substitute_ctyp renmap tk) unp.attrs in
     if is_generative_type ct && not redeclare.val && not unp.self_import then
       <:ctyp< $unp.bare_t$ == $ct$ >>
+    else if redeclare.val then
+      match ct with [
+          <:ctyp< $_$ == $ct$ >> -> ct
+        | _ -> ct
+        ]
     else ct
 ;
 
@@ -396,7 +401,12 @@ and import_typedecl_group arg t item_attrs =
         else Ctyp.wrap_attrs (substitute_ctyp renmap td.tdDef) unp.attrs in
       let ct = if is_generative_type ct && not redeclare.val && not unp.self_import then
           <:ctyp< $imported_tycon$ == $ct$ >>
-        else ct in
+               else if redeclare.val then
+                 match ct with [
+                     <:ctyp< $_$ == $ct$ >> -> ct
+                   | _ -> ct
+                   ]
+               else ct in
       { (td) with tdDef = ct }
     ) tdl in
   let (last, tdl) = sep_last tdl in

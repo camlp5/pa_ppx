@@ -353,22 +353,22 @@ value import_type arg (newtname,new_formals) t =
 ;
 
 value rec expand_add_attribute arg attr =
-  let si = match uv attr with [
-    <:attribute_body< "add" $stri:si$ ; >> -> si
+  let sil = match uv attr with [
+    <:attribute_body< "add" $structure:l$ >> when l <> [] -> l
   | _ -> Ploc.raise (attr |> uv |> fst |> uv |> fst)
       (Failure Fmt.(str "expand_add_attribute: malformed add attribute:@ %a"
                       Pp_MLast.pp_attribute attr))
   ] in
-  let expanded_si = match si with [
+  let expanded_sil = sil |> List.map (fun [
     <:str_item:<  type $flag:_$ $list:_$ >>
-  | <:str_item:< [%% import: $type:_$ ] $itemattrs:_$ >> as z ->
+  | <:str_item:< [%% import: $type:_$ ] $itemattrs:_$ >> as si ->
       registered_str_item_extension arg si
 
-  ] in
-  match expanded_si with [
+  ]) in
+  expanded_sil |> List.concat_map (fun [
     <:str_item< type $flag:_$ $list:l$ >> -> l
   | _ -> assert False
-  ]
+  ])
 
 and import_typedecl_group arg t item_attrs =
   let unp = unpack_imported_type arg t in

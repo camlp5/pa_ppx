@@ -34,6 +34,21 @@ end
 ] [@@deriving show]
 end
 
+
+module Again = struct
+
+module Ploc = T.Ploc
+
+[%%import: MLast.expr
+    [@add type loc = [%import: MLast.loc]
+          type type_var = [%import: MLast.type_var]
+          type 'a vala = [%import: 'a Ploc.vala]
+    ]
+    [@with Ploc.vala := vala]
+]
+
+end
+
 module T2 = struct
 module Ploc= struct
 include Ploc

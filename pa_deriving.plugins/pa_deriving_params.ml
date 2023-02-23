@@ -75,6 +75,13 @@ value generate_param_parser_expression arg ty =
                             (Failure (Fmt.str "param should be of the form [%%typ: <type>]: %a" Pp_MLast.pp_expr e))
                 ] >>
 
+  | <:ctyp:< patt >> ->
+      let p = expr_as_patt loc "[%patt ? $patt:q$]" in
+    <:expr< fun [ $p$ →  q
+                | e -> Ploc.raise (loc_of_expr e)
+                            (Failure (Fmt.str "param should be of the form [%%patt? <patt>]: %a" Pp_MLast.pp_expr e))
+                ] >>
+
   | <:ctyp:< longid >> ->
     <:expr< fun [ e → Pa_ppx_base.Ppxutil.longid_of_expr e  ] >>
 

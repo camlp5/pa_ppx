@@ -853,6 +853,15 @@ value test_a20 ctxt = do {
 }
 ;
 
+
+type a21 = patt       [@@deriving (params, eq);] ;
+value test_a21 ctxt =
+  let loc = Ploc.dummy in do {
+  assert_equal ~{cmp=Reloc.eq_patt} ({foo| [%patt ? 1] |foo} |> parse_expr |> params_a21) <:patt< 1 >>
+}
+;
+
+
 value suite = "Test deriving(params)" >::: [
     "test_simple"           >:: test_simple
   ; "test_errors"           >:: test_errors
@@ -870,6 +879,7 @@ value suite = "Test deriving(params)" >::: [
   ; "QAST.test"    >:: QAST.test
   ; "test_a19"              >:: test_a19
   ; "test_a20"              >:: test_a20
+  ; "test_a21"              >:: test_a21
   ]
 ;
 

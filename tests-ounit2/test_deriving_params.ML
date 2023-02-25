@@ -861,11 +861,11 @@ value test_a21 ctxt =
 }
 ;
 
-type a22 = alist ctyp expr [@@deriving (params, eq);] ;
-type aux22 = list (ctyp * expr)  [@@deriving eq;] ;
+type a22 = alist ctyp int [@@deriving (params, eq);] ;
+type aux22 = list (ctyp * int)  [@@deriving eq;] ;
 value test_a22 ctxt =
   let loc = Ploc.dummy in do {
-  assert_equal ~{cmp=equal_aux22} ({foo| [ ([%typ: a], b) ] |foo} |> parse_expr |> params_a22) [(<:ctyp< a >>, <:expr< b >>)]
+  assert_equal ~{cmp=equal_aux22} ({foo| [ ([%typ: a], 1) ] |foo} |> parse_expr |> params_a22) [(<:ctyp< a >>, 1)]
 }
 ;
 

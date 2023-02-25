@@ -22,5 +22,5 @@ archive(byte) = "pa_ppx_params_runtime.cma"
 archive(native) = "pa_ppx_params_runtime.cmxa"
 
 # For the toploop:
-archive(byte,toploop) = "pa_ppx_params_runtimeu.cma"
+archive(byte,toploop) = "pa_ppx_params_runtime.cma"
 |} version)

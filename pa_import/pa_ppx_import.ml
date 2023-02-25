@@ -57,11 +57,14 @@ value reparse_cmi infile =
     let txt = Fmt.(str "%a%!" Printtyp.signature l) in
     try
       List.map fst (fst (Pcaml.parse_interf.val (Stream.of_string txt)))
-    with exc ->
-      Fmt.(failwithf "reparse_cmi %a: exception raised while reparsing CMI text:\n<<%s>>\n: %a"
+    with exc -> do {
+      let rbt = Printexc.get_raw_backtrace() in
+      Fmt.(pf stderr "ERROR: reparse_cmi %a: exception raised while reparsing CMI text:\n<<%s>>\n: %a"
              Dump.string infile
              txt
-             exn exc)
+             exn exc);
+      Printexc.raise_with_backtrace exc rbt
+    }
 ;
 
 value parse_mli infile =

@@ -867,6 +867,7 @@ value test_a22 ctxt =
   let loc = Ploc.dummy in do {
   assert_equal ~{cmp=equal_aux22} ({foo| [ ([%typ: a], 1) ] |foo} |> parse_expr |> params_a22) [(<:ctyp< a >>, 1)]
 ; assert_equal ~{cmp=equal_aux22} ({foo| [] |foo} |> parse_expr |> params_a22) []
+; assert_equal ~{cmp=equal_aux22} ({foo| () |foo} |> parse_expr |> params_a22) []
 }
 ;
 

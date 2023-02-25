@@ -200,10 +200,11 @@ value generate_param_parser_expression arg ty =
                 ] >>
 
   | <:ctyp:< alist ctyp $rngty$ >> as z ->
+     let unitpat = expr_as_patt loc "()" in
      let pair_converter = genrec <:ctyp< (ctyp * $rngty$) >> in
-    <:expr< fun __lel__ ->
-      __lel__ |> Pa_ppx_base.Ppxutil.convert_down_list_expr $pair_converter$
-    >>
+    <:expr< fun [ $unitpat$ -> []
+                | __lel__ -> __lel__ |> Pa_ppx_base.Ppxutil.convert_down_list_expr $pair_converter$
+                ] >>
 
   | <:ctyp:< list $ty$ >> ->
     <:expr< Pa_ppx_base.Ppxutil.convert_down_list_expr $genrec ty$ >>

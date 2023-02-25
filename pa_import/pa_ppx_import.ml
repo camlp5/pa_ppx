@@ -52,10 +52,16 @@ value lookup1 fname d =
 ;
 
 value reparse_cmi infile =
-  let x = Cmi_format.read_cmi infile in
-  let l = x.Cmi_format.cmi_sign in
-  let txt = Fmt.(str "%a%!" Printtyp.signature l) in
-  List.map fst (fst (Pcaml.parse_interf.val (Stream.of_string txt)))
+    let x = Cmi_format.read_cmi infile in
+    let l = x.Cmi_format.cmi_sign in
+    let txt = Fmt.(str "%a%!" Printtyp.signature l) in
+    try
+      List.map fst (fst (Pcaml.parse_interf.val (Stream.of_string txt)))
+    with exc ->
+      Fmt.(failwithf "reparse_cmi %a: exception raised while reparsing CMI text:\n<<%s>>\n: %a"
+             Dump.string infile
+             txt
+             exn exc)
 ;
 
 value parse_mli infile =

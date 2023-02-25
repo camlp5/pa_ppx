@@ -200,23 +200,11 @@ value generate_param_parser_expression arg ty =
                 ] >>
 
   | <:ctyp:< alist ctyp $rngty$ >> as z ->
-    let ctyp_patt = patt_as_patt loc "[%typ: $type:t$]" in
-    let full_body = <:expr<
-      List.map (fun [
-                      ($ctyp_patt$, e) -> (t, $genrec rngty$ e)
-                    | (p, _) -> Ploc.raise (loc_of_patt p)
-                            (Failure (Fmt.str "key should be of the form [longid.]LIDENT: %a" Pp_MLast.pp_patt p))
-
-                    ]) __lel__
-    >> in         
-    let recpat = expr_as_patt loc "{ $list:__lel__$ }" in
-    let unitpat = expr_as_patt loc "()" in
-    <:expr< fun [ $unitpat$ -> []
-                | $recpat$ -> $full_body$
-                | e -> Ploc.raise (loc_of_expr e)
-                         (Failure Fmt.(str "param did not match alist-type:@ alist-type: %s\n@ param: %a"
-                                           $str:String.escaped (Pp_MLast.show_ctyp z)$ Pp_MLast.pp_expr e)) 
-                ] >>
+     let pair_converter = genrec <:ctyp< (ctyp * $rngty$) >> in
+    <:expr< fun __lel__ ->
+      __lel__ |> Pa_ppx_base.Ppxutil.convert_down_list_expr $pair_converter$ |> 
+      List.map (fun (ty, e) -> (ty, $genrec rngty$ e))
+    >>
 
   | <:ctyp:< list $ty$ >> ->
     <:expr< Pa_ppx_base.Ppxutil.convert_down_list_expr $genrec ty$ >>

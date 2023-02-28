@@ -1,4 +1,4 @@
-(** -syntax camlp5r *)
+(**pp -syntax camlp5r *)
 value debug : ref bool;
 
 type scratchdata_t = ..;

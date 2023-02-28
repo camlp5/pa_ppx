@@ -1,4 +1,4 @@
-(** -syntax camlp5r *)
+(**pp -syntax camlp5r *)
 (* pa_import.ml,v *)
 (* Copyright (c) INRIA 2007-2017 *)
 

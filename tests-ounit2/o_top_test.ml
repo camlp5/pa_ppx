@@ -1,4 +1,4 @@
-(** -syntax camlp5r -package $(PAPACKAGES) *)
+(**pp -syntax camlp5r -package $(PAPACKAGES) *)
 (* camlp5r *)
 (* o_top_test.ml *)
 

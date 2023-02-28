@@ -1,8 +1,8 @@
 #ifdef PAPPX
-(** -syntax camlp5o -package $(PAPACKAGES) *)
+(**pp -syntax camlp5o -package $(PAPACKAGES) *)
 let filemod = "Test_ppx_yojson"
 #else
-(** -package $(PPXPACKAGES) *)
+(**pp -package $(PPXPACKAGES) *)
 let filemod = "Test_ppx_yojson.ppx"
 #endif
 open OUnit2

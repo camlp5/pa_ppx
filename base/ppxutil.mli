@@ -1,4 +1,4 @@
-(** -syntax camlp5r *)
+(**pp -syntax camlp5r *)
 value uv : Ploc.vala α → α;
 value with_buffer_formatter : (Format.formatter → α → β) → α → string;
 value duplicated : list string → bool;

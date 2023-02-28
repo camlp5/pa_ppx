@@ -1,4 +1,4 @@
-(** -syntax camlp5o -package $(PAPACKAGES) *)
+(**pp -syntax camlp5o -package $(PAPACKAGES) *)
 (* Copyright 2019 Chetan Murthy, All rights reserved. *)
 
 open OUnitTest

@@ -1,4 +1,4 @@
-(** -syntax camlp5r *)
+(**pp -syntax camlp5r *)
 value extract_deriving0 :
   MLast.attribute → list (string * list (string * MLast.expr));
 value is_deriving_attribute : MLast.attribute → bool;

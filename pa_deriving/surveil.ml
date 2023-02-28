@@ -1,4 +1,4 @@
-(** -syntax camlp5r *)
+(**pp -syntax camlp5r *)
 (* camlp5r *)
 (* surveil.ml,v *)
 (* Copyright (c) INRIA 2007-2017 *)

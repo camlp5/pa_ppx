@@ -1,7 +1,7 @@
 #ifdef PAPPX
-(** -syntax camlp5o -package $(PAPACKAGES),$(PACKAGEPREFIX)import -ppopt -pa_import-package -ppopt $(PACKAGES) -ppopt -pa_import-I -ppopt . *)
+(**pp -syntax camlp5o -package $(PAPACKAGES),$(PACKAGEPREFIX)import -ppopt -pa_import-package -ppopt $(PACKAGES) -ppopt -pa_import-I -ppopt . *)
 #else
-(** -package $(PPXPACKAGES) *)
+(**pp -package $(PPXPACKAGES) *)
 #endif
 (* camlp5o *)
 

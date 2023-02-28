@@ -29,12 +29,12 @@ clean::
 	rm -rf META camlp5.pa_ppx_runtime
 
 initialize-exn-i:: exceptions.ORIG.mli
-	echo "(** -syntax camlp5r *)" > $@.NEW
+	echo "(**pp -syntax camlp5r *)" > $@.NEW
 	$(LAUNCH) $(NOT_OCAMLFIND) preprocess -package $(PACKAGES),camlp5.macro,camlp5.pr_r -syntax camlp5o $< >> $@.NEW
 	mv $@.NEW exceptions.mli
 
 bootstrap-exn-i: exceptions.ORIG.mli
-	echo "(** -syntax camlp5r *)" > $@.NEW
+	echo "(**pp -syntax camlp5r *)" > $@.NEW
 	$(LAUNCH) $(NOT_OCAMLFIND) preprocess -package $(PACKAGES),camlp5.macro,camlp5.pr_r,pa_ppx_import,pa_ppx_deriving_plugins.std,pa_ppx_deriving_plugins.yojson,pa_ppx_deriving_plugins.sexp \
 	-syntax camlp5o \
 	-ppopt -pa_ppx-runtime -ppopt "" \
@@ -52,12 +52,12 @@ refold-exn-i: exceptions.mli
 	mv $@.NEW  exceptions.REFOLD.mli
 
 initialize-exn:: exceptions.ORIG.ml
-	echo "(** -syntax camlp5r *)" > $@.NEW
+	echo "(**pp -syntax camlp5r *)" > $@.NEW
 	$(LAUNCH) $(NOT_OCAMLFIND) preprocess -package $(PACKAGES),camlp5.macro,camlp5.pr_r -syntax camlp5o $< >> $@.NEW
 	mv $@.NEW exceptions.ml
 
 bootstrap-exn: exceptions.ORIG.ml
-	echo "(** -syntax camlp5r *)" > $@.NEW
+	echo "(**pp -syntax camlp5r *)" > $@.NEW
 	$(LAUNCH) $(NOT_OCAMLFIND) preprocess -package $(PACKAGES),camlp5.macro,camlp5.pr_r,pa_ppx_import,pa_ppx_deriving_plugins.show,pa_ppx_deriving_plugins.yojson,pa_ppx_deriving_plugins.sexp \
 	-syntax camlp5o \
 	-ppopt -pa_ppx-runtime -ppopt "" \

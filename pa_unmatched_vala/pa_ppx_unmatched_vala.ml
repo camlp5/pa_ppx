@@ -1,4 +1,4 @@
-(** -syntax camlp5r *)
+(**pp -syntax camlp5r *)
 (* pa_unmatched_vala.ml,v *)
 (* Copyright (c) INRIA 2007-2017 *)
 

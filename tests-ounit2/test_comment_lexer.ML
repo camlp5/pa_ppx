@@ -1,4 +1,4 @@
-(** -syntax camlp5o -package $(PAPACKAGES) *)
+(**pp -syntax camlp5o -package $(PAPACKAGES) *)
 open OUnit2
 
 open Pa_ppx_dock

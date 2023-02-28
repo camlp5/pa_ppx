@@ -1,4 +1,4 @@
-(** -syntax camlp5o -package pa_ppx_testutils,pa_ppx_base.link *)
+(**pp -syntax camlp5o -package pa_ppx_testutils,pa_ppx_base.link *)
 open OUnit2
 open Pa_ppx_testutils
 open Papr_util

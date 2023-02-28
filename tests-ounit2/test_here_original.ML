@@ -1,7 +1,7 @@
 #ifdef PAPPX
-(** -syntax camlp5o -package $(PAPACKAGES),$(PACKAGEPREFIX)import,$(PACKAGEPREFIX)here *)
+(**pp -syntax camlp5o -package $(PAPACKAGES),$(PACKAGEPREFIX)import,$(PACKAGEPREFIX)here *)
 #else
-(** -package $(PPXPACKAGES) *)
+(**pp -package $(PPXPACKAGES) *)
 #endif
 open OUnit2
 
@@ -14,8 +14,8 @@ let test_simplest ctxt =
 let pos = {
     Lexing.pos_fname = "test_here_original.ml.pappx.ml";
     pos_lnum = 6;
-    pos_cnum = 170;
-    pos_bol = 159
+    pos_cnum = 172;
+    pos_bol = 161
   } in
 #else
 let pos = {

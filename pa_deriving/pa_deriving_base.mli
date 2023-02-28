@@ -1,4 +1,4 @@
-(** -syntax camlp5r *)
+(**pp -syntax camlp5r *)
 module ParamMap
   (ARG : sig value arg_ctyp_f : Ploc.t → MLast.ctyp → MLast.ctyp; end) :
   sig

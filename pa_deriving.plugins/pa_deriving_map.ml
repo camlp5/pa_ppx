@@ -1,4 +1,4 @@
-(** -syntax camlp5r *)
+(**pp -syntax camlp5r *)
 (* camlpg5r *)
 (* pa_deriving_map.ml,v *)
 (* Copyright (c) INRIA 2007-2017 *)

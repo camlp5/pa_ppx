@@ -1,4 +1,4 @@
-(** -syntax camlp5r *)
+(**pp -syntax camlp5r *)
 module DerivingConfig :
   sig
     value addset : ref (list α) → α → unit;

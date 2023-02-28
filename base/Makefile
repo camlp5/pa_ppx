@@ -24,12 +24,12 @@ all: $(TARGET) $(TARGET:.cma=.cmxa) camlp5.pa_ppx_base camlp5.pa_ppx_base.opt
 doc: $(CMT) $(CMTI)
 
 initialize-pp-MLast-i:: pp_MLast.ORIG.mli
-	echo "(** -syntax camlp5r *)" > $@.NEW
+	echo "(**pp -syntax camlp5r *)" > $@.NEW
 	$(LAUNCH) $(NOT_OCAMLFIND) preprocess -package camlp5.macro,camlp5.pr_r -syntax camlp5o $< >> $@.NEW
 	mv $@.NEW pp_MLast.mli
 
 bootstrap-pp-MLast-i: pp_MLast.ORIG.mli
-	echo "(** -syntax camlp5r *)" > $@.NEW
+	echo "(**pp -syntax camlp5r *)" > $@.NEW
 	$(LAUNCH) $(NOT_OCAMLFIND) preprocess -package $(PACKAGES),camlp5.macro,camlp5.pr_r,pa_ppx_import,pa_ppx_deriving_plugins.std \
 	-syntax camlp5o -ppopt -D -ppopt BOOTSTRAP \
 	-ppopt -pa_import-package -ppopt $(PACKAGES) \
@@ -45,12 +45,12 @@ refold-pp-MLast-i: pp_MLast.mli
 	mv $@.NEW  pp_MLast.REFOLD.mli
 
 initialize-pp-MLast:: pp_MLast.ORIG.ml
-	echo "(** -syntax camlp5r *)" > $@.NEW
+	echo "(**pp -syntax camlp5r *)" > $@.NEW
 	$(LAUNCH) $(NOT_OCAMLFIND) preprocess -package camlp5.macro,camlp5.pr_r -syntax camlp5o $< >> $@.NEW
 	mv $@.NEW pp_MLast.ml
 
 bootstrap-pp-MLast: pp_MLast.ORIG.ml
-	echo "(** -syntax camlp5r *)" > $@.NEW
+	echo "(**pp -syntax camlp5r *)" > $@.NEW
 	$(LAUNCH) $(NOT_OCAMLFIND) preprocess -package $(PACKAGES),camlp5.macro,camlp5.pr_r,pa_ppx_import,pa_ppx_deriving_plugins.std \
 	-syntax camlp5o -ppopt -D -ppopt BOOTSTRAP \
 	-ppopt -pa_import-package -ppopt $(PACKAGES) \
@@ -66,12 +66,12 @@ refold-pp-MLast: pp_MLast.ml
 	mv $@.NEW  pp_MLast.REFOLD.ml
 
 initialize-pp-parsetree-i:: pp_parsetree.ORIG.mli
-	echo "(** -syntax camlp5r *)" > $@.NEW
+	echo "(**pp -syntax camlp5r *)" > $@.NEW
 	$(LAUNCH) $(NOT_OCAMLFIND) preprocess -package camlp5.macro,camlp5.pr_r -syntax camlp5o $< >> $@.NEW
 	mv $@.NEW pp_parsetree.mli
 
 bootstrap-pp-parsetree-i: pp_parsetree.ORIG.mli
-	echo "(** -syntax camlp5r *)" > $@.NEW
+	echo "(**pp -syntax camlp5r *)" > $@.NEW
 	$(LAUNCH) $(NOT_OCAMLFIND) preprocess -package $(PACKAGES),camlp5.macro,camlp5.pr_r,pa_ppx_import,pa_ppx_deriving_plugins.std \
 	-syntax camlp5o -ppopt -D -ppopt BOOTSTRAP \
 	-ppopt -pa_import-package -ppopt $(PACKAGES) \
@@ -87,12 +87,12 @@ refold-pp-parsetree-i: pp_parsetree.mli
 	mv $@.NEW  pp_parsetree.REFOLD.mli
 
 initialize-pp-parsetree:: pp_parsetree.ORIG.ml
-	echo "(** -syntax camlp5r *)" > $@.NEW
+	echo "(**pp -syntax camlp5r *)" > $@.NEW
 	$(LAUNCH) $(NOT_OCAMLFIND) preprocess -package camlp5.macro,camlp5.pr_r -syntax camlp5o $< >> $@.NEW
 	mv $@.NEW pp_parsetree.ml
 
 bootstrap-pp-parsetree: pp_parsetree.ORIG.ml
-	echo "(** -syntax camlp5r *)" > $@.NEW
+	echo "(**pp -syntax camlp5r *)" > $@.NEW
 	$(LAUNCH) $(NOT_OCAMLFIND) preprocess -package $(PACKAGES),camlp5.macro,camlp5.pr_r,pa_ppx_import,pa_ppx_deriving_plugins.std \
 	-syntax camlp5o -ppopt -D -ppopt BOOTSTRAP \
 	-ppopt -pa_import-package -ppopt $(PACKAGES) \

@@ -17,15 +17,13 @@ requires = "camlp5,rresult,fmt,pa_ppx_utils,pa_ppx_runtime,compiler-libs.common"
 version = "%s"
 description = "pa_ppx base support"
 
-# For linking
 package "link" (
-requires = "camlp5,rresult,fmt,pa_ppx_utils,pa_ppx_runtime,compiler-libs.common"
-archive(byte) = "pa_ppx_base.cma"
-archive(native) = "pa_ppx_base.cmxa"
+  requires = "pa_ppx_base"
 )
 
-# For the toploop:
-archive(byte,toploop) = "pa_ppx_base.cma"
+
+archive(byte) = "pa_ppx_base.cma"
+archive(native) = "pa_ppx_base.cmxa"
 
   # For the preprocessor itself:
   requires(syntax,preprocessor) = "camlp5,rresult,fmt,pa_ppx_utils,pa_ppx_runtime,compiler-libs.common"

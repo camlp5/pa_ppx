@@ -1012,12 +1012,11 @@ value sort_passes passes = do {
 }
 ;
 
-value passthru loc_f f passes pa_before arg = do {
+value passthru loc_f f passes ast = do {
   let passes = sort_passes passes in
-  let rv = pa_before arg in
-  let loc = loc_f rv in
+  let loc = loc_f ast in
   let ctxt = Ctxt.mk (EF.mk()) loc in
-  let (_, rv) = List.fold_left (onepass f) (ctxt,rv) passes in
+  let (_, rv) = List.fold_left (onepass f) (ctxt,ast) passes in
   if debug.val then
     Printf.(fprintf stderr "[done]\n%!")
   else ();
@@ -1041,20 +1040,17 @@ value loc_of_implem (l, status) =
      | [(_, loc) :: _] -> loc
     ]
 ;
-value before_implem = Pcaml.parse_implem.val ;
-Pcaml.parse_implem.val := (fun arg -> passthru loc_of_implem implem (List.rev eflist.val) before_implem arg);
+
+Pcaml.(set_ast_transform transduce_implem) (fun x -> passthru loc_of_implem implem (List.rev eflist.val) x);
 
 value loc_of_interf = loc_of_implem ;
-value before_interf = Pcaml.parse_interf.val ;
-Pcaml.parse_interf.val := (fun arg -> passthru loc_of_interf interf (List.rev eflist.val) before_interf arg);
+Pcaml.(set_ast_transform transduce_interf) (fun x -> passthru loc_of_interf interf (List.rev eflist.val) x);
 
 value loc_of_top_phrase = fun [ Some si -> loc_of_str_item si | None -> Ploc.dummy ] ;
-value before_top_phrase = Pcaml.parse_top_phrase.val ;
-Pcaml.parse_top_phrase.val := (fun arg -> passthru loc_of_top_phrase top_phrase (List.rev eflist.val) before_top_phrase arg);
+Pcaml.(set_ast_transform transduce_top_phrase) (fun x -> passthru loc_of_top_phrase top_phrase (List.rev eflist.val) x);
 
 value loc_of_use_file (l, _) = loc_of_str_item (List.hd l) ;
-value before_use_file = Pcaml.parse_use_file.val ;
-Pcaml.parse_use_file.val := (fun arg -> passthru loc_of_use_file use_file (List.rev eflist.val) before_use_file arg);
+Pcaml.(set_ast_transform transduce_use_file) (fun x -> passthru loc_of_use_file use_file (List.rev eflist.val) x);
 
 Pcaml.add_option "-pa_passthru-debug" (Arg.Set debug)
   "<string> enable debug logging in pa_ppx.";

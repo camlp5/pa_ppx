@@ -56,7 +56,7 @@ value reparse_cmi infile =
     let l = x.Cmi_format.cmi_sign in
     let txt = Fmt.(str "%a%!" Printtyp.signature l) in
     try
-      List.map fst (fst (Pcaml.parse_interf.val (Stream.of_string txt)))
+      List.map fst (fst (Pcaml.parse_interf (Stream.of_string txt)))
     with exc -> do {
       let rbt = Printexc.get_raw_backtrace() in
       Fmt.(pf stderr "ERROR: reparse_cmi %a: exception raised while reparsing CMI text:\n<<%s>>\n: %a"
@@ -69,7 +69,7 @@ value reparse_cmi infile =
 
 value parse_mli infile =
   let txt = infile |> Fpath.v|> Bos.OS.File.read |> Rresult.R.get_ok in
-  List.map fst (fst (Pcaml.parse_interf.val (Stream.of_string txt)))
+  List.map fst (fst (Pcaml.parse_interf (Stream.of_string txt)))
 ;
 
 value lookup_file suffix fmod =

@@ -72,7 +72,8 @@ TESTS= \
 	test_ppx_yojson.ppx.byte \
 	test_extensible_variants.byte \
 	test_comment_lexer.byte \
-	o_top_test.byte
+	o_top_test.byte \
+	test_linked_expander.byte
 
 all: $(CMO) $(TESTS)
 
@@ -134,6 +135,10 @@ test_import_camlp5.byte: test_import_camlp5.cmo
 	-ppopt -pa_import-package -ppopt $(PACKAGES) \
 	-ppopt -pa_import-I -ppopt . \
 	-linkpkg -syntax camlp5o $< -o $@
+
+test_linked_expander.byte: test_linked_expander.cmo
+	$(LAUNCH) $(OCAMLFIND) ocamlc $(DEBUG) $(WARNERR) -package camlp5.pa_o.link,camlp5.pr_o.link,$(PACKAGES),$(PACKAGEPREFIX)base.link,$(PACKAGEPREFIX)here.link,$(PACKAGEPREFIX)testutils \
+	-linkpkg -linkall -syntax camlp5o $< -o $@
 
 test_ppx_import.byte: stuff.cmo test_self_import.cmo test_ppx_import.ml.pappx.cmo
 	$(LAUNCH) $(OCAMLFIND) ocamlc $(DEBUG) $(WARNERR) -package $(PACKAGES),$(PAPACKAGES) \

@@ -9,6 +9,11 @@ open MLast;
 
 value uv = Pcaml.unvala ;
 
+(* borrowed from ounit *)
+value failwithf fmt = Fmt.kstr failwith fmt ;
+value raise_failwith loc s = Ploc.raise loc (Failure s) ;
+value raise_failwithf loc fmt = Fmt.kstr (raise_failwith loc) fmt ;
+
 value with_buffer_formatter f arg = do {
   let b = Buffer.create 23 in
   let bfmt = Format.formatter_of_buffer b in
@@ -49,6 +54,7 @@ value module_expr_of_longident li =
 ;
 value longid_of_expr = fun [
   <:expr< $longid:li$ >> -> li
+| e -> Fmt.(raise_failwithf (loc_of_expr e) "Ppxutil.longid_of_expr: not a longid: %a" Pp_MLast.pp_expr e)
 ]
 ;
 
@@ -337,8 +343,3 @@ value remove ?{cmp=cmpequal} x l =
 ;
 end
 ;
-
-(* borrowed from ounit *)
-value failwithf fmt = Fmt.kstr failwith fmt ;
-value raise_failwith loc s = Ploc.raise loc (Failure s) ;
-value raise_failwithf loc fmt = Fmt.kstr (raise_failwith loc) fmt ;

@@ -1,4 +1,4 @@
-(** -syntax camlp5r *)
+(**pp -syntax camlp5r *)
 module Ploc :
   sig
     include module type of Ploc with

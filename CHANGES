@@ -1,4 +1,32 @@
 
+pa_ppx Version 0.12
+-------------------
+
+* [03 Apr 2023] Many minor fixes, but nothing that should affect user code
+
+  * update to work with Camlp5 8.01.00 (which had breaking change in API)
+
+  * [USER-VISIBLE CHANGES] cleanup Makefile system to match all the other pa_ppx_* packages
+
+    This causes some sub-packages to be renamed, viz:
+
+    to write type-derivers, one must now open "Pa_ppx_deriving" (which didn't exist before) a
+    wrapper package for "Surveil" and "Pa_deriving_base".
+
+    to use the "params" type-deriver, open "Pa_ppx_params_runtime.Runtime"
+    (previously "Pa_ppx_params.Runtime".
+
+  * minor improvement in error-reporting in "params" deriver
+
+  * nearly finished cleaning out old perl scripts in favor of ML scripts
+
+    Only two perl scripts remain and only one "config/find_gensrc.pl" is required to build/install;
+    this script uses only base perl.
+
+  * remove "(*).[*) <- *" syntax (from util-lib) (b/c it's gone in OCaml 5.0.0
+
+  * pervasively change header-comments to be compat with ya-wrap-ocamlfind ("(**pp ... *)" format)
+
 pa_ppx Version 0.11
 -------------------
 

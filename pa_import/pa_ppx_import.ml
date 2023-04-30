@@ -344,7 +344,7 @@ value import_type arg (newtname,new_formals) t =
         [a] when redeclare.val -> Some (uv a)
       | [] -> None
       | _ ->
-         Fmt.(raise_failwithf loc "pa_import: can only provide at most one synonym attribute when -pa_import-redeclare is supplied on the commandline")
+         Fmt.(raise_failwithf loc "pa_import: can only provide at most one synonym attribute and ONLY when -pa_import-redeclare is supplied on the commandline")
       ] in
   let unp = { (unp) with attrs = rest_attrs } in
   let renmap = List.fold_right extend_renmap with_attrs [] in

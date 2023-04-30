@@ -297,6 +297,10 @@ value extract_with_attributes attrs =
   filter_split (fun a -> "with" = (attr_id a)) attrs
 ;
 
+value extract_synonym_attributes attrs =
+  filter_split (fun a -> "synonym" = (attr_id a)) attrs
+;
+
 value extract_add_attributes attrs =
   filter_split (fun a -> "add" = (attr_id a)) attrs
 ;
@@ -333,10 +337,17 @@ value unpack_imported_type arg full_t =
 
 value import_type arg (newtname,new_formals) t =
   let unp = unpack_imported_type arg t in
+  let loc = unp.loc in
   let (with_attrs, rest_attrs) = extract_with_attributes unp.attrs in
+  let (synonym_attrs,_) = extract_synonym_attributes unp.attrs in
+  let synonym_attr = match synonym_attrs with [
+        [a] when redeclare.val -> Some (uv a)
+      | [] -> None
+      | _ ->
+         Fmt.(raise_failwithf loc "pa_import: can only provide at most one synonym attribute when -pa_import-redeclare is supplied on the commandline")
+      ] in
   let unp = { (unp) with attrs = rest_attrs } in
   let renmap = List.fold_right extend_renmap with_attrs [] in
-  let loc = unp.loc in
   let actuals = unp.args in
   let (td, tdl) = import_typedecl arg unp.unapp_t in
   let formals = uv td.tdPrm in
@@ -359,9 +370,13 @@ value import_type arg (newtname,new_formals) t =
     if is_generative_type ct && not redeclare.val && not unp.self_import then
       <:ctyp< $unp.bare_t$ == $ct$ >>
     else if redeclare.val then
-      match ct with [
-          <:ctyp< $_$ == $ct$ >> -> ct
-        | _ -> ct
+      let ct = match ct with [
+            <:ctyp< $_$ == $ct$ >> -> ct
+          | _ -> ct
+          ] in
+      match synonym_attr with [
+          Some <:attribute_body<"synonym": $type:ty$ >> -> <:ctyp< $ty$ == $ct$ >>
+        | None -> ct
         ]
     else ct
 ;

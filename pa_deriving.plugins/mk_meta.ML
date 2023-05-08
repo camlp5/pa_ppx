@@ -166,7 +166,7 @@ package "make" (
 )
 
 package "yojson" (
-  requires(toploop) = "camlp5,pa_ppx_deriving"
+  requires(toploop) = "camlp5,pa_ppx_deriving,yojson"
   archive(toploop) = "pa_deriving_yojson.cmo"
 
     requires(syntax,preprocessor) = "camlp5,pa_ppx_deriving"
@@ -178,7 +178,7 @@ package "yojson" (
   archive(byte) = "pa_deriving_yojson.cmo"
   archive(native) = "pa_deriving_yojson.cmx"
   )
-  requires = "pa_ppx_runtime"
+  requires = "pa_ppx_runtime,yojson"
 )
 
 package "sexp" (

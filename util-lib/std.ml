@@ -442,7 +442,7 @@ let format ~width l =
      for c = 0 to ncols - 1 do
        for r = 0 to nrows - 1 do
 	 let s = fmt.(c).(r) in
-	 fmt.(c).(r) <- Printf.sprintf "%- *s" (colwidths.(c)) s ;
+	 fmt.(c).(r) <- Printf.sprintf "%-*s" (colwidths.(c)) s ;
 	 assert (String.length fmt.(c).(r) = colwidths.(c)) ;
        done ;
      done ;

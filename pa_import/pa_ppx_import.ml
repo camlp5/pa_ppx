@@ -35,11 +35,13 @@ value add_include s =
   Std.push lookup_path (Findlib.resolve_path s)
 ;
 
-value report () =
+value pp_report pps () =
   let path = lookup_path.val in
   let path = String.concat ":" path in
-  Fmt.(pf stderr "[import_type: packages: %s]\n%!" path)
+  Fmt.(pf pps "[import_type: packages: %s]\n%!" path)
 ;
+
+value report () = pp_report Fmt.stderr () ;
 
 value lookup1 fname d =
   let f = Fpath.add_seg (Fpath.v d) fname in
@@ -51,112 +53,205 @@ value lookup1 fname d =
   else failwith "caught"
 ;
 
-value reparse_cmi infile =
+
+value lookup_file suff fmod =
+  let fname = Printf.sprintf "%s.%s" (String.uncapitalize_ascii fmod) suff in
+  match try_find (fun s -> lookup1 fname s) lookup_path.val with [
+    f -> Fmt.(str "%a" Fpath.pp f)
+  | exception Failure _ -> Fmt.(failwithf "lookup_file: module %s (%s) not found\n%a"
+                                  fmod suff
+                                  pp_report ()
+                           )
+  ]
+;
+
+
+module CMI = struct
+value _demarsh loc infile =
     let x = Cmi_format.read_cmi infile in
-    let l = x.Cmi_format.cmi_sign in
-    let txt = Fmt.(str "%a%!" Printtyp.signature l) in
+    x.Cmi_format.cmi_sign
+;
+
+value cache = ref [] ;
+value demarsh loc infile =
+  match List.assoc infile cache.val with [
+    x -> x
+  | exception Not_found ->
+    let rv = _demarsh loc infile in do {
+      Std.push cache (infile,rv) ;
+      rv
+    }
+  ]
+;
+
+value extract_module_from_module_declaration md =
+  let open Types in
+  match md with [
+      {md_type=Mty_signature l} -> Some l
+    | _ -> None
+    ]
+;
+
+value extract_module_from_modtype_declaration md =
+  let open Types in
+  match md with [
+      {mtd_type=Some (Mty_signature l)} -> Some l
+    | _ -> None
+    ]
+;
+
+value extract_module ~{impl_only} mname si =
+  let open Types in
+  match si with [
+      Sig_module id _ md _ _ when Ident.name id = mname -> extract_module_from_module_declaration md
+    | Sig_modtype id mtd _ when not impl_only && Ident.name id = mname -> extract_module_from_modtype_declaration mtd
+    | _ -> None
+    ]
+;
+
+value rec lookup_signature ~{impl_only} li =
+  match li with [
+      <:longident:< $uid:fmod$ >> ->
+        let infile = lookup_file "cmi" fmod in
+        demarsh loc infile
+    | <:longident:< $longid:li$ . $uid:mname$ >> ->
+        let sil = lookup_signature ~{impl_only=impl_only} li in
+        match List.find_map (extract_module ~{impl_only=impl_only} mname) sil with [
+            Some l -> l
+          | None -> Fmt.(raise_failwithf loc "pa_import: cannot find module %s (cmi)" mname)
+          ]
+    ]
+;
+
+value reparse_signature li sil =
+    let txt = Fmt.(str "%a%!" Printtyp.signature sil) in
     try
       List.map fst (fst (Pcaml.parse_interf (Stream.of_string txt)))
     with exc -> do {
       let rbt = Printexc.get_raw_backtrace() in
-      Fmt.(pf stderr "ERROR: reparse_cmi %a: exception raised while reparsing CMI text:\n<<%s>>\n: %a"
-             Dump.string infile
+      Fmt.(pf stderr "ERROR: reparse_signature %a: exception raised while reparsing CMI text:\n<<%s>>\n: %a"
+             Pp_MLast.pp_longid li
              txt
              exn exc);
       Printexc.raise_with_backtrace exc rbt
     }
 ;
 
+value load_signature ~{impl_only} li =
+  let sil = lookup_signature ~{impl_only=impl_only} li in
+  reparse_signature li sil
+;
+
+end ;
+
+module MLI = struct
+
 value parse_mli infile =
   let txt = infile |> Fpath.v|> Bos.OS.File.read |> Rresult.R.get_ok in
   List.map fst (fst (Pcaml.parse_interf (Stream.of_string txt)))
 ;
 
-value lookup_file suffix fmod =
-  let fname = Printf.sprintf "%s.%s" (String.uncapitalize_ascii fmod) suffix in
-  match try_find (fun s -> lookup1 fname s) lookup_path.val with [
-    f -> Fmt.(str "%a" Fpath.pp f)
-  | exception Failure _ -> failwith (Printf.sprintf "lookup_file: module %s (%s) not found" fmod suffix)
+value _demarsh loc infile =
+  parse_mli infile
+;
+
+value cache = ref [] ;
+value demarsh loc infile =
+  match List.assoc infile cache.val with [
+    x -> x
+  | exception Not_found ->
+    let rv = _demarsh loc infile in do {
+      Std.push cache (infile,rv) ;
+      rv
+    }
   ]
 ;
 
-value find1lid lid = fun [
+value extract_module1 ~{impl_only} mname si =
+  match si with [
+      <:sig_item< module $uid:id$ : sig $list:sil$ end >> when mname = id ->
+        Some sil
+    | <:sig_item< module type $id$ = sig $list:sil$ end >> when not impl_only && mname = id ->
+        Some sil
+    | _ -> None
+    ]
+;
+
+value extract_module ~{impl_only} mname sil =
+  match List.find_map (extract_module1 ~{impl_only=impl_only} mname) sil with [
+      Some l -> l
+    | None -> Fmt.(raise_failwithf (MLast.loc_of_sig_item (List.hd sil)) "pa_import: cannot find module %s (mli)" mname)
+    ]
+;
+
+value rec load_signature ~{impl_only} li =
+  match li with [
+      <:longident:< $uid:fmod$ >> ->
+        let infile = lookup_file "mli" fmod in
+        demarsh loc infile
+    | <:longident:< $longid:li$ . $uid:mname$ >> ->
+        let sil = load_signature ~{impl_only=impl_only} li in
+        extract_module ~{impl_only=impl_only} mname sil
+    ]
+;
+
+end ;
+
+module Lookup = struct
+
+value lookup_signature ~{impl_only=impl_only} li =
+  try
+    CMI.load_signature ~{impl_only=impl_only} li
+  with exc1 ->
+    try
+      MLI.load_signature ~{impl_only=impl_only} li
+    with exc2 ->
+      Fmt.(raise_failwithf (MLast.loc_of_longid li) "pa_import: lookup_signature (impl_only=%a): cannot find module %a\n%a\n%a"
+             bool impl_only
+             Pp_MLast.pp_longid li
+             exn exc1
+             exn exc2)
+;
+
+value extract_typedecl lid = fun [
   <:sig_item:< type $flag:nrfl$ $list:tdl$ >> ->
-  try_find (fun td -> if uv (snd (uv td.tdNam)) = lid then (td,(nrfl, tdl)) else failwith "caught") tdl
-| _ -> failwith "caught"
+   List.find_map (fun td -> if uv (snd (uv td.tdNam)) = lid then Some (td,(nrfl, tdl)) else None) tdl
+| _ -> None
 ]
 ;
 
-value find_lid lid sil =
-  match try_find (find1lid lid) sil with [
-    x -> x
-  | exception Failure _ -> failwith (Printf.sprintf "find_lid: %s" lid)
+value lookup_typedecl li lid =
+  List.find_map (extract_typedecl lid) (lookup_signature ~{impl_only=False} li)
+;
+
+value import_typedecl t = do {
+  if debug.val then report() else () ;
+  match fst (Ctyp.unapplist t)  with [
+    <:ctyp< $lid:lid$ >> -> failwith "CMI.import_typedecl: self-type-lookup not implemented"
+  | <:ctyp:< $longid:modname$ . $lid:lid$ >> ->
+    match lookup_typedecl modname lid with [
+        Some x -> x
+      | None -> Fmt.(raise_failwithf loc "CMI.import_typedecl: typedecl %a not found" Pp_MLast.pp_ctyp t)
+      ]
+  ]
+}
+;
+
+value rec import_module_type arg t =
+  match t with [
+    <:ctyp< $t$ [@ $attribute:attr$ ] >> ->
+      import_module_type arg t
+  | <:ctyp:< ( module  $longid:li$ . $lid:i$ ) >> ->
+     let sil = lookup_signature ~{impl_only=False} li in
+     let sil = MLI.extract_module ~{impl_only=False} i sil in
+     <:module_type< sig $list:sil$ end >>
+  | <:ctyp:< ( module  $longid:li$ ) >> ->
+     let sil = lookup_signature ~{impl_only=False} li in
+     <:module_type< sig $list:sil$ end >>
   ]
 ;
 
-value find1mod mname = fun [
-  <:sig_item< module $_flag:rf$ $list:l$ >> ->
-    try_find (fun (uido, mt, _) ->
-      match (uv uido, mt) with [
-        (Some uid, MtSig _ sil) when uv uid = mname -> uv sil
-      | _ -> failwith "caught"
-      ]) l
-| <:sig_item< module type $i$ = sig $list:sil$ end $itemattrs:_$ >> when i = mname -> sil
-| _ -> failwith "find1mod"
-]
-;
-
-value find1modty mname = fun [
-  <:sig_item< module type $i$ = $mt$ $itemattrs:_$ >> when i = mname -> mt
-| _ -> failwith "find1modty"
-]
-;
-
-
-value find_mod mname sil =
-  match try_find (find1mod mname) sil with [
-    x -> x
-  | exception Failure _ -> failwith (Printf.sprintf "find_mod: %s" mname)
-  ]
-;
-
-value find_modty mname sil =
-  match try_find (find1modty mname) sil with [
-    x -> x
-  | exception Failure _ -> failwith (Printf.sprintf "find_modty: %s" mname)
-  ]
-;
-
-value find_type modpath lid sil =
-  let rec findrec modpath lid sil =
-  match modpath with [
-    [] -> find_lid lid sil
-  | [m :: t] ->
-    findrec t lid (find_mod m sil)
-  ] in do {
-  if debug.val then Fmt.(pf stderr "[find_type: %a]\n%!" (list ~{sep=(const string ".")} string) (modpath@[lid])) else () ;
-  match findrec modpath lid sil with [
-    x -> x
-  | exception Failure _ -> failwith (Printf.sprintf "find_type: %s" (String.concat "." (modpath@[lid])))
-  ]
-  }
-;
-
-value find_module_type modpath sil =
-  let rec findrec modpath sil =
-  match modpath with [
-    [m] ->
-    find_modty m sil
-  | [m :: t] ->
-    findrec t (find_mod m sil)
-  ] in do {
-  if debug.val then Fmt.(pf stderr "[find_module_type: %a]\n%!" (list ~{sep=(const string ".")} string) modpath) else () ;
-  match findrec modpath sil with [
-    x -> x
-  | exception Failure _ -> failwith (Printf.sprintf "find_type: %s" (String.concat "." modpath))
-  ]
-  }
-;
+end ;
 
 value logged_parse f fname =
   let st = Unix.gettimeofday () in
@@ -165,52 +260,6 @@ value logged_parse f fname =
     Fmt.(pf stderr "[parse %s in %f secs]\n%!" fname (et -. st)) ;
     rv
   }
-;
-value do_lookup_interf fmod =
-  try
-    if not mli_only.val then
-      logged_parse reparse_cmi (lookup_file "cmi" fmod)
-    else failwith "caught"
-  with Failure _ ->
-    logged_parse parse_mli (lookup_file "mli" fmod)
-;
-
-value interface_cache = ref [] ;
-value lookup_interf fmod =
-  match List.assoc fmod interface_cache.val with [
-    x -> x
-  | exception Not_found ->
-    let rv = do_lookup_interf fmod in do {
-      Std.push interface_cache (fmod,rv) ;
-      rv
-    }
-  ]
-;
-
-value lookup_typedecl (fmod, modpath, lid) = do {
-  let sil = lookup_interf fmod in
-  find_type modpath lid sil
-}
-;
-
-value lookup_module_type sil = do {
-  let (fmod, modpath) = match sil with [ [h::t] -> (h,t) | [] -> assert False ] in
-  assert (modpath <> []);
-  let sil = lookup_interf fmod in
-  find_module_type modpath sil
-}
-;
-
-value import_typedecl arg t = do {
-  if debug.val then report() else () ;
-  match fst (Ctyp.unapplist t)  with [
-    <:ctyp< $lid:lid$ >> -> failwith "self-type-lookup not implemented"
-  | <:ctyp< $longid:modname$ . $lid:lid$ >> ->
-    let sl = Longid.to_string_list modname in
-    let (fmod, modpath) = match sl with [ [] -> failwith "import_type: internal error" | [h::t] -> (h,t) ] in
-    lookup_typedecl (fmod, modpath, lid)
-  ]
-}
 ;
 
 module RM = struct
@@ -349,7 +398,7 @@ value import_type arg (newtname,new_formals) t =
   let unp = { (unp) with attrs = rest_attrs } in
   let renmap = List.fold_right extend_renmap with_attrs [] in
   let actuals = unp.args in
-  let (td, tdl) = import_typedecl arg unp.unapp_t in
+  let (td, tdl) = Lookup.import_typedecl unp.unapp_t in
   let formals = uv td.tdPrm in
     if List.length formals <> List.length actuals then
       failwith "import_type: type-param formal/actual list-length mismatch"
@@ -407,7 +456,7 @@ and import_typedecl_group arg t item_attrs =
   let unp = { (unp) with attrs = rest_attrs } in
   let renmap = List.fold_right extend_renmap with_attrs [] in
   let loc = unp.loc in
-  let (rd, (nrfl, tdl)) = import_typedecl arg unp.unapp_t in
+  let (rd, (nrfl, tdl)) = Lookup.import_typedecl unp.unapp_t in
   let tdl = tdl @ added_typedecls in
   let tdl = List.map (fun td ->
       let imported_tycon =
@@ -440,19 +489,6 @@ and import_typedecl_group arg t item_attrs =
     { (last) with tdAttributes = <:vala< new_attrs >> } in
   let tdl = tdl @ [last] in
   (nrfl, tdl)
-
-
-and import_module_type arg t =
-  match t with [
-    <:ctyp< $t$ [@ $attribute:attr$ ] >> ->
-      import_module_type arg t
-  | <:ctyp< ( module  $longid:li$ . $lid:i$ ) >> ->
-      let sl = Longid.to_string_list li in
-      lookup_module_type (sl@[i])
-  | <:ctyp< ( module  $longid:li$ ) >> ->
-      let sl = Longid.to_string_list li in
-      lookup_module_type sl
-  ]
 
 and registered_str_item_extension arg = fun [
   <:str_item:< type $flag:nrfl$ $list:tdl$ >> ->
@@ -498,7 +534,7 @@ value registered_sig_item_extension arg = fun [
 
 value registered_module_type_extension arg = fun [
   <:module_type:< [% import: $type:t$ ] >> ->
-    Some (import_module_type arg t)
+    Some (Lookup.import_module_type arg t)
 | _ -> assert False
 ]
 ;

@@ -1,4 +1,17 @@
 
+pa_ppx Version 0.13
+-------------------
+
+* [14 Aug 2023] several fixes
+
+  * OCaml 5.1.0 support
+
+  * fixed Makefiles (from stupid error in camlp5-buildscripts)
+
+  * added "redeclare" and "synonym" support for pa_import, so you can
+    import types and redeclare them (that is, copy them, without
+    manifest type equality to link back to the source).
+
 pa_ppx Version 0.12
 -------------------
 

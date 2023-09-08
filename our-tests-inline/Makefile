@@ -10,7 +10,7 @@ PACKAGEPREFIX=pa_ppx_
 DESTDIR=
 
 TESTRUNNER=$(TOP)/tests-inline/test-runner
-PACKAGES := $(PACKAGES),ounit2,fmt,bos,pcre,rresult,compiler-libs.common,sexplib0,str,threads.posix
+PACKAGES := $(PACKAGES),ounit2,fmt,bos,pcre2,rresult,compiler-libs.common,sexplib0,str,threads.posix
 OCAMLCFLAGS += -thread
 
 ORIGINAL_TESTS= \

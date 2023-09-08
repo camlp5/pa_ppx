@@ -7,7 +7,7 @@ include $(TOP)/config/Makefile.sub
 
 DESTDIR=
 
-PACKAGES := $(PACKAGES),pcre
+PACKAGES := $(PACKAGES),pcre2
 TARGET_PACKAGE=pa_ppx_utils
 TARGET=$(TARGET_PACKAGE).cma
 ML = std.ml coll.ml std2.ml uf.ml tsort0.ml tsort.ml pack.ml hash.ml

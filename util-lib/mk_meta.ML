@@ -13,7 +13,7 @@ Arg.(parse [
 ;;
 
 Fmt.(pf stdout {|# Base libraries for "pa_ppx"
-requires = "pcre,unix,camlp5.streams"
+requires = "pcre2,unix,camlp5.streams"
 version = "%s"
 description = "pa_ppx base libraries"
 

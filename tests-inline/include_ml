@@ -4,7 +4,7 @@
 #require "ounit2";;
 #require "fmt";;
 #require "rresult";;
-#require "pcre";;
+#require "pcre2";;
 #require "bos";;
 
 

@@ -40,7 +40,7 @@ depends: [
   "camlp5-buildscripts" { >= "0.03" }
   "camlp5"      { >= "8.02.00" }
   "not-ocamlfind" { >= "0.10" }
-  "pcre" { >= "7.4.3" }
+  "pcre2"
   "result" { >= "1.5" }
   "yojson" { >= "1.7.0" }
   "sexplib0"

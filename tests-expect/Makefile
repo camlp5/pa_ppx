@@ -9,7 +9,7 @@ PACKAGEPREFIX=pa_ppx_
 
 DESTDIR=
 
-PACKAGES := $(PACKAGES),ounit2,fmt,pcre,rresult,compiler-libs.common,sexplib0
+PACKAGES := $(PACKAGES),ounit2,fmt,pcre2,rresult,compiler-libs.common,sexplib0
 
 TESTS= \
 	test_inline_test.byte \

@@ -9,7 +9,7 @@ export PACKAGEPREFIX=pa_ppx_
 
 DESTDIR=
 
-export PACKAGES := $(PACKAGES),oUnit,fmt,str,pcre,result,rresult,compiler-libs.common,yojson,sexplib,sexplib0
+export PACKAGES := $(PACKAGES),oUnit,fmt,str,pcre2,result,rresult,compiler-libs.common,yojson,sexplib,sexplib0
 
 PPXPACKAGES:=ppx_import
 PPXPACKAGES:=$(PPXPACKAGES),ppx_deriving.show

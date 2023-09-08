@@ -44,15 +44,9 @@ You can install both Ocaml and Camlp5 in the usual way, typically via
 
 ``pa_ppx`` has tests to verify that things work with both ``pa_ppx``
 and the standard PPX rewriters, so there are a ton of extra
-packages needed::
+packages needed. The best way to get them all is to let opam do the work::
 
-  opam install rresult fmt ounit2 pcre core_kernel ppx_deriving \
-       ppx_deriving_yojson ppx_import ppx_here sexplib0 sexplib bos \
-       expect_test_helpers ppx_expect
-
-NOTE WELL that some of these won't install
-(e.g. ``expect_test_helpers`` b/c they're often not in-sync with other
-PPX rewriters).
+  opam install --deps-only -t .
 
 Building and Installing
 -----------------------

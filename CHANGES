@@ -1,4 +1,9 @@
 
+pa_ppx Version 0.14
+-------------------
+
+* [08 Sep 2023] switch from pcre to pcre2 (Debian is obsoleting pcre)
+
 pa_ppx Version 0.13
 -------------------
 

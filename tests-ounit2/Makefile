@@ -132,8 +132,6 @@ test_import0.byte: test_import0.cmo
 test_import_camlp5.cmo: stuff.cmo test_self_import.cmi
 test_import_camlp5.byte: test_import_camlp5.cmo
 	$(LAUNCH) $(OCAMLFIND) ocamlc $(DEBUG) $(WARNERR) -package $(PACKAGES),$(PACKAGEPREFIX)import,$(PACKAGEPREFIX)deriving_plugins.show,$(PACKAGEPREFIX)testutils \
-	-ppopt -pa_import-package -ppopt $(PACKAGES) \
-	-ppopt -pa_import-I -ppopt . \
 	-linkpkg -syntax camlp5o $< -o $@
 
 test_linked_expander.byte: test_linked_expander.cmo

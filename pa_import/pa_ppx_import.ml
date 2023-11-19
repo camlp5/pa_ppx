@@ -14,7 +14,13 @@ value debug = Pa_passthru.debug ;
 value mli_only = ref False ;
 value redeclare = ref False ;
 value predicates = ref [] ;
-value lookup_path = ref [] ;
+value lookup_path =
+  let rec loop acc = fun [
+      [] | ["--" :: _] -> acc
+      | ["-I" ; dir :: tl ] -> loop [dir :: acc] tl
+      | [_ :: tl] -> loop acc tl
+      ] in ref ["." :: (loop [] (Array.to_list Sys.argv))]
+;
 
 value add_predicates s =
   let l = String.split_on_char ',' s in

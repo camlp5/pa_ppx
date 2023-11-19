@@ -39,8 +39,6 @@ bootstrap-exn-i: exceptions.ORIG.mli
 	-syntax camlp5o \
 	-ppopt -pa_ppx-runtime -ppopt "" \
 	-ppopt -D -ppopt BOOTSTRAP \
-	-ppopt -pa_import-package -ppopt $(PACKAGES) \
-	-ppopt -pa_import-I -ppopt . \
 	-ppopt -sep -ppopt "\n" \
 	$< >> $@.NEW
 	mv $@.NEW  exceptions.mli
@@ -62,8 +60,6 @@ bootstrap-exn: exceptions.ORIG.ml
 	-syntax camlp5o \
 	-ppopt -pa_ppx-runtime -ppopt "" \
 	-ppopt -D -ppopt BOOTSTRAP \
-	-ppopt -pa_import-package -ppopt $(PACKAGES) \
-	-ppopt -pa_import-I -ppopt . \
 	-ppopt -sep -ppopt "\n" \
 	$< >> $@.NEW
 	mv $@.NEW  exceptions.ml

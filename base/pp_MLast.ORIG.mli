@@ -20,6 +20,7 @@ type type_var = [%import: MLast.type_var] [@@deriving show]
 ELSE
 val show_longid : MLast.longid -> string
 val show_longid_lident : MLast.longid_lident -> string
+val pp_longid : MLast.longid Fmt.t
 val pp_longid_lident : MLast.longid_lident Fmt.t
 val show_ctyp : MLast.ctyp -> string
 val pp_ctyp : MLast.ctyp Fmt.t

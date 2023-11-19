@@ -22,6 +22,14 @@ value lookup_path =
       ] in ref ["." :: (loop [] (Array.to_list Sys.argv))]
 ;
 
+value reset_switches () = do {
+  mli_only.val := False
+; redeclare.val := False
+; predicates.val := []
+; lookup_path.val := []
+}
+;
+
 value add_predicates s =
   let l = String.split_on_char ',' s in
   let l = Std.filter (fun s -> s <> "") l in
@@ -594,6 +602,9 @@ Pcaml.add_option "-pa_import-mli-only" (Arg.Set mli_only)
 
 Pcaml.add_option "-pa_import-redeclare" (Arg.Set redeclare)
   "<string> redeclare types (do not re-export) -- useful for using types from other Ocaml versions.";
+
+Pcaml.add_option "-pa_import-reset" (Arg.Unit reset_switches)
+  "reset and clear all flags for pa_import.";
 
 (* calls lazy_init() so we're sure of being inited *)
 add_include (Findlib.ocaml_stdlib());

@@ -1,4 +1,17 @@
 
+pa_ppx Version 0.15
+-------------------
+
+* [26 Apr 2024] update to compat with Camlp5 8.03.00 (for Ocaml 5.2.0 support)
+
+  The latest ppx_import supports a new syntax for imports:
+
+  [%%import type t = Lexing.position]
+
+  I added support for this, while not removing support for the previous syntax
+
+  type t = [%import: Lexing.position]
+
 pa_ppx Version 0.14
 -------------------
 

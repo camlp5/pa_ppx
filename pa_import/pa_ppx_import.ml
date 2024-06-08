@@ -444,6 +444,23 @@ value import_type arg (newtname,new_formals) t =
     else ct
 ;
 
+value rewrite_import stri =
+  match stri with [
+      <:str_item:< [%%import type $flag:nrfl$ $list:tdl$ ; ] >> ->
+      let tdl' = tdl |> List.map (fun td ->
+                             let (ty, attrs) = Ctyp.unwrap_attrs td.tdDef in
+                             let (with_attrs, attrs) = extract_with_attributes attrs in
+                             let (synonym_attrs, attrs) = extract_synonym_attributes attrs in
+                             let import_attrs = with_attrs@synonym_attrs in
+                             let ty = Ctyp.wrap_attrs ty import_attrs in
+                             let ty = <:ctyp< [%import: $type:ty$ ] >> in
+                             let ty = Ctyp.wrap_attrs ty attrs in
+                             { (td) with tdDef = ty }
+                           ) in
+           <:str_item:< type $flag:nrfl$ $list:tdl'$ >>
+    ]
+;
+
 value rec expand_add_attribute arg attr =
   let sil = match uv attr with [
     <:attribute_body< "add" $structure:l$ >> when l <> [] -> l
@@ -518,6 +535,9 @@ and registered_str_item_extension arg = fun [
       ) tdl in
     <:str_item< type $flag:nrfl$ $list:tdl$ >>
 
+  | <:str_item:< [%%import type $flag:nrfl$ $list:tdl$ ; ] >> as stri ->
+     registered_str_item_extension arg (rewrite_import stri)
+
   | <:str_item:< [%% import: $type:t$ ] $itemattrs:item_attrs$ >> ->
     let (nrfl, tdl) = import_typedecl_group arg t item_attrs in
     <:str_item< type $flag:nrfl$ $list:tdl$ >>
@@ -557,7 +577,7 @@ value install () =
 let ef = EF.mk() in
 let ef = EF.{ (ef) with
   str_item = extfun ef.str_item with [
-    <:str_item:< type $flag:_$ $list:_$ >> as z ->
+    <:str_item:< type $flag:_$ $list:_$ >> | <:str_item:< [%%import type $flag:_$ $list:_$ ; ] >> as z ->
       fun arg _ ->
         Some (registered_str_item_extension arg z)
 

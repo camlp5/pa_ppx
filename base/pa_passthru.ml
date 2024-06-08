@@ -276,6 +276,8 @@ and ctyp0 arg =
         TyXtr loc x1 (option_map (vala_map self) x2)
     | TyExten loc exten ->
         TyExten loc (attribute arg exten)
+    | TyOpen loc x1 x2 ->
+       TyOpen loc (longid arg x1) (ctyp arg x2)
     ] in
   self0
 

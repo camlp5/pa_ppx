@@ -101,6 +101,8 @@ and ctyp0 arg =
         TyXtr loc x1 (option_map (vala_map self) x2)[@hashrecons z;]
     | TyExten loc exten[@hashrecons z;] ->
         TyExten loc (attribute arg exten)[@hashrecons z;]
+    | TyOpen loc x1 x2[@hashrecons z;] ->
+       TyOpen loc (longid arg x1) (ctyp arg x2)[@hashrecons z;]
     ] in
   self0
 

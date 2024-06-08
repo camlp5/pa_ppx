@@ -1,4 +1,4 @@
-version: "0.13"
+version: "0.15"
 synopsis: "PPX Rewriters for Ocaml, written using Camlp5"
 description:
 """
@@ -35,10 +35,10 @@ dev-repo: "git+https://github.com/camlp5/pa_ppx.git"
 doc: "https://github.com/camlp5/pa_ppx/doc"
 
 depends: [
-  "ocaml"       { >= "4.10.0" & < "5.02.0" }
+  "ocaml"       { >= "4.10.0" & < "5.03.0" }
   "conf-perl"
   "camlp5-buildscripts" { >= "0.03" }
-  "camlp5"      { >= "8.02.00" }
+  "camlp5"      { >= "8.03.00" }
   "not-ocamlfind" { >= "0.10" }
   "pcre2"
   "result" { >= "1.5" }
@@ -49,7 +49,7 @@ depends: [
   "uint" { >= "2.0.1" }
   "ounit"
   "sexplib" { with-test & >= "v0.14.0" }
-  "ppx_import" { with-test & >= "1.7.1" }
+  "ppx_import" { with-test & >= "1.7.1"  & <= "1.11.0" }
   "ppx_deriving" { with-test }
   "ppx_deriving_yojson" { with-test & >= "3.5.2" }
   "ppx_here" { with-test & >= "v0.13.0" }

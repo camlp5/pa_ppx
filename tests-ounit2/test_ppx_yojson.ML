@@ -1,9 +1,9 @@
 #ifdef PAPPX
 (**pp -syntax camlp5o -package $(PAPACKAGES) *)
-let filemod = "Test_ppx_yojson"
+let filemod = "Test_ppx_yojson."
 #else
 (**pp -package $(PPXPACKAGES) *)
-let filemod = "Test_ppx_yojson.ppx"
+let filemod = ""
 #endif
 open OUnit2
 #ifndef PAPPX
@@ -139,7 +139,7 @@ let test_char _ctxt =
   assert_roundtrip pp_c c_to_yojson c_of_yojson
                    'c' "\"c\"";
   assert_failure   pp_c c_of_yojson
-                   (filemod^".c") "\"xxx\""
+                   (filemod^"c") "\"xxx\""
 
 let test_string _ctxt =
   assert_roundtrip pp_s s_to_yojson s_of_yojson
@@ -211,7 +211,7 @@ let test_pvar _ctxt =
   assert_roundtrip pp_pvd pvd_to_yojson pvd_of_yojson
                    (`C 1) "[\"C\", 1]";
   assert_equal ~printer:(show_error_or pp_pvd)
-               (Result.Error (filemod^".pvd"))
+               (Result.Error (filemod^"pvd"))
                (pvd_of_yojson (`List [`String "D"]))
 
 let test_var _ctxt =
@@ -248,7 +248,7 @@ let test_key _ctxt =
 
 let test_field_err _ctxt =
   assert_equal ~printer:(show_error_or pp_geo)
-               (Result.Error (filemod^".geo.lat"))
+               (Result.Error (filemod^"geo.lat"))
                (geo_of_yojson (`Assoc ["Longitude", (`Float 42.0)]))
 
 type id = Yojson.Safe.t [@@deriving yojson]

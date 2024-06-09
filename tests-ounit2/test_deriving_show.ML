@@ -1,13 +1,16 @@
 #ifdef PAPPX
 (**pp -syntax camlp5o -package $(PAPACKAGES) *)
-let filemod = "Test_deriving_show"
+let filemod = "Test_deriving_show."
 #else
 (**pp -package $(PPXPACKAGES) *)
-let filemod = "Test_deriving_show.ml.ppx"
+let filemod = ""
 #endif
 open OUnit2
 
 let printer = fun x -> x
+let stripws s = Pcre2.(replace ~pat:"[ \n\t]" ~itempl:(subst "") s)
+let cmp (s1 : string) (s2 : string) =
+  stripws s1 = stripws s2
 
 type a1 = int        [@@deriving show]
 type a2 = int32      [@@deriving show]
@@ -51,22 +54,22 @@ let test_alias ctxt =
 
 type v = Foo | Bar of int * string | Baz of string [@@deriving show]
 let test_variant ctxt =
-  assert_equal ~printer (filemod^".Foo")                (show_v Foo);
-  assert_equal ~printer ("("^filemod^".Bar (1, \"foo\"))") (show_v (Bar (1, "foo")));
-  assert_equal ~printer ("("^filemod^".Baz \"foo\")")      (show_v (Baz "foo"))
+  assert_equal ~printer (filemod^"Foo")                (show_v Foo);
+  assert_equal ~printer ("("^filemod^"Bar (1, \"foo\"))") (show_v (Bar (1, "foo")));
+  assert_equal ~printer ("("^filemod^"Baz \"foo\")")      (show_v (Baz "foo"))
 
 type rv = RFoo | RBar of { x: int; y: string } | RBaz of { z: string } [@@deriving show]
 let test_variant_record ctxt =
-  assert_equal ~printer (filemod^".RFoo")
+  assert_equal ~printer (filemod^"RFoo")
                         (show_rv RFoo);
-  assert_equal ~printer (filemod^".RBar {x = 1; y = \"foo\"}")
+  assert_equal ~printer (filemod^"RBar {x = 1; y = \"foo\"}")
                         (show_rv (RBar {x=1; y="foo"}));
-  assert_equal ~printer ("("^filemod^".RBaz {z = \"foo\"}")
+  assert_equal ~printer ("("^filemod^"RBaz {z = \"foo\"}")
                         (show_rv (RBaz {z="foo"}))
 
 type vn = Foo of int option [@@deriving show]
 let test_variant_nest ctxt =
-  assert_equal ~printer ("("^filemod^".Foo (Some 1))") (show_vn (Foo (Some 1)))
+  assert_equal ~printer ("("^filemod^"Foo (Some 1))") (show_vn (Foo (Some 1)))
 
 type pv1 = [ `Foo | `Bar of int * string ] [@@deriving show]
 let test_poly ctxt =
@@ -88,7 +91,7 @@ type re = {
   f3 : float [@opaque];
 } [@@deriving show]
 let test_record ctxt =
-  assert_equal ~printer ("{ "^filemod^".f1 = 1; f2 = \"foo\"; f3 = <opaque> }")
+  assert_equal ~printer ("{ "^filemod^"f1 = 1; f2 = \"foo\"; f3 = <opaque> }")
                         (show_re { f1 = 1; f2 = "foo"; f3 = 1.0 })
 
 type variant = Foo of {
@@ -98,7 +101,7 @@ type variant = Foo of {
 } [@@deriving show]
 let test_variant_record ctxt =
   assert_equal ~printer
-    (filemod^".Foo {f1 = 1; f2 = \"foo\"; f3 = <opaque>}")
+    (filemod^"Foo {f1 = 1; f2 = \"foo\"; f3 = <opaque>}")
     (show_variant (Foo { f1 = 1; f2 = "foo"; f3 = 1.0 }))
 
 
@@ -109,11 +112,11 @@ end = struct
 end
 
 let test_module ctxt =
-  assert_equal ~printer (filemod^".M.A") (M.show M.A)
+  assert_equal ~printer (filemod^"M.A") (M.show M.A)
 
 type z = M.t [@@deriving show]
 let test_abstr ctxt =
-  assert_equal ~printer (filemod^".M.A") (show_z M.A)
+  assert_equal ~printer (filemod^"M.A") (show_z M.A)
 
 type file = {
   name : string;
@@ -121,12 +124,12 @@ type file = {
 }
 [@@deriving show]
 let test_custom ctxt =
-  assert_equal ~printer ("{ "^filemod^".name = \"dir\"; perm = 0o755 }")
+  assert_equal ~printer ("{ "^filemod^"name = \"dir\"; perm = 0o755 }")
                         (show_file { name = "dir"; perm = 0o755 })
 
 type 'a pt = { v : 'a } [@@deriving show]
 let test_parametric ctxt =
-  assert_equal ~printer ("{ "^filemod^".v = 1 }")
+  assert_equal ~printer ("{ "^filemod^"v = 1 }")
                         (show_pt (fun fmt -> Format.fprintf fmt "%d") { v = 1 })
 
 type 'a btree = Node of 'a btree * 'a * 'a btree | Leaf
@@ -142,8 +145,8 @@ let print_hi = fun fmt _ -> Format.fprintf fmt "hi!"
 type polypr = (string [@printer print_hi]) btree [@polyprinter pp_btree]
 [@@deriving show]
 let test_polypr ctxt =
-  assert_equal ~printer ("("^filemod^".Node ("^filemod^".Leaf, hi!,\n\
-                        \   "^filemod^".Leaf))")
+  assert_equal ~cmp ~printer ("("^filemod^"Node ("^filemod^"Leaf, hi!,\n\
+                        \   "^filemod^"Leaf))")
                         (show_polypr (Node (Leaf, "x", Leaf)))
 
 let test_placeholder ctxt =
@@ -167,7 +170,7 @@ and 'a bar = { x : 'a ; r : foo }
 
 let test_mrec ctxt =
   let e1 =  B { x = 12; r = F 16 } in
-  assert_equal ~printer ("("^filemod^".B\n   { "^filemod^".x = 12; r = ("^filemod^".F 16) })") (show_foo e1)
+  assert_equal ~cmp ~printer ("("^filemod^"B\n   { "^filemod^"x = 12; r = ("^filemod^"F 16) })") (show_foo e1)
 
 
 type i_has_result = I_has of (bool, string) result [@@deriving show]
@@ -175,9 +178,9 @@ type i_has_result = I_has of (bool, string) result [@@deriving show]
 let test_result ctxt =
   assert_equal ~printer "(Ok 100)"
     ([%derive.show: (int, bool) result] (Ok 100));
-  assert_equal ~printer ("("^filemod^".I_has (Ok true))")
+  assert_equal ~printer ("("^filemod^"I_has (Ok true))")
     (show_i_has_result (I_has (Ok true)));
-  assert_equal ~printer ("("^filemod^".I_has (Error \"err\"))")
+  assert_equal ~printer ("("^filemod^"I_has (Error \"err\"))")
     (show_i_has_result (I_has (Error "err")))
 
 type i_has_result_result = I_has of (bool, string) Result.result [@@deriving show]
@@ -186,9 +189,9 @@ let test_result_result ctxt =
   let open Result in
   assert_equal ~printer "(Ok 100)"
     ([%show: (int, bool) result] (Result.Ok 100));
-  assert_equal ~printer ("("^filemod^".I_has (Ok true))")
+  assert_equal ~printer ("("^filemod^"I_has (Ok true))")
     (show_i_has_result_result (I_has (Ok true)));
-  assert_equal ~printer ("("^filemod^".I_has (Error \"err\"))")
+  assert_equal ~printer ("("^filemod^"I_has (Error \"err\"))")
     (show_i_has_result_result (I_has (Error "err")))
 
 type es =
@@ -238,7 +241,7 @@ let test_variant_printer ctxt =
   assert_equal ~printer
     "second: 42" (show_variant_printer (Second 42));
   assert_equal ~printer
-    (""^filemod^".Third") (show_variant_printer Third);
+    (""^filemod^"Third") (show_variant_printer Third);
   assert_equal ~printer
     "fourth: 8 4" (show_variant_printer (Fourth(8,4)))
 
@@ -249,8 +252,8 @@ module WithFull = struct
 end
 let test_paths_printer ctxt =
   assert_equal ~printer "(NoFull 1)"   (show_no_full   (NoFull 1));
-  assert_equal ~printer ("("^filemod^".WithFull 1)") (show_with_full (WithFull 1));
-  assert_equal ~printer ("("^filemod^".WithFull.A 1)") (WithFull.show (WithFull.A 1));
+  assert_equal ~printer ("("^filemod^"WithFull 1)") (show_with_full (WithFull 1));
+  assert_equal ~printer ("("^filemod^"WithFull.A 1)") (WithFull.show (WithFull.A 1));
   ()
 
 let suite = "Test deriving(show)" >::: [

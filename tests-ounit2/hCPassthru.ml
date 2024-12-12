@@ -150,6 +150,8 @@ and patt0 arg =
         PaChr loc x1[@hashrecons z;]
     | PaExc loc x1[@hashrecons z;] →
         PaExc loc (self x1)[@hashrecons z;]
+    | PaEff loc x1 x2[@hashrecons z;] →
+        PaEff loc (self x1) (self x2)[@hashrecons z;]
     | PaFlo loc x1[@hashrecons z;] →
         PaFlo loc x1[@hashrecons z;]
     | PaInt loc x1 x2[@hashrecons z;] →

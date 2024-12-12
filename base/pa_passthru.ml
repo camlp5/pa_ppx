@@ -325,6 +325,8 @@ and patt0 arg =
         PaChr loc x1
     | PaExc loc x1 →
         PaExc loc (self x1)
+    | PaEff loc x1 x2 →
+        PaEff loc (self x1) (self x2)
     | PaFlo loc x1 →
         PaFlo loc x1
     | PaInt loc x1 x2 →

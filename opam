@@ -1,4 +1,4 @@
-version: "0.15"
+version: "0.16"
 synopsis: "PPX Rewriters for Ocaml, written using Camlp5"
 description:
 """
@@ -35,10 +35,10 @@ dev-repo: "git+https://github.com/camlp5/pa_ppx.git"
 doc: "https://github.com/camlp5/pa_ppx/doc"
 
 depends: [
-  "ocaml"       { >= "4.10.0" & < "5.03.0" }
+  "ocaml"       { >= "4.10.0" & < "5.04.0" }
   "conf-perl"
   "camlp5-buildscripts" { >= "0.03" }
-  "camlp5"      { >= "8.03.00" }
+  "camlp5"      { >= "8.03.01" }
   "not-ocamlfind" { >= "0.10" }
   "pcre2"
   "result" { >= "1.5" }
@@ -58,7 +58,6 @@ depends: [
 #  "expect_test_helpers" { with-test & >= "v0.13.0" }
 ]
 conflicts: [
-  "base-effects"
   "ocaml-option-bytecode-only"
   "pa_ppx_migrate" { <= "0.11" }
 ]

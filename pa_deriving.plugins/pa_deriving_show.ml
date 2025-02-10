@@ -481,6 +481,15 @@ value expr_show arg = fun [
     let e = <:expr< fun arg -> Format.asprintf "%a" $e$ arg >> in
     Expr.abstract_over (paramtype_patts@parampats) e
 
+| <:expr:< [% $attrid:(_, id)$: $type:ty$ ] >> when id = "pp" || id = "derive.pp" ->
+    let loc = loc_of_ctyp ty in
+    let param_map = ty |> type_params |> PM.make_of_ids in
+    let coercion = monomorphize_ctyp ty in
+    let e = fmt_top arg ~{coercion=coercion} param_map ty in
+    let parampats = List.map (PM.arg_patt ~{mono=True} loc) param_map in
+    let paramtype_patts = List.map (fun p -> <:patt< (type $lid:PM.type_id p$) >>) param_map in
+    Expr.abstract_over (paramtype_patts@parampats) e
+
 | _ -> assert False ]
 ;
 
@@ -489,6 +498,11 @@ value ctyp_show arg = fun [
     let param_map = ty |> type_params |> PM.make_of_ids in
     let argfmttys = List.map (PM.arg_ctyp loc) param_map in  
     Ctyp.arrows_list loc argfmttys <:ctyp< $ty$ -> Stdlib.String.t >>
+
+| <:ctyp:< [% $attrid:(_, id)$: $type:ty$ ] >> when id = "pp" || id = "derive.pp" ->
+    let param_map = ty |> type_params |> PM.make_of_ids in
+    let argfmttys = List.map (PM.arg_ctyp loc) param_map in  
+    Ctyp.arrows_list loc argfmttys <:ctyp< Fmt.t $ty$ >>
 
 | _ -> assert False ]
 ;
@@ -499,8 +513,8 @@ Pa_deriving.(Registry.add PI.{
 ; options = ["with_path"; "optional"]
 ; default_options = let loc = Ploc.dummy in [ ("optional", <:expr< False >>) ; ("with_path", <:expr< True >>) ]
 ; alg_attributes = ["opaque"; "printer"; "polyprinter"; "nobuiltin"; "name"]
-; expr_extensions = ["show"]
-; ctyp_extensions = ["show"]
+; expr_extensions = ["show"; "pp"]
+; ctyp_extensions = ["show"; "pp"]
 ; expr = expr_show
 ; ctyp = ctyp_show
 ; str_item = str_item_gen_show

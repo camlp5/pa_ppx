@@ -282,6 +282,7 @@ let suite = "Test deriving(show)" >::: [
 
 #ifdef PAPPX
 let _ = ([%show: 'a * 'a] : [%show: 'a * 'a])
+let _ = ([%pp: 'a * 'a] : [%pp: 'a * 'a])
 #endif
 
 let _ = 

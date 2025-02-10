@@ -4,6 +4,9 @@ pa_ppx Version 0.17
 
 * [01 Feb 2025] sync config/Makefiles across pa_ppx* packages
 
+  * add [%pp: <type>] to "show" deriver: this will produce the "pp"
+    entrypoint instead of the "show" entrypoint (which is produced by [%show: <type>].
+
 
 pa_ppx Version 0.15
 -------------------

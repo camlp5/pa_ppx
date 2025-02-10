@@ -21,6 +21,7 @@ PPXPACKAGES:=$(PPXPACKAGES),ppx_deriving.map
 PPXPACKAGES:=$(PPXPACKAGES),ppx_deriving.fold
 PPXPACKAGES:=$(PPXPACKAGES),ppx_deriving.make
 PPXPACKAGES:=$(PPXPACKAGES),ppx_deriving_yojson
+PPXPACKAGES:=$(PPXPACKAGES),ppx_sexp_conv
 export PPXPACKAGES:=$(PPXPACKAGES),ppx_here
 
 PAPACKAGES:=$(PAPACKAGES),$(PACKAGEPREFIX)utils
@@ -59,6 +60,7 @@ TESTS= \
 	test_deriving_make.byte \
 	test_deriving_make.ppx.byte \
 	test_deriving_params.byte \
+	test_deriving_sexp.byte \
 	test_here.byte \
 	test_here_original.byte \
 	test_here.ppx.byte \

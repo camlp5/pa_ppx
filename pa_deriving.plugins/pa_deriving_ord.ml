@@ -396,3 +396,16 @@ Pa_deriving.(Registry.add PI.{
 })
 ;
 
+
+value install () = 
+let ef = EF.mk () in 
+let ef = EF.{ (ef) with
+            expr = extfun ef.expr with [
+    <:expr:< [% $attrid:(_, id)$: $type:ty$ ] >> as z when id = "ord" || id = "derive.ord" ->
+    fun arg fallback ->
+      Some (expr_ord arg z)
+  ] } in
+Pa_passthru.(install { name = "pa_ppx.deriving_plugins.ord"; ef =  ef ; pass = None ; before = [] ; after = ["pa_deriving"] })
+;
+
+install();

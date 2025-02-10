@@ -256,7 +256,7 @@ value to_expression arg ?{coercion} ~{msg} param_map ty0 =
   Ploc.raise (loc_of_ctyp ty) (Failure (Printf.sprintf "pa_deriving_sexp.to_expression: %s" (Pp_MLast.show_ctyp ty)))
 ]
 and fmt_record loc arg fields = 
-  let labels_vars_fmts_dropdefaults_jskeys = List.map (fun (_, fname, _, ty, attrs) ->
+  let labels_vars_tys_fmts_dropdefaults_jskeys = List.map (fun (_, fname, _, ty, attrs) ->
         let ty = ctyp_wrap_attrs ty (uv attrs) in
         let attrs = snd(Ctyp.unwrap_attrs ty) in
         let drop_default = drop_default_instructions loc arg attrs in
@@ -265,9 +265,9 @@ and fmt_record loc arg fields =
           Some <:expr< $str:k$ >> -> k
         | Some _ -> failwith "@key attribute without string payload"
         | None -> fname ] in
-        (fname, Printf.sprintf "v_%s" fname, fmtrec ty, drop_default, jskey)) fields in
+        (fname, Printf.sprintf "v_%s" fname, ty, fmtrec ty, drop_default, jskey)) fields in
 
-  let liste = List.fold_right (fun (f,v,fmtf, drop_default, jskey) rhs ->
+  let liste = List.fold_right (fun (f,v, ty,fmtf, drop_default, jskey) rhs ->
       match drop_default with [
         Some (d, Code eqcmpexp) -> <:expr< let fields = if $eqcmpexp$ $lid:v$ $d$ then fields
                            else [ Sexplib0.Sexp.List [ Sexplib0.Sexp.Atom $str:jskey$ ; $fmtf$ $lid:v$ ] :: fields ] in $rhs$ >>
@@ -277,11 +277,15 @@ and fmt_record loc arg fields =
                            else [ Sexplib0.Sexp.List [ Sexplib0.Sexp.Atom $str:jskey$ ; fmtv ] :: fields ] in $rhs$ >>
       | Some (d, Builtin_eq) -> <:expr< let fields = if $lid:v$ = $d$ then fields
                            else [ Sexplib0.Sexp.List [ Sexplib0.Sexp.Atom $str:jskey$ ; $fmtf$ $lid:v$ ] :: fields ] in $rhs$ >>
+      | Some (d, Eq) -> <:expr< let fields = if [%eq: $type:ty$] $lid:v$ $d$ then fields
+                           else [ Sexplib0.Sexp.List [ Sexplib0.Sexp.Atom $str:jskey$ ; $fmtf$ $lid:v$ ] :: fields ] in $rhs$ >>
+      | Some (d, Compare) -> <:expr< let fields = if 0 = ([%ord: $type:ty$] $lid:v$ $d$) then fields
+                           else [ Sexplib0.Sexp.List [ Sexplib0.Sexp.Atom $str:jskey$ ; $fmtf$ $lid:v$ ] :: fields ] in $rhs$ >>
       | _ -> <:expr< let fields = [ Sexplib0.Sexp.List [ Sexplib0.Sexp.Atom $str:jskey$ ; $fmtf$ $lid:v$ ] :: fields ] in $rhs$ >>
-      ]) (List.rev labels_vars_fmts_dropdefaults_jskeys) <:expr< fields >> in
+      ]) (List.rev labels_vars_tys_fmts_dropdefaults_jskeys) <:expr< fields >> in
   let liste = <:expr< let fields = [] in $liste$ >> in
 
-  let pl = List.map (fun (f, v, _, _, _) -> (<:patt< $lid:f$ >>, <:patt< $lid:v$ >>)) labels_vars_fmts_dropdefaults_jskeys in
+  let pl = List.map (fun (f, v, _, _, _, _) -> (<:patt< $lid:f$ >>, <:patt< $lid:v$ >>)) labels_vars_tys_fmts_dropdefaults_jskeys in
   (<:patt< { $list:pl$ } >>, <:expr< Sexplib0.Sexp.List $liste$ >>)
 
 in fmtrec ?{coercion=coercion} ty0

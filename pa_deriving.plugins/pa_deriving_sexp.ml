@@ -66,6 +66,7 @@ type drop_instruction = [
   | Compare
   | Sexp
   | Code of expr
+  | If of expr
   ]
 ;
 
@@ -74,15 +75,17 @@ value drop_default_instructions loc arg attrs =
       None -> None
     | Some d ->
        match (extract_allowed_attribute_expr arg ("sexp", "sexp_drop_default") attrs,
-             extract_allowed_attribute_expr arg ("sexp", "sexp_drop_default.compare") attrs,
-             extract_allowed_attribute_expr arg ("sexp", "sexp_drop_default.equal") attrs,
-             extract_allowed_attribute_expr arg ("sexp", "sexp_drop_default.sexp") attrs) with [
-           (None, None, None, None) -> None
-         | (Some <:expr< () >>, None, None, None) -> Some (d, Builtin_eq)
-         | (Some eqfun, None, None, None) -> Some (d, Code eqfun)
-         | (None, Some <:expr:< () >>, None, None) -> Some (d, Compare)
-         | (None, None, Some <:expr:< () >>, None) -> Some (d, Eq)
-         | (None, None, None, Some <:expr:< () >>) -> Some (d, Sexp)
+              extract_allowed_attribute_expr arg ("sexp", "sexp_drop_default.ord") attrs,
+              extract_allowed_attribute_expr arg ("sexp", "sexp_drop_default.eq") attrs,
+              extract_allowed_attribute_expr arg ("sexp", "sexp_drop_default.sexp") attrs,
+              extract_allowed_attribute_expr arg ("sexp", "sexp_drop_if") attrs) with [
+           (None, None, None, None, None) -> None
+         | (Some <:expr< () >>, None, None, None, None) -> Some (d, Builtin_eq)
+         | (Some eqfun, None, None, None, None) -> Some (d, Code eqfun)
+         | (None, Some <:expr:< () >>, None, None, None) -> Some (d, Compare)
+         | (None, None, Some <:expr:< () >>, None, None) -> Some (d, Eq)
+         | (None, None, None, Some <:expr:< () >>, None) -> Some (d, Sexp)
+         | (None, None, None, None, Some pred) -> Some (d, If pred)
          | _ -> Ploc.raise loc (Failure "pa_deriving.sexp: unrecognized unrecognized or malformed drop instructions")
          ]
     ]
@@ -280,6 +283,8 @@ and fmt_record loc arg fields =
       | Some (d, Eq) -> <:expr< let fields = if [%eq: $type:ty$] $lid:v$ $d$ then fields
                            else [ Sexplib0.Sexp.List [ Sexplib0.Sexp.Atom $str:jskey$ ; $fmtf$ $lid:v$ ] :: fields ] in $rhs$ >>
       | Some (d, Compare) -> <:expr< let fields = if 0 = ([%ord: $type:ty$] $lid:v$ $d$) then fields
+                           else [ Sexplib0.Sexp.List [ Sexplib0.Sexp.Atom $str:jskey$ ; $fmtf$ $lid:v$ ] :: fields ] in $rhs$ >>
+      | Some (d, If predexp) -> <:expr< let fields = if $predexp$ $lid:v$ then fields
                            else [ Sexplib0.Sexp.List [ Sexplib0.Sexp.Atom $str:jskey$ ; $fmtf$ $lid:v$ ] :: fields ] in $rhs$ >>
       | _ -> <:expr< let fields = [ Sexplib0.Sexp.List [ Sexplib0.Sexp.Atom $str:jskey$ ; $fmtf$ $lid:v$ ] :: fields ] in $rhs$ >>
       ]) (List.rev labels_vars_tys_fmts_dropdefaults_jskeys) <:expr< fields >> in
@@ -965,9 +970,10 @@ Pa_deriving.(Registry.add PI.{
     [ ("optional", <:expr< False >>); ("strict", <:expr< False >>); ("exn", <:expr< False >>) ]
 ; alg_attributes = ["nobuiltin"; "key"; "name"; "encoding"; "default"
                     ; "sexp_drop_default"
-                    ; "sexp_drop_default.compare"
-                    ; "sexp_drop_default.equal"
+                    ; "sexp_drop_default.ord"
+                    ; "sexp_drop_default.eq"
                     ; "sexp_drop_default.sexp"
+                    ; "sexp_drop_if"
                     ; "sexp_of"; "of_sexp"]
 ; expr_extensions = ["of_sexp"; "sexp_of"]
 ; ctyp_extensions = ["of_sexp"; "sexp_of"]

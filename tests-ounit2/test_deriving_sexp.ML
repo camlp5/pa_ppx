@@ -363,7 +363,7 @@ module Drop_default = struct
   module Equal = struct
     let equal_my_int = [%eq: int]
 
-    type t = _t = { a : my_int [@default 2] [@sexp_drop_default.equal] }
+    type t = _t = { a : my_int [@default 2] [@sexp_drop_default.eq] }
     [@@deriving sexp]
 
     let test ctxt = test t_of_sexp sexp_of_t
@@ -372,7 +372,7 @@ module Drop_default = struct
   module Compare = struct
     let compare_my_int = [%ord: int]
 
-    type t = _t = { a : my_int [@default 2] [@sexp_drop_default.compare] }
+    type t = _t = { a : my_int [@default 2] [@sexp_drop_default.ord] }
     [@@deriving sexp]
 
     let test ctxt = test t_of_sexp sexp_of_t
@@ -656,15 +656,6 @@ module Applicative_functor_types = struct
       : (k1, k2) t
       =
       assert false
-    ;;
-
-    (* You would actually have to write this manually for functors. *)
-    let s__t_sexp_grammar
-      (type k1 k2)
-      (module K1 : Of_sexpable with type t = k1)
-      (module K2 : Of_sexpable with type t = k2)
-      =
-      [%sexp_grammar: (K1.t * K2.t) list]
     ;;
   end
 

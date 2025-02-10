@@ -133,9 +133,11 @@ value type_params t =
 ;
 
 value extract_allowed_attribute_expr arg (piname, attrna) attrs =
-  match try_find (fun a -> match uv a with [ <:attribute_body< $attrid:(_, id)$ $exp:e$ ; >>
-                   when Some id = DC.allowed_attribute (DC.get arg) piname attrna ->
-                   e
+  match try_find (fun a -> match uv a with [
+                    <:attribute_body< $attrid:(_, id)$ $exp:e$ ; >>
+                      when Some id = DC.allowed_attribute (DC.get arg) piname attrna -> e
+                  | <:attribute_body:< $attrid:(loc, id)$ >>
+                      when Some id = DC.allowed_attribute (DC.get arg) piname attrna -> <:expr< () >>
                  | _ -> failwith "extract_allowed_attribute_expr" ]) attrs with [
     e -> Some e
   | exception Failure _ -> None ]

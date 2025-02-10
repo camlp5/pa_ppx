@@ -59,6 +59,35 @@ value to_sexp_fname arg tyname =
     else *)"sexp_of_"^tyname
 ;
 
+type drop_instruction = [
+    Builtin_eq
+  | Poly
+  | Eq
+  | Compare
+  | Sexp
+  | Code of expr
+  ]
+;
+
+value drop_default_instructions loc arg attrs =
+  match extract_allowed_attribute_expr arg ("sexp", "default") attrs with [
+      None -> None
+    | Some d ->
+       match (extract_allowed_attribute_expr arg ("sexp", "sexp_drop_default") attrs,
+             extract_allowed_attribute_expr arg ("sexp", "sexp_drop_default.compare") attrs,
+             extract_allowed_attribute_expr arg ("sexp", "sexp_drop_default.equal") attrs,
+             extract_allowed_attribute_expr arg ("sexp", "sexp_drop_default.sexp") attrs) with [
+           (None, None, None, None) -> None
+         | (Some <:expr< () >>, None, None, None) -> Some (d, Builtin_eq)
+         | (Some eqfun, None, None, None) -> Some (d, Code eqfun)
+         | (None, Some <:expr:< () >>, None, None) -> Some (d, Compare)
+         | (None, None, Some <:expr:< () >>, None) -> Some (d, Eq)
+         | (None, None, None, Some <:expr:< () >>) -> Some (d, Sexp)
+         | _ -> Ploc.raise loc (Failure "pa_deriving.sexp: unrecognized unrecognized or malformed drop instructions")
+         ]
+    ]
+;
+
 value to_expression arg ?{coercion} ~{msg} param_map ty0 =
   let rec fmtrec ?{coercion} ?{attrmod=None} = fun [
 
@@ -130,9 +159,13 @@ value to_expression arg ?{coercion} ~{msg} param_map ty0 =
       None -> cid | Some <:expr< $str:s$ >> -> s | _ -> failwith "@name with non-string argument"
     ] in
     let (recpat, body) = fmt_record loc arg fields in
+    let body_liste = match body with [
+          <:expr< Sexplib0.Sexp.List $liste$ >> -> liste
+        | _ -> failwith "internal error handling inline records"
+        ] in
 
     let conspat = <:patt< $uid:cid$ $recpat$ >> in
-    (conspat, <:vala< None >>, <:expr< Sexplib0.Sexp.List [ (Sexplib0.Sexp.Atom $str:jscid$) ;  $body$ ] >>)
+    (conspat, <:vala< None >>, <:expr< Sexplib0.Sexp.List [ (Sexplib0.Sexp.Atom $str:jscid$) :: $body_liste$ ] >>)
 
   | <:constructor:< $uid:cid$ of $list:tyl$ $_algattrs:attrs$ >> ->
     let jscid = match extract_allowed_attribute_expr arg ("sexp", "name") (uv attrs) with [
@@ -140,14 +173,18 @@ value to_expression arg ?{coercion} ~{msg} param_map ty0 =
     ] in
     let vars = List.mapi (fun n _ -> Printf.sprintf "v%d" n) tyl in
     let varpats = List.map (fun v -> <:patt< $lid:v$ >>) vars in
+    let fmts = List.map fmtrec tyl in
     let conspat = List.fold_left (fun p vp -> <:patt< $p$ $vp$ >>)
         <:patt< $uid:cid$ >> varpats in
-    let fmts = List.map fmtrec tyl in
-
-    let liste = List.fold_right2 (fun f v liste -> <:expr< [$f$ $lid:v$ :: $liste$] >>)
-        fmts vars <:expr< [] >> in
-
-    (conspat, <:vala< None >>, <:expr< Sexplib0.Sexp.List [ (Sexplib0.Sexp.Atom $str:jscid$) :: $liste$ ] >>)
+    let consexp =
+      match (vars, fmts) with [
+          ([],[]) -> <:expr< Sexplib0.Sexp.Atom $str:jscid$ >>
+        | _ ->
+           let liste = List.fold_right2 (fun f v liste -> <:expr< [$f$ $lid:v$ :: $liste$] >>)
+                         fmts vars <:expr< [] >> in
+           <:expr< Sexplib0.Sexp.List [ (Sexplib0.Sexp.Atom $str:jscid$) :: $liste$ ] >>
+        ] in
+    (conspat, <:vala< None >>, consexp)
 
   | (_, _, _, _, <:vala< Some _ >>, _) -> assert False
   ]) l in
@@ -175,10 +212,18 @@ value to_expression arg ?{coercion} ~{msg} param_map ty0 =
       else
         let tuplepat = tuplepatt loc varpats in
         <:patt< ` $cid$ $tuplepat$ >> in
-    let liste = List.fold_right2 (fun f v liste -> <:expr< [$f$ $lid:v$ :: $liste$] >>)
-        fmts vars <:expr< [] >> in
-    let liste = <:expr< Sexplib0.Sexp.List [Sexplib0.Sexp.Atom $str:jscid$ :: $liste$] >> in
-    (conspat, <:vala< None >>, liste)
+    let e =
+      match (vars, fmts) with [
+          ([], []) ->
+          <:expr< Sexplib0.Sexp.Atom $str:jscid$ >>
+        | ([v],[f]) ->
+           <:expr< Sexplib0.Sexp.List [Sexplib0.Sexp.Atom $str:jscid$ ; $f$ $lid:v$ ] >>
+        | _ ->
+           let liste = List.fold_right2 (fun f v liste -> <:expr< [$f$ $lid:v$ :: $liste$] >>)
+                         fmts vars <:expr< [] >> in
+           <:expr< Sexplib0.Sexp.List [Sexplib0.Sexp.Atom $str:jscid$ ; Sexplib0.Sexp.List $liste$] >>
+        ] in
+    (conspat, <:vala< None >>, e)
   }
 
   | PvInh _ ty ->
@@ -211,26 +256,32 @@ value to_expression arg ?{coercion} ~{msg} param_map ty0 =
   Ploc.raise (loc_of_ctyp ty) (Failure (Printf.sprintf "pa_deriving_sexp.to_expression: %s" (Pp_MLast.show_ctyp ty)))
 ]
 and fmt_record loc arg fields = 
-  let labels_vars_fmts_defaults_jskeys = List.map (fun (_, fname, _, ty, attrs) ->
+  let labels_vars_fmts_dropdefaults_jskeys = List.map (fun (_, fname, _, ty, attrs) ->
         let ty = ctyp_wrap_attrs ty (uv attrs) in
         let attrs = snd(Ctyp.unwrap_attrs ty) in
-        let default = extract_allowed_attribute_expr arg ("sexp", "default") attrs in
+        let drop_default = drop_default_instructions loc arg attrs in
         let key = extract_allowed_attribute_expr arg ("sexp", "key") attrs in
         let jskey = match key with [
           Some <:expr< $str:k$ >> -> k
         | Some _ -> failwith "@key attribute without string payload"
         | None -> fname ] in
-        (fname, Printf.sprintf "v_%s" fname, fmtrec ty, default, jskey)) fields in
+        (fname, Printf.sprintf "v_%s" fname, fmtrec ty, drop_default, jskey)) fields in
 
-  let liste = List.fold_right (fun (f,v,fmtf,dflt, jskey) rhs ->
-      match dflt with [
-        Some d -> <:expr< let fields = if $lid:v$ = $d$ then fields
+  let liste = List.fold_right (fun (f,v,fmtf, drop_default, jskey) rhs ->
+      match drop_default with [
+        Some (d, Code eqcmpexp) -> <:expr< let fields = if $eqcmpexp$ $lid:v$ $d$ then fields
                            else [ Sexplib0.Sexp.List [ Sexplib0.Sexp.Atom $str:jskey$ ; $fmtf$ $lid:v$ ] :: fields ] in $rhs$ >>
-      | None -> <:expr< let fields = [ Sexplib0.Sexp.List [ Sexplib0.Sexp.Atom $str:jskey$ ; $fmtf$ $lid:v$ ] :: fields ] in $rhs$ >>
-      ]) (List.rev labels_vars_fmts_defaults_jskeys) <:expr< fields >> in
+      | Some (d, Sexp) -> <:expr< let fmtv = $fmtf$ $lid:v$ in
+                          let fmtd = $fmtf$ $d$ in
+                         let fields = if Sexplib.Sexp.equal fmtv fmtd then fields
+                           else [ Sexplib0.Sexp.List [ Sexplib0.Sexp.Atom $str:jskey$ ; fmtv ] :: fields ] in $rhs$ >>
+      | Some (d, Builtin_eq) -> <:expr< let fields = if $lid:v$ = $d$ then fields
+                           else [ Sexplib0.Sexp.List [ Sexplib0.Sexp.Atom $str:jskey$ ; $fmtf$ $lid:v$ ] :: fields ] in $rhs$ >>
+      | _ -> <:expr< let fields = [ Sexplib0.Sexp.List [ Sexplib0.Sexp.Atom $str:jskey$ ; $fmtf$ $lid:v$ ] :: fields ] in $rhs$ >>
+      ]) (List.rev labels_vars_fmts_dropdefaults_jskeys) <:expr< fields >> in
   let liste = <:expr< let fields = [] in $liste$ >> in
 
-  let pl = List.map (fun (f, v, _, _, _) -> (<:patt< $lid:f$ >>, <:patt< $lid:v$ >>)) labels_vars_fmts_defaults_jskeys in
+  let pl = List.map (fun (f, v, _, _, _) -> (<:patt< $lid:f$ >>, <:patt< $lid:v$ >>)) labels_vars_fmts_dropdefaults_jskeys in
   (<:patt< { $list:pl$ } >>, <:expr< Sexplib0.Sexp.List $liste$ >>)
 
 in fmtrec ?{coercion=coercion} ty0
@@ -369,7 +420,7 @@ value rec extend_str_items arg si = match si with [
       f.f := $e$ >> ]
 
   | <:str_item:< exception $excon:ec$ $itemattrs:attrs$ >> ->
-    extend_str_items arg <:str_item:< type Pa_ppx_runtime.Exceptions.t +=  [ $list:[ec]$ ] $itemattrs:attrs$ >>
+    extend_str_items arg <:str_item:< type Pa_ppx_runtime_fat.Exceptions.t +=  [ $list:[ec]$ ] $itemattrs:attrs$ >>
 
 | _ -> assert False
 ]
@@ -459,8 +510,11 @@ value of_expression arg ~{msg} param_map ty0 =
       None -> cid | Some <:expr< $str:s$ >> -> s | _ -> failwith "@name with non-string argument"
     ] in
     let (recpat, body) = fmt_record ~{cid=Some cid} loc arg fields in
-
-    let conspat = <:patt< Sexplib0.Sexp.List [ Sexplib0.Sexp.Atom $str:jscid$ ; $recpat$ ] >> in
+    let recpat_liste = match recpat with [
+          <:patt< Sexplib0.Sexp.List xs >>-> <:patt< xs >>
+        | _ -> failwith "internal error handling inline records"
+        ] in
+    let conspat = <:patt< Sexplib0.Sexp.List [ Sexplib0.Sexp.Atom $str:jscid$ :: $recpat_liste$ ] >> in
     (conspat, <:vala< None >>, body)
 
   | <:constructor:< $uid:cid$ of $list:tyl$ $_algattrs:attrs$ >> ->
@@ -470,9 +524,14 @@ value of_expression arg ~{msg} param_map ty0 =
     let vars = List.mapi (fun n _ -> Printf.sprintf "v%d" n) tyl in
     let fmts = List.map fmtrec tyl in
 
-    let conspat = List.fold_right (fun v rhs -> <:patt< [ $lid:v$ :: $rhs$ ] >>)
-        vars <:patt< [] >> in
-    let conspat = <:patt< Sexplib0.Sexp.List [ (Sexplib0.Sexp.Atom $str:jscid$) :: $conspat$ ] >> in
+    let conspat =
+      match vars with [
+          [] -> <:patt< Sexplib0.Sexp.Atom $str:jscid$ >>
+        | _ ->
+           let conspatvars = List.fold_right (fun v rhs -> <:patt< [ $lid:v$ :: $rhs$ ] >>)
+                               vars <:patt< [] >> in
+      <:patt< Sexplib0.Sexp.List [ (Sexplib0.Sexp.Atom $str:jscid$) :: $conspatvars$ ] >>
+        ] in
 
     let varexps = List.map2 (fun fmt v -> <:expr< $fmt$ $lid:v$ >>) fmts vars in
     let consexp = Expr.applist <:expr< $uid:cid$ >> varexps in
@@ -503,15 +562,21 @@ value of_expression arg ~{msg} param_map ty0 =
     let vars = List.mapi (fun n _ -> Printf.sprintf "v%d" n) tyl in
     let fmts = List.map fmtrec tyl in
     let varpats = List.map (fun v -> <:patt< $lid:v$ >>) vars in
-    let listpat = List.fold_right (fun vp listpat -> <:patt< [ $vp$ :: $listpat$ ] >>)
-        varpats <:patt< [] >> in
-    let conspat = <:patt< Sexplib0.Sexp.List [(Sexplib0.Sexp.Atom $str:jscid$) :: $listpat$] >> in
-    let consexp = if List.length vars = 0 then
-        <:expr< ` $cid$ >>
-      else
-        let varexps = List.map2 (fun fmt v -> <:expr< $fmt$ $lid:v$ >>) fmts vars in
-        let tup = tupleexpr loc varexps in
-        <:expr< ` $cid$ $tup$ >> in
+    let varexps = List.map2 (fun fmt v -> <:expr< $fmt$ $lid:v$ >>) fmts vars in
+    let tup = tupleexpr loc varexps in
+    let (conspat, consexp) =
+      match varpats with [
+          [] ->
+          (<:patt< Sexplib0.Sexp.Atom $str:jscid$ >>, <:expr< ` $cid$ >>)                                    
+        | [vp] ->
+           (<:patt< Sexplib0.Sexp.List [ Sexplib0.Sexp.Atom $str:jscid$ ; $vp$ ] >>,
+            <:expr< ` $cid$ $tup$ >>)
+        | _ ->
+           let listpat = List.fold_right (fun vp listpat -> <:patt< [ $vp$ :: $listpat$ ] >>)
+                           varpats <:patt< [] >> in
+           (<:patt< Sexplib0.Sexp.List [(Sexplib0.Sexp.Atom $str:jscid$) ; Sexplib0.Sexp.List $listpat$] >>,
+            <:expr< ` $cid$ $tup$ >>)
+        ] in
     let consexp = <:expr< ( $consexp$ :> $ty0$ ) >> in
     Left (conspat, <:vala< None >>, consexp)
   }
@@ -749,7 +814,7 @@ value rec extend_str_items arg si = match si with [
       f.f := $e$ >> ]
 
   | <:str_item:< exception $excon:ec$ $itemattrs:attrs$ >> ->
-    extend_str_items arg <:str_item:< type Pa_ppx_runtime.Exceptions.t +=  [ $list:[ec]$ ] $itemattrs:attrs$ >>
+    extend_str_items arg <:str_item:< type Pa_ppx_runtime_fat.Exceptions.t +=  [ $list:[ec]$ ] $itemattrs:attrs$ >>
 
 | _ -> assert False
 ]
@@ -894,7 +959,12 @@ Pa_deriving.(Registry.add PI.{
 ; options = ["optional"; "strict"; "exn"]
 ; default_options = let loc = Ploc.dummy in
     [ ("optional", <:expr< False >>); ("strict", <:expr< False >>); ("exn", <:expr< False >>) ]
-; alg_attributes = ["nobuiltin"; "key"; "name"; "encoding"; "default"; "sexp_of"; "of_sexp"]
+; alg_attributes = ["nobuiltin"; "key"; "name"; "encoding"; "default"
+                    ; "sexp_drop_default"
+                    ; "sexp_drop_default.compare"
+                    ; "sexp_drop_default.equal"
+                    ; "sexp_drop_default.sexp"
+                    ; "sexp_of"; "of_sexp"]
 ; expr_extensions = ["of_sexp"; "sexp_of"]
 ; ctyp_extensions = ["of_sexp"; "sexp_of"]
 ; expr = expr_sexp

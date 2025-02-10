@@ -1,0 +1,60 @@
+#use "topfind.camlp5";;
+#camlp5o ;;
+#require "ounit2";;
+#require "pa_ppx_testutils";;
+#require "str";;
+#require "camlp5.pr_o";;
+
+
+let pp_ctyp ty = Fmt.(pf stdout "#<ctyp< %s >>" (Eprinter.apply Pcaml.pr_ctyp Pprintf.empty_pc ty));;
+let pp_expr ty = Fmt.(pf stdout "#<expr< %s >>" (Eprinter.apply Pcaml.pr_expr Pprintf.empty_pc ty));;
+let pp_patt ty = Fmt.(pf stdout "#<patt< %s >>" (Eprinter.apply Pcaml.pr_patt Pprintf.empty_pc ty));;
+
+let pp_str_item ty = Fmt.(pf stdout "#<str_item< %s >>" (Eprinter.apply Pcaml.pr_str_item Pprintf.empty_pc ty));;
+let pp_sig_item ty = Fmt.(pf stdout "#<sig_item< %s >>" (Eprinter.apply Pcaml.pr_sig_item Pprintf.empty_pc ty));;
+(*
+let pp_ctyp ty = Fmt.(pf stdout "#<ctyp< %a >>" Pa_ppx_base.Pp_MLast.pp_ctyp ty);;
+let pp_expr ty = Fmt.(pf stdout "#<expr< %a >>" Pa_ppx_base.Pp_MLast.pp_expr ty);;
+let pp_patt ty = Fmt.(pf stdout "#<patt< %a >>" Pa_ppx_base.Pp_MLast.pp_patt ty);;
+*)
+
+#install_printer pp_ctyp ;;
+#install_printer pp_expr ;;
+#install_printer pp_patt ;;
+#install_printer pp_str_item ;;
+#install_printer pp_sig_item ;;
+
+
+
+open OUnit2 ;;
+open Pa_ppx_testutils ;;
+open Papr_util ;;
+open PAPR ;;
+
+#require "pa_ppx_deriving_plugins.std";;
+#require "pa_ppx_deriving_plugins.sexp";;
+open Pa_deriving_sexp ;;
+
+#trace To.fmt_to_top ;;
+#trace To.to_expression ;;
+#trace Pa_deriving_sexp.To.drop_default_instructions ;;
+#trace Pa_ppx_deriving.Pa_deriving_base.extract_allowed_attribute_expr ;;
+{| type t = { a : nt [@default 2] [@sexp_drop_default] }
+    [@@deriving sexp] |} |> Stream.of_string |> Implem.pa |> Implem.pr |> print_string ;;
+
+
+(*
+#require "pa_ppx_runtime_fat";;
+#require "sexplib";;
+#load "test_foo.cmo";;
+
+
+open Test_foo.Drop_default.Poly ;;
+ *)
+(*
+;;; Local Variables: ***
+;;; mode:tuareg ***
+;;; End: ***
+
+*)
+

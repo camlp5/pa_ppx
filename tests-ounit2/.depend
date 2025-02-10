@@ -21,6 +21,8 @@ test_deriving_params.ml.pappx.cmo : \
     stuff.cmo
 test_deriving_params.ml.pappx.cmx : \
     stuff.cmx
+test_deriving_sexp.ml.pappx.cmo :
+test_deriving_sexp.ml.pappx.cmx :
 test_deriving_show.ml.pappx.cmo :
 test_deriving_show.ml.pappx.cmx :
 test_extensible_variants.ml.pappx.cmo :

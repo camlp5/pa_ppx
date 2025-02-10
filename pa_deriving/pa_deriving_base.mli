@@ -31,5 +31,5 @@ value is_type_abbreviation : MLast.ctyp → bool;
 value type_params : MLast.ctyp → list string;
 value extract_allowed_attribute_expr :
   Pa_ppx_base.Pa_passthru.Ctxt.t → (string * string) →
-    list (Ploc.vala (Ploc.vala (α * string) * MLast.payload)) →
+    list (Ploc.vala MLast.attribute_body) →
     option MLast.expr;

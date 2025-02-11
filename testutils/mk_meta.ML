@@ -13,7 +13,7 @@ Arg.(parse [
 ;;
 
 Fmt.(pf stdout {|# test utilities for "pa_ppx"
-requires = "unix,camlp5,oUnit,fmt,pcre2,rresult,compiler-libs.common,yojson,sexplib0,pa_ppx_runtime_fat"
+requires = "str,unix,camlp5,oUnit,fmt,pcre2,rresult,compiler-libs.common,yojson,sexplib0,pa_ppx_runtime_fat"
 version = "%s"
 description = "pa_ppx test utilities"
 

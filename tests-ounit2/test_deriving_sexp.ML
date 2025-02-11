@@ -647,7 +647,7 @@ module Boolean = struct
 #endif
 
   type t_allow_extra_fields = { no_arg : bool [@bool] }
-  [@@deriving sexp] [@@sexp.allow_extra_fields]
+  [@@deriving sexp] [@@allow_extra_fields]
 
   let sexp' = Sexplib.Sexp.of_string "((no_arg))"
   let badsexp' = Sexplib.Sexp.of_string "((no_arg true))"
@@ -663,6 +663,13 @@ module Boolean = struct
 #else
   ()
 #endif
+
+  let sexp'' = Sexplib.Sexp.of_string "((no_arg)(argle))"
+  let t'' = { no_arg = true }
+  let test6 ctxt =
+    assert_equal (t_allow_extra_fields_of_sexp sexp'') t''
+  ; assert_equal (sexp_of_t_allow_extra_fields t'') sexp'
+
 end
 
 module Inline = struct
@@ -823,6 +830,8 @@ let suite = "Test_deriving(sexp)" >::: [
     ; "Boolean(2)" >:: Boolean.test2
     ; "Boolean(3)" >:: Boolean.test3
     ; "Boolean(4)" >:: Boolean.test4
+    ; "Boolean(5)" >:: Boolean.test5
+    ; "Boolean(6)" >:: Boolean.test6
     ; "Inline(1)" >:: Inline.test1
     ; "Inline(2)" >:: Inline.test2
     ; "Allow_extra_fields.M1" >:: Allow_extra_fields.M1.test

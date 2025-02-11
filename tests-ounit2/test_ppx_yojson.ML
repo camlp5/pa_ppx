@@ -237,14 +237,23 @@ let test_recvar _ctxt =
                    (RD{z="foo"}) "[\"RD\", {\"z\": \"foo\"}]"
 
 type geo = {
-  lat : float [@yojson.key "Latitude"]  ;
-  lon : float [@yojson.key "Longitude"] ;
+  lat : float [@yojson.key "Latitude"][@sexp.key "Latitude"]  ;
+  lon : float [@yojson.key "Longitude"][@sexp.key "Longitude"] ;
 }
-[@@deriving yojson, show]
+[@@deriving yojson, sexp, show]
 let test_key _ctxt =
   assert_roundtrip pp_geo geo_to_yojson geo_of_yojson
                    {lat=35.6895; lon=139.6917}
                    "{\"Latitude\":35.6895,\"Longitude\":139.6917}"
+#ifdef PAPPX
+; assert_roundtrip_sexp show_geo sexp_of_geo geo_of_sexp
+                   {lat=35.6895; lon=139.6917}
+                   {|((Latitude 35.6895) (Longitude 139.6917))|}
+#else
+    ; assert_roundtrip_sexp show_geo sexp_of_geo geo_of_sexp
+                   {lat=35.6895; lon=139.6917}
+                   {|((lat 35.6895) (lon 139.6917))|}
+#endif
 
 let test_field_err _ctxt =
   assert_equal ~printer:(show_error_or pp_geo)

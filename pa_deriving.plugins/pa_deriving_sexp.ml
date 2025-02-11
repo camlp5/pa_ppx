@@ -101,7 +101,10 @@ value drop_default_instructions loc arg attrs =
 value to_expression arg ?{coercion} ~{msg} param_map ty0 =
   let rec fmtrec ?{coercion} ?{attrmod=None} = fun [
 
-  <:ctyp:< $lid:lid$ >> when attrmod = Some Nobuiltin ->
+  <:ctyp:< $t$ [@ $attrid:(_, id)$ ] >> when Some id = DC.allowed_attribute (DC.get arg) "sexp" "opaque" ->
+    <:expr< fun _ -> Sexplib0.Sexp.Atom "<opaque>" >>
+
+| <:ctyp:< $lid:lid$ >> when attrmod = Some Nobuiltin ->
   let fname = to_sexp_fname arg lid in
   <:expr< $lid:fname$ >>
 
@@ -1007,6 +1010,7 @@ Pa_deriving.(Registry.add PI.{
                     ; "sexp_drop_default.sexp"
                     ; "sexp_drop_if"
                     ; "omit_nil"
+                    ; "opaque"
                     ; "sexp_of"; "of_sexp"]
 ; expr_extensions = ["of_sexp"; "sexp_of"]
 ; ctyp_extensions = ["of_sexp"; "sexp_of"]

@@ -544,24 +544,24 @@ module Nonregular_types = struct
 end
 
 module Opaque = struct
-  type t = (int[@sexp.opaque]) list [@@deriving sexp]
+  type t = (int[@opaque]) list [@@deriving sexp]
 
   let sexp = Sexplib.Sexp.of_string "(<opaque> <opaque>)"
   let t = [ 1; 2 ]
   let test1 ctxt =
-    assert_equal (sexp_of_t t) sexp
+    assert_equal ~printer:Sexp.to_string (sexp_of_t t) sexp
   ; assert_bool "2"
       (match t_of_sexp sexp with
        | _ -> false
        | exception _ -> true)
   ;;
 
-  type u = ([ `A of int ][@sexp.opaque]) [@@deriving sexp]
+  type u = ([ `A of int ][@opaque]) [@@deriving sexp]
 
   let sexp = Sexplib.Sexp.of_string "<opaque>"
   let u = `A 1
   let test2 ctxt =
-    assert_equal (sexp_of_u u) sexp
+    assert_equal ~printer:Sexp.to_string (sexp_of_u u) sexp
   ; assert_bool "3"
       (match u_of_sexp sexp with
        | _ -> false
@@ -768,6 +768,8 @@ let suite = "Test_deriving(sexp)" >::: [
     ; "True_and_false(3)" >:: True_and_false.test3
     ; "True_and_false(4)" >:: True_and_false.test4
     ; "True_and_false(5)" >:: True_and_false.test5
+    ; "Opaque(1)" >:: Opaque.test1
+    ; "Opaque(2)" >:: Opaque.test2
     ]
 
 let _ = 

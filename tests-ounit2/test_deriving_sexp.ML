@@ -14,6 +14,17 @@ open OUnit2
 (* Module names below are used in error messages being tested. *)
 [@@@warning "-unused-module"]
 
+module Case_insensitive = struct
+  type t =
+    | ABC
+  [@@deriving sexp, show]
+
+  let test ctxt =
+    assert_equal ~printer:(fun s -> s) (Sexp.to_string (sexp_of_t ABC)) "ABC"
+  ; assert_equal ~printer:show ABC (t_of_sexp (Sexplib.Sexp.of_string "ABC"))
+  ; assert_equal ~printer:show ABC (t_of_sexp (Sexplib.Sexp.of_string "aBC"))
+end
+
 module Sum_and_polymorphic_variants = struct
   type poly =
     [ `No_arg
@@ -444,39 +455,53 @@ end
 
 module True_and_false = struct
   type t =
-    | True
-    | False
-  [@@deriving sexp]
+    | True_
+    | False_
+  [@@deriving sexp, show]
 
   let test1 ctxt =
-    assert_equal (Sexp.to_string (sexp_of_t True)) "True"
-  ; assert_equal (Sexp.to_string (sexp_of_t False)) "False"
-  ; assert_equal True (t_of_sexp (Sexplib.Sexp.of_string "True"))
-  ; assert_equal False (t_of_sexp (Sexplib.Sexp.of_string "False"))
-  ; assert_equal True (t_of_sexp (Sexplib.Sexp.of_string "true"))
-  ; assert_equal False (t_of_sexp (Sexplib.Sexp.of_string "false"))
-
+    assert_equal ~printer:(fun s -> s) (Sexp.to_string (sexp_of_t True_)) "True_"
+  ; assert_equal ~printer:(fun s -> s) (Sexp.to_string (sexp_of_t False_)) "False_"
+  ; assert_equal ~printer:show True_ (t_of_sexp (Sexplib.Sexp.of_string "True_"))
+  ; assert_equal ~printer:show False_ (t_of_sexp (Sexplib.Sexp.of_string "False_"))
+  ; assert_equal ~printer:show True_ (t_of_sexp (Sexplib.Sexp.of_string "true_"))
+  ; assert_equal ~printer:show False_ (t_of_sexp (Sexplib.Sexp.of_string "false_"))
   type u =
-    | True of int
-    | False of int
-  [@@deriving sexp]
+    | True_ of int
+    | False_ of int
+  [@@deriving sexp, show]
 
   let test2 ctxt =
-    assert_equal (Sexp.to_string (sexp_of_u (True 1))) "(True 1)"
-  ; assert_equal (Sexp.to_string (sexp_of_u (False 2))) "(False 2)"
-  ; assert_equal (True 1) (u_of_sexp (Sexplib.Sexp.of_string "(True 1)"))
-  ; assert_equal (False 2) (u_of_sexp (Sexplib.Sexp.of_string "(False 2)"))
-  ; assert_equal (True 1) (u_of_sexp (Sexplib.Sexp.of_string "(true 1)"))
-  ; assert_equal (False 2) (u_of_sexp (Sexplib.Sexp.of_string "(false 2)"))
+    assert_equal ~printer:(fun s -> s) (Sexp.to_string (sexp_of_u (True_ 1))) "(True_ 1)"
+  ; assert_equal ~printer:(fun s -> s) (Sexp.to_string (sexp_of_u (False_ 2))) "(False_ 2)"
+  ; assert_equal ~printer:show_u (True_ 1) (u_of_sexp (Sexplib.Sexp.of_string "(True_ 1)"))
+  ; assert_equal ~printer:show_u (False_ 2) (u_of_sexp (Sexplib.Sexp.of_string "(False_ 2)"))
+  ; assert_equal ~printer:show_u (True_ 1) (u_of_sexp (Sexplib.Sexp.of_string "(true_ 1)"))
+  ; assert_equal ~printer:show_u (False_ 2) (u_of_sexp (Sexplib.Sexp.of_string "(false_ 2)"))
 
-  exception True [@@deriving sexp]
+  exception True_ [@@deriving sexp]
 
-  let test3 ctxt = assert_equal "ppx_sexp_test.ml.True_and_false.True" (Sexp.to_string (sexp_of_exn True))
+#ifdef PAPPX
+  let sexp_of_exn = [%sexp_of: Pa_ppx_runtime_fat.Exceptions.t]
+#else
+  let sexp_of_exn = [%sexp_of: exn]
+#endif
 
-  exception False of int [@@deriving sexp]
+#ifdef PAPPX
+  let test3 ctxt = assert_equal ~printer:(fun s -> s) "True_" (Sexp.to_string (sexp_of_exn True_))
+#else
+  let test3 ctxt = assert_equal ~printer:(fun s -> s) "test_deriving_sexp.ML.True_and_false.True_" (Sexp.to_string (sexp_of_exn True_))
+#endif
 
+  exception False_ of int [@@deriving sexp]
+
+#ifdef PAPPX
   let test4 ctxt =
-    assert_equal "(ppx_sexp_test.ml.True_and_false.False 1)" (Sexp.to_string (sexp_of_exn (False 1)))
+    assert_equal ~printer:(fun s -> s) "(False_ 1)" (Sexp.to_string (sexp_of_exn (False_ 1)))
+#else
+  let test4 ctxt =
+    assert_equal ~printer:(fun s -> s) "(test_deriving_sexp.ML.True_and_false.False_ 1)" (Sexp.to_string (sexp_of_exn (False_ 1)))
+#endif
   ;;
 
   type v =
@@ -486,8 +511,8 @@ module True_and_false = struct
   [@@deriving sexp]
 
   let test5 ctxt =
-    assert_equal (Sexp.to_string (sexp_of_v `True)) "True"
-  ; assert_equal (Sexp.to_string (sexp_of_v (`False 2))) "(False 2)"
+    assert_equal ~printer:(fun s -> s) (Sexp.to_string (sexp_of_v `True)) "True"
+  ; assert_equal ~printer:(fun s -> s) (Sexp.to_string (sexp_of_v (`False 2))) "(False 2)"
 end
 
 module Record_field_disambiguation = struct
@@ -716,6 +741,7 @@ end
 
 let suite = "Test_deriving(sexp)" >::: [
       "Sum_and_polymorphic_variants(1)" >:: Sum_and_polymorphic_variants.test1
+    ; "Case_insensitive" >:: Case_insensitive.test
     ; "Sum_and_polymorphic_variants(2)" >:: Sum_and_polymorphic_variants.test2
     ; "Records" >:: Records.test
     ; "Inline_records" >:: Inline_records.test
@@ -737,6 +763,11 @@ let suite = "Test_deriving(sexp)" >::: [
     ; "Omit_nil(2)" >:: Omit_nil.test2
     ; "Omit_nil(3)" >:: Omit_nil.test3
     ; "Omit_nil(4)" >:: Omit_nil.test4
+    ; "True_and_false(1)" >:: True_and_false.test1
+    ; "True_and_false(2)" >:: True_and_false.test2
+    ; "True_and_false(3)" >:: True_and_false.test3
+    ; "True_and_false(4)" >:: True_and_false.test4
+    ; "True_and_false(5)" >:: True_and_false.test5
     ]
 
 let _ = 

@@ -555,13 +555,17 @@ value of_expression arg ~{msg} param_map ty0 =
     let vars = List.mapi (fun n _ -> Printf.sprintf "v%d" n) tyl in
     let fmts = List.map fmtrec tyl in
 
+    let jscid_pat =
+      let uncap_jscid = String.uncapitalize_ascii jscid in
+      <:patt< (Sexplib0.Sexp.Atom $str:jscid$)|(Sexplib0.Sexp.Atom $str:uncap_jscid$) >> in
+
     let conspat =
       match vars with [
-          [] -> <:patt< Sexplib0.Sexp.Atom $str:jscid$ >>
+          [] -> jscid_pat
         | _ ->
            let conspatvars = List.fold_right (fun v rhs -> <:patt< [ $lid:v$ :: $rhs$ ] >>)
                                vars <:patt< [] >> in
-      <:patt< Sexplib0.Sexp.List [ (Sexplib0.Sexp.Atom $str:jscid$) :: $conspatvars$ ] >>
+      <:patt< Sexplib0.Sexp.List [ $jscid_pat$ :: $conspatvars$ ] >>
         ] in
 
     let varexps = List.map2 (fun fmt v -> <:expr< $fmt$ $lid:v$ >>) fmts vars in

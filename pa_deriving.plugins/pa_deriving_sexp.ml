@@ -767,25 +767,25 @@ and fmt_record ~{allow_extra_fields} ~{cid} loc arg fields =
         Omit _ | List | Array ->
     let l = varrow_except (i, <:expr< Result.Ok ( $fmt$ $lid:v$ ) >>) in
     let cons1exp = tupleexpr loc l in
-    (<:patt< [ Sexplib0.Sexp.List [ Sexplib0.Sexp.Atom $str:jskey$ ; $lid:v$ ] :: xs] >>, <:vala< None >>,
-     <:expr< loop xs $cons1exp$ >>)
+    [(<:patt< [ Sexplib0.Sexp.List [ Sexplib0.Sexp.Atom $str:jskey$ ; $lid:v$ ] :: xs] >>, <:vala< None >>,
+     <:expr< loop xs $cons1exp$ >>)]
 
       | Bool ->
     let l = varrow_except (i, <:expr< Result.Ok True >>) in
     let cons1exp = tupleexpr loc l in
-    (<:patt< [ Sexplib0.Sexp.List [ Sexplib0.Sexp.Atom $str:jskey$ ] :: xs] >>, <:vala< None >>,
-     <:expr< loop xs $cons1exp$ >>)
+    [(<:patt< [ Sexplib0.Sexp.List [ Sexplib0.Sexp.Atom $str:jskey$ ] :: xs] >>, <:vala< None >>,
+     <:expr< loop xs $cons1exp$ >>)]
 
       | Option ->
     let l = varrow_except (i, <:expr< Result.Ok ( $fmt$ (Sexplib.Sexp.List $lid:v$) ) >>) in
     let cons1exp = tupleexpr loc l in
-    (<:patt< [ Sexplib0.Sexp.List [ Sexplib0.Sexp.Atom $str:jskey$ :: $lid:v$ ] :: xs] >>, <:vala< None >>,
-     <:expr< loop xs $cons1exp$ >>)
+    [(<:patt< [ Sexplib0.Sexp.List [ Sexplib0.Sexp.Atom $str:jskey$ :: $lid:v$ ] :: xs] >>, <:vala< None >>,
+     <:expr< loop xs $cons1exp$ >>)]
       ]
   in
 
 
-  let branches = List.mapi branch1 labels_vars_fmts_omits_jskeys in
+  let branches = List.concat (List.mapi branch1 labels_vars_fmts_omits_jskeys) in
 
   let finish_branch =
     let recexp =

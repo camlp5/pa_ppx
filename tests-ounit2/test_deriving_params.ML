@@ -71,50 +71,34 @@ value test_simple ctxt =
 }
 ;
 
-value matches ~{pattern} text =
-  match Str.search_forward (Str.regexp pattern) text 0 with [
-    _ -> True
-  | exception Not_found -> False
-  ]
-;
-
-value assert_raises_exn_pattern pattern f =
-  Testutil.assert_raises_exn_pred
-    (fun [
-           Ploc.Exc _ (Failure msg) when matches ~{pattern} msg -> True
-         | _ -> False
-         ])
-      f
-;
-
 value test_errors ctxt =
   let loc = Ploc.dummy in do {
     ()
-  ; assert_raises_exn_pattern "params failed validation check"
+  ; Testutil.assert_raises_exn_pattern "params failed validation check"
       (fun () ->
          ignore ({foo| False |foo} |> parse_expr |> params_a0))
-  ; assert_raises_exn_pattern "message"
+  ; Testutil.assert_raises_exn_pattern "message"
       (fun () ->
          ignore ({foo| False |foo} |> parse_expr |> params_a0'))
-  ; assert_raises_exn_pattern "superfluous (not-allowed) fields: c"
+  ; Testutil.assert_raises_exn_pattern "superfluous (not-allowed) fields: c"
       (fun () ->
          ignore ({foo| {a = 1; c = 3 } |foo} |> parse_expr |> params_a6))
-  ; assert_raises_exn_pattern "field a is not optional"
+  ; Testutil.assert_raises_exn_pattern "field a is not optional"
       (fun () ->
          ignore ({foo| {b = foo } |foo} |> parse_expr |> params_a6))
-  ; assert_raises_exn_pattern "param should be integer"
+  ; Testutil.assert_raises_exn_pattern "param should be integer"
       (fun () ->
          ignore ({foo| Foo |foo} |> parse_expr |> params_a1))
-  ; assert_raises_exn_pattern "param should be LIDENT"
+  ; Testutil.assert_raises_exn_pattern "param should be LIDENT"
       (fun () ->
          ignore ({foo| Foo |foo} |> parse_expr |> params_a2))
-  ; assert_raises_exn_pattern "param should be UIDENT"
+  ; Testutil.assert_raises_exn_pattern "param should be UIDENT"
       (fun () ->
          ignore ({foo| foo |foo} |> parse_expr |> params_a3))
-  ; assert_raises_exn_pattern "key should be of the form LIDENT"
+  ; Testutil.assert_raises_exn_pattern "key should be of the form LIDENT"
       (fun () ->
          ignore ({foo| { a = 1 ; A.b = foo } |foo} |> parse_expr |> params_a9))
-  ; assert_raises_exn_pattern "param must be a tuple of type"
+  ; Testutil.assert_raises_exn_pattern "param must be a tuple of type"
       (fun () ->
          ignore ({foo| (1,2,3,foo,True) |foo} |> parse_expr |> params_a11))
   }
@@ -847,7 +831,7 @@ value test_a20 ctxt = do {
 ; assert_equal
     ({foo| { f1= a.b } |foo} |> parse_expr |> params_a20) 
     { f1=[("a","b")] }
-; assert_raises_exn_pattern "not a lident pair"
+; Testutil.assert_raises_exn_pattern "not a lident pair"
     (fun () ->
        ignore ({foo| { f1= [] } |foo} |> parse_expr |> params_a20)) 
 }

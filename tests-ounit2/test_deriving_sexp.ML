@@ -10,6 +10,10 @@ open Conv
 open Sexplib
 open Conv
 open OUnit2
+#ifdef PAPPX
+open Pa_ppx_testutils
+#else
+#endif
 
 (* Module names below are used in error messages being tested. *)
 [@@@warning "-unused-module"]
@@ -621,22 +625,44 @@ module Nonempty = struct
 end
 
 module Boolean = struct
-  type t = { no_arg : bool [@bool] } [@@deriving sexp]
+  type t = { no_arg : bool [@bool] } [@@deriving sexp, show]
 
   let sexp = Sexplib.Sexp.of_string "()"
   let t = { no_arg = false }
   let test1 ctxt =
-    assert_equal (t_of_sexp sexp) t
+    assert_equal ~printer:show (t_of_sexp sexp) t
   ; assert_equal (sexp_of_t t) sexp
   let sexp = Sexplib.Sexp.of_string "((no_arg))"
+  let badsexp = Sexplib.Sexp.of_string "((no_arg true))"
   let t = { no_arg = true }
   let test2 ctxt =
-    assert_equal (t_of_sexp sexp) t
+    assert_equal ~printer:show (t_of_sexp sexp) t
   ; assert_equal (sexp_of_t t) sexp
+
+  let test3 ctxt =
+#ifdef PAPPX
+    Testutil.assert_raises_exn_pattern "Boolean.t" (fun _ -> t_of_sexp badsexp)
+#else
+  ()
+#endif
 
   type t_allow_extra_fields = { no_arg : bool [@bool] }
   [@@deriving sexp] [@@sexp.allow_extra_fields]
 
+  let sexp' = Sexplib.Sexp.of_string "((no_arg))"
+  let badsexp' = Sexplib.Sexp.of_string "((no_arg true))"
+  let t' = { no_arg = true }
+  let test4 ctxt =
+    assert_equal (t_allow_extra_fields_of_sexp sexp') t'
+  ; assert_equal (sexp_of_t_allow_extra_fields t') sexp'
+
+  let test5 ctxt =
+#ifdef PAPPX
+  Testutil.assert_raises_exn_pattern "Boolean.t"
+    (fun _ -> t_allow_extra_fields_of_sexp badsexp')
+#else
+  ()
+#endif
 end
 
 module Inline = struct
@@ -795,6 +821,8 @@ let suite = "Test_deriving(sexp)" >::: [
     ; "Nonempty(2)" >:: Nonempty.test2
     ; "Boolean(1)" >:: Boolean.test1
     ; "Boolean(2)" >:: Boolean.test2
+    ; "Boolean(3)" >:: Boolean.test3
+    ; "Boolean(4)" >:: Boolean.test4
     ; "Inline(1)" >:: Inline.test1
     ; "Inline(2)" >:: Inline.test2
     ; "Allow_extra_fields.M1" >:: Allow_extra_fields.M1.test

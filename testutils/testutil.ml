@@ -1,4 +1,4 @@
-(**pp -syntax camlp5r *)
+(**pp -syntax camlp5r -package pa_ppx_runtime_fat *)
 (* camlp5r *)
 (* testutil.ml,v *)
 
@@ -122,6 +122,20 @@ value assert_raises_exn_pred ?{msg} ?{exnmsg} exnpred (f: unit -> 'a) =
           assert_bool ~{printer=(pexn,e)} msg (exnpred e) ]
 ;
 
+value matches ~{pattern} text =
+  match Str.search_forward (Str.regexp pattern) text 0 with [
+    _ -> True
+  | exception Not_found -> False
+  ]
+;
+
+value assert_raises_exn_pattern pattern f =
+  assert_raises_exn_pred
+    (fun e ->
+      let txt = Pa_ppx_runtime_fat.Exceptions.show e in
+      matches ~{pattern} txt)
+      f
+;
 
 (*
 ;;; Local Variables: ***

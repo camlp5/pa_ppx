@@ -254,7 +254,11 @@ value sig_item arg fallback = fun [
     | (False, False, True) -> True
     | (False, False, False) -> True
     | _ -> False
-    ]) then Ploc.raise loc (Failure "mixed short/medium/long-form attributes")
+    ]) then Fmt.(raise_failwithf loc "mixed short/medium/long-form attributes in sig_item:\n  short: %a\n  medium: %a\n  long: %a"
+                 (list string) short_form_attributes
+                 (list string) medium_form_attributes
+                 (list string) long_form_attributes
+            )
     else () ;
     if short_form_attributes <> [] && reg_short_form_duplicated then
       Ploc.raise loc (Failure "short-form attributes used, but some apply to more than one plugin")
@@ -309,7 +313,11 @@ value str_item arg fallback = fun [
     | (False, False, True) -> True
     | (False, False, False) -> True
     | _ -> False
-    ]) then Ploc.raise loc (Failure "mixed short/medium/long-form attributes")
+    ]) then Fmt.(raise_failwithf loc "mixed short/medium/long-form attributes in str_item:\n  short: %a\n  medium: %a\n  long: %a"
+                 (list string) used_short_form_attributes
+                 (list string) used_medium_form_attributes
+                 (list string) used_long_form_attributes
+            )
     else () ;
     if duplicated used_short_form_attributes then
       Ploc.raise loc (Failure "short-form attributes used, but some apply to more than one plugin")

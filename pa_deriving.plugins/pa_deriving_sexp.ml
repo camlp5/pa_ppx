@@ -201,8 +201,15 @@ value to_expression arg ?{coercion} ~{msg} param_map ty0 =
     let conspat = List.fold_left (fun p vp -> <:patt< $p$ $vp$ >>)
         <:patt< $uid:cid$ >> varpats in
     let consexp =
-      match (vars, fmts) with [
-          ([],[]) -> <:expr< Sexplib0.Sexp.Atom $str:jscid$ >>
+      match (tyl, vars, fmts) with [
+          (_,[],[]) -> <:expr< Sexplib0.Sexp.Atom $str:jscid$ >>
+
+        | ([<:ctyp< list $ty$ >>],[v],[_])
+               when None <> extract_allowed_attribute_expr arg ("sexp", "list") (uv attrs) ->
+           let fmtf = fmtrec ty in
+           let liste = <:expr< List.map $fmtf$ $lid:v$ >> in
+           <:expr< Sexplib0.Sexp.List [ (Sexplib0.Sexp.Atom $str:jscid$) :: $liste$ ] >>
+
         | _ ->
            let liste = List.fold_right2 (fun f v liste -> <:expr< [$f$ $lid:v$ :: $liste$] >>)
                          fmts vars <:expr< [] >> in
@@ -237,10 +244,18 @@ value to_expression arg ?{coercion} ~{msg} param_map ty0 =
         let tuplepat = tuplepatt loc varpats in
         <:patt< ` $cid$ $tuplepat$ >> in
     let e =
-      match (vars, fmts) with [
-          ([], []) ->
+      match (tyl, vars, fmts) with [
+          (_, [], []) ->
           <:expr< Sexplib0.Sexp.Atom $str:jscid$ >>
-        | ([v],[f]) ->
+
+        | ([<:ctyp< list $ty$ >>], [v],[f])
+          when None <> extract_allowed_attribute_expr arg ("sexp", "list") (uv attrs) ->
+
+           let fmtf = fmtrec ty in
+           let liste = <:expr< List.map $fmtf$ $lid:v$ >> in
+           <:expr< Sexplib0.Sexp.List [ (Sexplib0.Sexp.Atom $str:jscid$) :: $liste$ ] >>
+
+        | (_, [v],[f]) ->
            <:expr< Sexplib0.Sexp.List [Sexplib0.Sexp.Atom $str:jscid$ ; $f$ $lid:v$ ] >>
         | _ ->
            let liste = List.fold_right2 (fun f v liste -> <:expr< [$f$ $lid:v$ :: $liste$] >>)
@@ -615,17 +630,25 @@ value of_expression arg ~{msg} param_map ty0 =
       let uncap_jscid = String.uncapitalize_ascii jscid in
       <:patt< (Sexplib0.Sexp.Atom $str:jscid$)|(Sexplib0.Sexp.Atom $str:uncap_jscid$) >> in
 
-    let conspat =
-      match vars with [
-          [] -> jscid_pat
+    let varexps = List.map2 (fun fmt v -> <:expr< $fmt$ $lid:v$ >>) fmts vars in
+    let consexp = Expr.applist <:expr< $uid:cid$ >> varexps in
+
+    let (conspat,consexp) =
+      match (tyl, vars) with [
+          (_, []) -> (jscid_pat, consexp)
+
+        | ([<:ctyp< list $ty$ >>],[v])
+          when None <> extract_allowed_attribute_expr arg ("sexp", "list") (uv attrs) ->
+           (<:patt< Sexplib0.Sexp.List [ $jscid_pat$ :: $lid:v$ ] >>,
+            <:expr< let $lid:v$ = Sexplib0.Sexp.List $lid:v$ in
+                    $consexp$ >>)
+
         | _ ->
            let conspatvars = List.fold_right (fun v rhs -> <:patt< [ $lid:v$ :: $rhs$ ] >>)
                                vars <:patt< [] >> in
-      <:patt< Sexplib0.Sexp.List [ $jscid_pat$ :: $conspatvars$ ] >>
+           (<:patt< Sexplib0.Sexp.List [ $jscid_pat$ :: $conspatvars$ ] >>,
+            consexp)
         ] in
-
-    let varexps = List.map2 (fun fmt v -> <:expr< $fmt$ $lid:v$ >>) fmts vars in
-    let consexp = Expr.applist <:expr< $uid:cid$ >> varexps in
 
     (conspat, <:vala< None >>, consexp)
 
@@ -656,12 +679,20 @@ value of_expression arg ~{msg} param_map ty0 =
     let varexps = List.map2 (fun fmt v -> <:expr< $fmt$ $lid:v$ >>) fmts vars in
     let tup = tupleexpr loc varexps in
     let (conspat, consexp) =
-      match varpats with [
-          [] ->
+      match (tyl, vars) with [
+          (_, []) ->
           (<:patt< Sexplib0.Sexp.Atom $str:jscid$ >>, <:expr< ` $cid$ >>)                                    
-        | [vp] ->
-           (<:patt< Sexplib0.Sexp.List [ Sexplib0.Sexp.Atom $str:jscid$ ; $vp$ ] >>,
+
+        | ([<:ctyp< list $ty$ >>], [v])
+          when None <> extract_allowed_attribute_expr arg ("sexp", "list") (uv attrs) ->
+           (<:patt< Sexplib0.Sexp.List [ Sexplib0.Sexp.Atom $str:jscid$ :: $lid:v$ ] >>,
+            <:expr< let $lid:v$ = Sexplib0.Sexp.List $lid:v$
+                    in ` $cid$ $tup$ >>)
+
+        | (_, [v]) ->
+           (<:patt< Sexplib0.Sexp.List [ Sexplib0.Sexp.Atom $str:jscid$ ; $lid:v$ ] >>,
             <:expr< ` $cid$ $tup$ >>)
+
         | _ ->
            let listpat = List.fold_right (fun vp listpat -> <:patt< [ $vp$ :: $listpat$ ] >>)
                            varpats <:patt< [] >> in

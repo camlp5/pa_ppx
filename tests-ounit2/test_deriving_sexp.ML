@@ -795,6 +795,8 @@ let suite = "Test_deriving(sexp)" >::: [
     ; "Nonempty(2)" >:: Nonempty.test2
     ; "Boolean(1)" >:: Boolean.test1
     ; "Boolean(2)" >:: Boolean.test2
+    ; "Inline(1)" >:: Inline.test1
+    ; "Inline(2)" >:: Inline.test2
     ]
 
 let _ = 

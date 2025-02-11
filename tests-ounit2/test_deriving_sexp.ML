@@ -665,9 +665,11 @@ module Boolean = struct
 #endif
 
   let sexp'' = Sexplib.Sexp.of_string "((no_arg)(argle))"
+  let sexp''' = Sexplib.Sexp.of_string "((argle)(no_arg))"
   let t'' = { no_arg = true }
   let test6 ctxt =
     assert_equal (t_allow_extra_fields_of_sexp sexp'') t''
+  ; assert_equal (t_allow_extra_fields_of_sexp sexp''') t''
   ; assert_equal (sexp_of_t_allow_extra_fields t'') sexp'
 
 end

@@ -7,7 +7,7 @@ include $(TOP)/config/Makefile.sub
 
 DESTDIR=
 
-PACKAGES := unix,camlp5,oUnit,fmt,pcre2,rresult,compiler-libs.common,yojson,sexplib0
+PACKAGES := str,unix,camlp5,oUnit,fmt,pcre2,rresult,compiler-libs.common,yojson,sexplib0
 TARGET_PACKAGE = pa_ppx_testutils
 TARGET = $(TARGET_PACKAGE).cma
 ML = papr_util.ml testutil.ml testutil2.ml

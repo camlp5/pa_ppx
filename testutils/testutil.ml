@@ -132,7 +132,7 @@ value matches ~{pattern} text =
 value assert_raises_exn_pattern pattern f =
   assert_raises_exn_pred
     (fun e ->
-      let txt = Pa_ppx_runtime_fat.Exceptions.show e in
+      let txt = Printexc.to_string e in
       matches ~{pattern} txt)
       f
 ;

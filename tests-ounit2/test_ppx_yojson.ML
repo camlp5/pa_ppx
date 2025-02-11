@@ -283,7 +283,7 @@ let test_custvar _ctxt =
   assert_roundtrip_sexp show_custvar sexp_of_custvar custvar_of_sexp
                    (Tea "oolong") "(tea oolong)";
   assert_roundtrip_sexp show_custvar sexp_of_custvar custvar_of_sexp
-                   Vodka "(vodka)"
+                   Vodka "vodka"
 #else
 let test_custvar _ctxt =
   assert_roundtrip_sexp show_custvar sexp_of_custvar custvar_of_sexp
@@ -319,9 +319,9 @@ let test_custpvar _ctxt =
   assert_roundtrip_sexp show_custpvar sexp_of_custpvar custpvar_of_sexp
                    (`Tea "earl_grey") "(tea earl_grey)";
   assert_roundtrip_sexp show_custpvar sexp_of_custpvar custpvar_of_sexp
-                   (`Beer ("guinness", 3.3)) "(beer guinness 3.3)";
+                   (`Beer ("guinness", 3.3)) "(beer (guinness 3.3))";
   assert_roundtrip_sexp show_custpvar sexp_of_custpvar custpvar_of_sexp
-                   `Vodka "(vodka)"
+                   `Vodka "vodka"
 #else
 let test_custpvar _ctxt =
   assert_roundtrip_sexp show_custpvar sexp_of_custpvar custpvar_of_sexp

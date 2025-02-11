@@ -72,28 +72,31 @@ type drop_instruction = [
 
 type omission_instruction = [
     Omit_nil
+  | Option
   | Default of drop_instruction
   ]
 ;
 
-value drop_default_instructions loc arg attrs =
+value omission_instructions loc arg attrs =
   match (extract_allowed_attribute_expr arg ("sexp", "default") attrs,
          extract_allowed_attribute_expr arg ("sexp", "sexp_drop_default") attrs,
          extract_allowed_attribute_expr arg ("sexp", "sexp_drop_default.ord") attrs,
          extract_allowed_attribute_expr arg ("sexp", "sexp_drop_default.eq") attrs,
          extract_allowed_attribute_expr arg ("sexp", "sexp_drop_default.sexp") attrs,
          extract_allowed_attribute_expr arg ("sexp", "sexp_drop_if") attrs,
-         extract_allowed_attribute_expr arg ("sexp", "omit_nil") attrs
+         extract_allowed_attribute_expr arg ("sexp", "omit_nil") attrs,
+         extract_allowed_attribute_expr arg ("sexp", "option") attrs
         ) with [
-      (None, None, None, None, None, None, None) -> None
-    | (Some d, None, None, None, None, None, None) -> None
-    | (Some d, Some <:expr< () >>, None, None, None, None, None) -> Some (Default (Builtin_eq d))
-    | (Some d, Some eqfun, None, None, None, None, None) -> Some (Default (Code eqfun d))
-    | (Some d, None, Some <:expr:< () >>, None, None, None, None) -> Some (Default (Compare d))
-    | (Some d, None, None, Some <:expr:< () >>, None, None, None) -> Some (Default (Eq d))
-    | (Some d, None, None, None, Some <:expr:< () >>, None, None) -> Some (Default (Sexp d))
-    | (_, None, None, None, None, Some pred, None) -> Some (Default (If pred))
-    | (_, None, None, None, None, None, Some <:expr< () >>) -> Some Omit_nil
+      (None, None, None, None, None, None, None, None) -> None
+    | (Some d, None, None, None, None, None, None, None) -> None
+    | (Some d, Some <:expr< () >>, None, None, None, None, None, None) -> Some (Default (Builtin_eq d))
+    | (Some d, Some eqfun, None, None, None, None, None, None) -> Some (Default (Code eqfun d))
+    | (Some d, None, Some <:expr:< () >>, None, None, None, None, None) -> Some (Default (Compare d))
+    | (Some d, None, None, Some <:expr:< () >>, None, None, None, None) -> Some (Default (Eq d))
+    | (Some d, None, None, None, Some <:expr:< () >>, None, None, None) -> Some (Default (Sexp d))
+    | (_, None, None, None, None, Some pred, None, None) -> Some (Default (If pred))
+    | (_, None, None, None, None, None, Some <:expr< () >>, None) -> Some Omit_nil
+    | (_, None, None, None, None, None, None, Some <:expr< () >>) -> Some Option
     | _ -> Ploc.raise loc (Failure "pa_deriving.sexp: unrecognized or malformed drop instructions")
     ]
 ;
@@ -272,7 +275,7 @@ and fmt_record loc arg fields =
   let labels_vars_tys_fmts_omits_jskeys = List.map (fun (_, fname, _, ty, attrs) ->
         let ty = ctyp_wrap_attrs ty (uv attrs) in
         let attrs = snd(Ctyp.unwrap_attrs ty) in
-        let omit = drop_default_instructions loc arg attrs in
+        let omit = omission_instructions loc arg attrs in
         let key = extract_allowed_attribute_expr arg ("sexp", "key") attrs in
         let jskey = match key with [
           Some <:expr< $str:k$ >> -> k
@@ -281,25 +284,32 @@ and fmt_record loc arg fields =
         (fname, Printf.sprintf "v_%s" fname, ty, fmtrec ty, omit, jskey)) fields in
 
   let liste = List.fold_right (fun (f,v, ty,fmtf, omit, jskey) rhs ->
-      match omit with [
-        Some (Default (Code eqcmpexp d)) -> <:expr< let fields = if $eqcmpexp$ $lid:v$ $d$ then fields
+      match (fst (Ctyp.unwrap_attrs ty), omit) with [
+        (_, Some (Default (Code eqcmpexp d))) -> <:expr< let fields = if $eqcmpexp$ $lid:v$ $d$ then fields
                            else [ Sexplib0.Sexp.List [ Sexplib0.Sexp.Atom $str:jskey$ ; $fmtf$ $lid:v$ ] :: fields ] in $rhs$ >>
-      | Some (Default (Sexp d)) -> <:expr< let fmtv = $fmtf$ $lid:v$ in
+      | (_, Some (Default (Sexp d))) -> <:expr< let fmtv = $fmtf$ $lid:v$ in
                           let fmtd = $fmtf$ $d$ in
                          let fields = if Sexplib.Sexp.equal fmtv fmtd then fields
                            else [ Sexplib0.Sexp.List [ Sexplib0.Sexp.Atom $str:jskey$ ; fmtv ] :: fields ] in $rhs$ >>
-      | Some (Default (Builtin_eq d)) -> <:expr< let fields = if $lid:v$ = $d$ then fields
+      | (_, Some (Default (Builtin_eq d))) -> <:expr< let fields = if $lid:v$ = $d$ then fields
                            else [ Sexplib0.Sexp.List [ Sexplib0.Sexp.Atom $str:jskey$ ; $fmtf$ $lid:v$ ] :: fields ] in $rhs$ >>
-      | Some (Default (Eq d)) -> <:expr< let fields = if [%eq: $type:ty$] $lid:v$ $d$ then fields
+      | (_, Some (Default (Eq d))) -> <:expr< let fields = if [%eq: $type:ty$] $lid:v$ $d$ then fields
                            else [ Sexplib0.Sexp.List [ Sexplib0.Sexp.Atom $str:jskey$ ; $fmtf$ $lid:v$ ] :: fields ] in $rhs$ >>
-      | Some (Default (Compare d)) -> <:expr< let fields = if 0 = ([%ord: $type:ty$] $lid:v$ $d$) then fields
+      | (_, Some (Default (Compare d))) -> <:expr< let fields = if 0 = ([%ord: $type:ty$] $lid:v$ $d$) then fields
                            else [ Sexplib0.Sexp.List [ Sexplib0.Sexp.Atom $str:jskey$ ; $fmtf$ $lid:v$ ] :: fields ] in $rhs$ >>
-      | Some (Default (If predexp)) -> <:expr< let fields = if $predexp$ $lid:v$ then fields
+      | (_, Some (Default (If predexp))) -> <:expr< let fields = if $predexp$ $lid:v$ then fields
                            else [ Sexplib0.Sexp.List [ Sexplib0.Sexp.Atom $str:jskey$ ; $fmtf$ $lid:v$ ] :: fields ] in $rhs$ >>
 
-      | Some Omit_nil -> <:expr< let fmtv = $fmtf$ $lid:v$ in
+      | (_, Some Omit_nil) -> <:expr< let fmtv = $fmtf$ $lid:v$ in
                          let fields = if Sexplib.Sexp.equal fmtv (Sexplib0.Sexp.List[]) then fields
                            else [ Sexplib0.Sexp.List [ Sexplib0.Sexp.Atom $str:jskey$ ; fmtv ] :: fields ] in $rhs$ >>
+
+      | (<:ctyp< option $ty$ >>, Some Option) ->
+         let fmtf = fmtrec ty in
+         <:expr< let fields = match $lid:v$ with [
+                       None -> fields
+                     | Some v -> [ Sexplib0.Sexp.List [ Sexplib0.Sexp.Atom $str:jskey$ ; $fmtf$ v ] :: fields ]
+                     ] in $rhs$ >>
 
       | _ -> <:expr< let fields = [ Sexplib0.Sexp.List [ Sexplib0.Sexp.Atom $str:jskey$ ; $fmtf$ $lid:v$ ] :: fields ] in $rhs$ >>
       ]) (List.rev labels_vars_tys_fmts_omits_jskeys) <:expr< fields >> in
@@ -464,13 +474,19 @@ value of_sexp_fname arg tyname =
     else*) tyname^"_of_sexp"
 ;
 
-type omission_instruction = { omit_nil : bool ; default : option expr }
+type omission_instruction = [
+    Option
+  | Omit of { omit_nil : bool ; default : option expr }
+  ]
 ;
 
-value drop_default_instructions loc arg attrs =
-  { omit_nil = None <> extract_allowed_attribute_expr arg ("sexp", "omit_nil") attrs
-  ; default = extract_allowed_attribute_expr arg ("sexp", "default") attrs
-  }
+value omission_instructions loc arg attrs =
+  if None <> extract_allowed_attribute_expr arg ("sexp", "option") attrs then
+    Option
+  else
+    Omit { omit_nil = None <> extract_allowed_attribute_expr arg ("sexp", "omit_nil") attrs
+         ; default = extract_allowed_attribute_expr arg ("sexp", "default") attrs
+      }
 ;
 
 
@@ -660,7 +676,7 @@ and fmt_record ~{cid} loc arg fields =
   let labels_vars_fmts_omits_jskeys = List.map (fun (_, fname, _, ty, attrs) ->
         let ty = ctyp_wrap_attrs ty (uv attrs) in
         let attrs = snd(Ctyp.unwrap_attrs ty) in
-        let omit = drop_default_instructions loc arg attrs in
+        let omit = omission_instructions loc arg attrs in
         let key = extract_allowed_attribute_expr arg ("sexp", "key") attrs in
         let jskey = match key with [
           Some <:expr< $str:k$ >> -> k
@@ -673,11 +689,21 @@ and fmt_record ~{cid} loc arg fields =
         if i <> j then <:expr< $lid:v$ >> else iexp)
       labels_vars_fmts_omits_jskeys in
 
-  let branch1 i (f, v, fmt,_, jskey) =
+  let branch1 i (f, v, fmt,omit, jskey) =
+    match omit with [
+        Omit _ ->
     let l = varrow_except (i, <:expr< Result.Ok ( $fmt$ $lid:v$ ) >>) in
     let cons1exp = tupleexpr loc l in
     (<:patt< [ Sexplib0.Sexp.List [ Sexplib0.Sexp.Atom $str:jskey$ ; $lid:v$ ] :: xs] >>, <:vala< None >>,
-     <:expr< loop xs $cons1exp$ >>) in
+     <:expr< loop xs $cons1exp$ >>)
+      | Option ->
+    let l = varrow_except (i, <:expr< Result.Ok ( $fmt$ (Sexplib.Sexp.List $lid:v$) ) >>) in
+    let cons1exp = tupleexpr loc l in
+    (<:patt< [ Sexplib0.Sexp.List [ Sexplib0.Sexp.Atom $str:jskey$ :: $lid:v$ ] :: xs] >>, <:vala< None >>,
+     <:expr< loop xs $cons1exp$ >>)
+      ]
+  in
+
 
   let branches = List.mapi branch1 labels_vars_fmts_omits_jskeys in
 
@@ -707,13 +733,15 @@ and fmt_record ~{cid} loc arg fields =
     let initexps = List.map (fun (f,_,fmt,omit,_) ->
         match omit with [
 
-          {omit_nil=False; default=None} ->
+          Omit {omit_nil=False; default=None} ->
           let msg = msg^"."^f in
           <:expr< Result.Error $str:msg$ >>
 
-        | {default=Some d} -> <:expr< Result.Ok $d$ >>
+        | Omit {default=Some d} -> <:expr< Result.Ok $d$ >>
 
-        | {omit_nil=True; default=None} -> <:expr< Result.Ok ($fmt$ (Sexplib0.Sexp.List[])) >>
+        | Omit {omit_nil=True; default=None} -> <:expr< Result.Ok ($fmt$ (Sexplib0.Sexp.List[])) >>
+
+        | Option -> <:expr< Result.Ok None >>
 
         ]) labels_vars_fmts_omits_jskeys in
     let tupleinit = tupleexpr loc initexps in
@@ -1011,6 +1039,7 @@ Pa_deriving.(Registry.add PI.{
                     ; "sexp_drop_if"
                     ; "omit_nil"
                     ; "opaque"
+                    ; "option"
                     ; "sexp_of"; "of_sexp"]
 ; expr_extensions = ["of_sexp"; "sexp_of"]
 ; ctyp_extensions = ["of_sexp"; "sexp_of"]

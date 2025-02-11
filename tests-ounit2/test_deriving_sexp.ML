@@ -569,8 +569,25 @@ module Opaque = struct
   ;;
 end
 
+
+module Optional0 = struct
+  type t = { x : int option;
+             y : int option [@option] } [@@deriving sexp, show]
+
+  let sexp = Sexplib.Sexp.of_string "((x (1)) (y 2))"
+  let t = { x = Some 1; y = Some 2 }
+  let test1 ctxt =
+    assert_equal ~printer:show (t_of_sexp sexp) t
+  ; assert_equal ~printer:Sexp.to_string (sexp_of_t t) sexp
+  let sexp' = Sexplib.Sexp.of_string "((x ()))"
+  let t' = { x = None  ; y = None }
+  let test2 ctxt =
+    assert_equal ~printer:show (t_of_sexp sexp') t'
+  ; assert_equal ~printer:Sexp.to_string (sexp_of_t t') sexp'
+end
+
 module Optional = struct
-  type t = { optional : int option [@sexp.option] } [@@deriving sexp]
+  type t = { optional : int option [@option] } [@@deriving sexp]
 
   let sexp = Sexplib.Sexp.of_string "()"
   let t = { optional = None }
@@ -770,6 +787,10 @@ let suite = "Test_deriving(sexp)" >::: [
     ; "True_and_false(5)" >:: True_and_false.test5
     ; "Opaque(1)" >:: Opaque.test1
     ; "Opaque(2)" >:: Opaque.test2
+    ; "Optional0(1)" >:: Optional0.test1
+    ; "Optional0(2)" >:: Optional0.test2
+    ; "Optional(1)" >:: Optional.test1
+    ; "Optional(2)" >:: Optional.test2
     ]
 
 let _ = 

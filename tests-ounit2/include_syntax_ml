@@ -31,7 +31,8 @@ open Pa_ppx_testutils ;;
 open Papr_util ;;
 open PAPR ;;
 
-#require "pa_ppx_deriving_plugins.std";;
+#require "pa_ppx_deriving_plugins.show";;
+#require "pa_ppx_deriving_plugins.yojson";;
 #require "pa_ppx_deriving_plugins.sexp";;
 open Pa_deriving_sexp ;;
 
@@ -39,18 +40,40 @@ open Pa_deriving_sexp ;;
 #trace To.to_expression ;;
 #trace Pa_deriving_sexp.To.drop_default_instructions ;;
 #trace Pa_ppx_deriving.Pa_deriving_base.extract_allowed_attribute_expr ;;
-{| type t = { a : nt [@default 2] [@sexp_drop_default] }
-    [@@deriving sexp] |} |> Stream.of_string |> Implem.pa |> Implem.pr |> print_string ;;
+#trace Pa_ppx_deriving.Surveil.DC.allowed_attribute ;;
+#trace Pa_ppx_deriving.Surveil.DC.start_decl ;;
+#trace Pa_ppx_deriving.Surveil.DC.end_decl ;;
+#trace Pa_ppx_deriving.Surveil.add_current_attribute ;;
+#trace Pa_ppx_deriving.Surveil.add_deriving_attributes ;;
+#trace Pa_ppx_deriving.Surveil.str_item ;;
+#trace Pa_ppx_deriving.Surveil.sig_item ;;
 
-
+Pa_ppx_base.Pa_passthru.debug := true;;
 (*
+{| 
+  type t = { a : int [@default 2] [@sexp_drop_if fun x -> x mod 2 = 0] }
+  [@@deriving sexp]
+
+  type t' = { a : int [@sexp.omit_nil] } [@@deriving sexp, show]
+
+ |} |> Stream.of_string |> Implem.pa |> Implem.pr |> print_string ;;
+ *)
+(*
+{| type custvar =
+| Tea   of string [@yojson.name "tea"][@sexp.name "tea"]
+| Vodka [@yojson.name "vodka"][@sexp.name "vodka"]
+[@@deriving yojson, show]
+ |} |> Stream.of_string |> Implem.pa |> Implem.pr |> print_string ;;
+ *)
+
+
 #require "pa_ppx_runtime_fat";;
 #require "sexplib";;
 #load "test_foo.cmo";;
 
+open Sexplib ;;
+open Test_foo.Omit_nil ;;
 
-open Test_foo.Drop_default.Poly ;;
- *)
 (*
 ;;; Local Variables: ***
 ;;; mode:tuareg ***

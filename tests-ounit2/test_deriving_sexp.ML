@@ -416,7 +416,7 @@ module Drop_if = struct
 end
 
 module Omit_nil = struct
-  type natural_option = int
+  type natural_option = int [@@deriving show]
 
   let sexp_of_natural_option i = if i >= 0 then sexp_of_int i else sexp_of_unit ()
 
@@ -425,25 +425,21 @@ module Omit_nil = struct
     | sexp -> int_of_sexp sexp
   ;;
 
-  let natural_option_sexp_grammar : natural_option Sexplib0.Sexp_grammar.t =
-    { untyped = Union [ List Empty; Integer ] }
-  ;;
-
-  let check sexp_of_t t_of_sexp str t =
+  let check show_t sexp_of_t t_of_sexp str t =
     let sexp = Sexplib.Sexp.of_string str in
-    assert_equal sexp (sexp_of_t t);
-    assert_equal (t_of_sexp sexp) t
+    assert_equal ~printer:Sexp.to_string sexp (sexp_of_t t);
+    assert_equal ~printer:show_t (t_of_sexp sexp) t
   ;;
 
-  type t = { a : natural_option [@sexp.omit_nil] } [@@deriving sexp]
+  type t = { a : natural_option [@omit_nil] } [@@deriving sexp, show]
 
-  let test1 ctxt = check sexp_of_t t_of_sexp "()" { a = -1 }
-  let test2 ctxt = check sexp_of_t t_of_sexp "((a 1))" { a = 1 }
+  let test1 ctxt = check show sexp_of_t t_of_sexp "()" { a = -1 }
+  let test2 ctxt = check show sexp_of_t t_of_sexp "((a 1))" { a = 1 }
 
-  type t2 = A of { a : int list [@sexp.omit_nil] } [@@deriving sexp]
+  type t2 = A of { a : int list [@omit_nil] } [@@deriving sexp, show]
 
-  let test3 ctxt = check sexp_of_t2 t2_of_sexp "(A)" (A { a = [] })
-  let test4 ctxt = check sexp_of_t2 t2_of_sexp "(A (a (1)))" (A { a = [ 1 ] })
+  let test3 ctxt = check show_t2 sexp_of_t2 t2_of_sexp "(A)" (A { a = [] })
+  let test4 ctxt = check show_t2 sexp_of_t2 t2_of_sexp "(A (a (1)))" (A { a = [ 1 ] })
 end
 
 module True_and_false = struct
@@ -737,6 +733,10 @@ let suite = "Test_deriving(sexp)" >::: [
 #else
 #endif
     ; "Drop_if" >:: Drop_if.test
+    ; "Omit_nil(1)" >:: Omit_nil.test1
+    ; "Omit_nil(2)" >:: Omit_nil.test2
+    ; "Omit_nil(3)" >:: Omit_nil.test3
+    ; "Omit_nil(4)" >:: Omit_nil.test4
     ]
 
 let _ = 

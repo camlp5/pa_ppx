@@ -32,12 +32,17 @@ module DerivingConfig :
   end
 ;
 module alias DC = DerivingConfig;
+value add_current_attribute : Pa_ppx_base.Pa_passthru.Ctxt.t -> string -> unit;
+value add_deriving_attributes :
+  Pa_ppx_base.Pa_passthru.Ctxt.t ->
+           list MLast.attribute -> list (string * list (string * MLast.expr)) ;
+
 value sig_item :
            Pa_ppx_base.Pa_passthru.Ctxt.t ->
-           (Pa_ppx_base.Pa_passthru.Ctxt.t -> MLast.sig_item -> 'a) ->
-           MLast.sig_item -> 'a ;
+           (Pa_ppx_base.Pa_passthru.Ctxt.t -> MLast.sig_item -> MLast.sig_item) ->
+           MLast.sig_item -> MLast.sig_item ;
 value str_item :
            Pa_ppx_base.Pa_passthru.Ctxt.t ->
-           (Pa_ppx_base.Pa_passthru.Ctxt.t -> MLast.str_item -> 'a) ->
-           MLast.str_item -> 'a ;
+           (Pa_ppx_base.Pa_passthru.Ctxt.t -> MLast.str_item -> MLast.str_item) ->
+           MLast.str_item -> MLast.str_item ;
 value install : unit → unit;

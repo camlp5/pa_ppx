@@ -32,7 +32,7 @@ value debug = Pa_passthru.debug ;
 
 (** Surveil scans the entire file, looking for:
 
-  (a) @@driving -- and records eery plugin that gets invoked
+  (a) @@deriving -- and records every plugin that gets invoked
 
   (b) %extension -- and records every one
 
@@ -276,7 +276,7 @@ value str_item arg fallback = fun [
     let plugins = add_deriving_attributes arg (uv td.tdAttributes) in
     let dc = DC.get arg in
     let plugins = DC.start_decl loc dc plugins in
-    let rv = fallback arg z in
+    let rv : str_item = fallback arg z in
     let attributes = DC.end_decl dc in
     let reg_short_form_attributes =
       plugins
@@ -357,6 +357,16 @@ let ef = EF.{ (ef) with
         ]) l ;
         None
       }
+
+  | <:ctyp:< { $list:fields$ } >> ->
+     fun arg _ -> do {
+      fields |>
+        List.iter (fun [
+         (loc, fid, mut, ty, attrs) ->
+         List.iter (fun a -> add_current_attribute arg (attr_id a)) (uv attrs)
+          ]) ;
+      None
+    }
 
   ] } in
 

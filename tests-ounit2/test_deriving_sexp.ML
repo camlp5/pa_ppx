@@ -729,7 +729,7 @@ module Allow_extra_fields = struct
 
   module M1 = struct
     type t1 = { a : int } [@@deriving sexp]
-    type t2 = t1 = { a : int } [@@deriving sexp] [@@sexp.allow_extra_fields]
+    type t2 = t1 = { a : int } [@@deriving sexp] [@@allow_extra_fields]
 
     let sexp = Sexplib.Sexp.of_string "((a 1))"
     let sexp_extra = Sexplib.Sexp.of_string "((a 1)(b 2))"
@@ -743,7 +743,7 @@ module Allow_extra_fields = struct
   module M2 = struct
     type t1 = A of { a : int list } [@@deriving sexp]
 
-    type t2 = t1 = A of { a : int list } [@sexp.allow_extra_fields]
+    type t2 = t1 = A of { a : int list } [@allow_extra_fields]
     [@@deriving sexp]
 
     let sexp = Sexplib.Sexp.of_string "(A (a (0)))"
@@ -797,6 +797,8 @@ let suite = "Test_deriving(sexp)" >::: [
     ; "Boolean(2)" >:: Boolean.test2
     ; "Inline(1)" >:: Inline.test1
     ; "Inline(2)" >:: Inline.test2
+    ; "Allow_extra_fields.M1" >:: Allow_extra_fields.M1.test
+    ; "Allow_extra_fields.M2" >:: Allow_extra_fields.M2.test
     ]
 
 let _ = 

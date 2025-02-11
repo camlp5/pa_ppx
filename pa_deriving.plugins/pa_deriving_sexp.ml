@@ -507,7 +507,8 @@ end
 
 module Of = struct
 
-type attrmod_t = [ Nobuiltin ] ;
+type attrmod_t = { nobuiltin : bool ; allow_extra_fields : bool } ;
+value attrmod_default = { nobuiltin = False ; allow_extra_fields = False } ;
 
 module PM = ParamMap(struct value arg_ctyp_f loc pty = <:ctyp< Sexplib0.Sexp.t -> $pty$ >> ; end) ;
 
@@ -542,10 +543,10 @@ value omission_instructions loc arg attrs =
     ]
 ;
 
-value of_expression arg ~{msg} param_map ty0 =
-  let rec fmtrec ?{attrmod=None} = fun [
+value of_expression arg ~{msg} param_map (ty0, attrs) =
+  let rec fmtrec ?{attrmod=attrmod_default} = fun [
 
-  <:ctyp:< $lid:lid$ >> when attrmod = Some Nobuiltin ->
+  <:ctyp:< $lid:lid$ >> when attrmod.nobuiltin ->
   let fname = of_sexp_fname arg lid in
   <:expr< $lid:fname$ >>
 
@@ -565,7 +566,10 @@ value of_expression arg ~{msg} param_map ty0 =
   <:expr< Sexplib0.Sexp_conv.hashtbl_of_sexp >>
 
 | <:ctyp:< $t$ [@ $attrid:(_, id)$ ] >> when Some id = DC.allowed_attribute (DC.get arg) "sexp" "nobuiltin" ->
-    fmtrec ~{attrmod=Some Nobuiltin} t
+    fmtrec ~{attrmod={ (attrmod) with nobuiltin = True }} t
+
+| <:ctyp:< $t$ [@ $attrid:(_, id)$ ] >> when Some id = DC.allowed_attribute (DC.get arg) "sexp" "allow_extra_fields" ->
+    fmtrec ~{attrmod={ (attrmod) with allow_extra_fields = True }} t
 
 | <:ctyp:< $t$ [@ $attrid:(_, id)$ $exp:e$ ;] >> when Some id = DC.allowed_attribute (DC.get arg) "sexp" "of_sexp" ->
     e
@@ -611,7 +615,8 @@ value of_expression arg ~{msg} param_map ty0 =
     let jscid = match extract_allowed_attribute_expr arg ("sexp", "name") (uv attrs) with [
       None -> cid | Some <:expr< $str:s$ >> -> s | _ -> failwith "@name with non-string argument"
     ] in
-    let (recpat, body) = fmt_record ~{cid=Some cid} loc arg fields in
+    let allow_extra_fields = None <> extract_allowed_attribute_expr arg ("sexp", "allow_extra_fields") (uv attrs) in
+    let (recpat, body) = fmt_record ~{allow_extra_fields=allow_extra_fields} ~{cid=Some cid} loc arg fields in
     let recpat_liste = match recpat with [
           <:patt< Sexplib0.Sexp.List xs >>-> <:patt< xs >>
         | _ -> failwith "internal error handling inline records"
@@ -733,14 +738,14 @@ value of_expression arg ~{msg} param_map ty0 =
                 | _ -> failwith "wrong number of members in list" ] >>
 
 | <:ctyp:< { $list:fields$ } >> ->
-  let (recpat, body) = fmt_record ~{cid=None} loc arg fields in
+  let (recpat, body) = fmt_record ~{allow_extra_fields=attrmod.allow_extra_fields} ~{cid=None} loc arg fields in
   <:expr< fun [ $recpat$ -> $body$ | _ -> failwith $str:msg$ ] >>
 
 | [%unmatched_vala] -> failwith "pa_deriving_sexp.of_expression"
 | ty ->
   Ploc.raise (loc_of_ctyp ty) (Failure (Printf.sprintf "pa_deriving_sexp.of_expression: %s" (Pp_MLast.show_ctyp ty)))
 ]
-and fmt_record ~{cid} loc arg fields = 
+and fmt_record ~{allow_extra_fields} ~{cid} loc arg fields = 
   let labels_vars_fmts_omits_jskeys = List.map (fun (_, fname, _, ty, attrs) ->
         let ty = ctyp_wrap_attrs ty (uv attrs) in
         let attrs = snd(Ctyp.unwrap_attrs ty) in
@@ -793,7 +798,7 @@ and fmt_record ~{cid} loc arg fields =
     (<:patt< [] >>, <:vala< None >>, e) in
 
   let catch_branch =
-    if Ctxt.is_strict arg then
+    if Ctxt.is_strict arg || not allow_extra_fields then
       (<:patt< [_ :: _] >>, <:vala< None >>, <:expr< failwith $str:msg$ >>)
   else
     let varrow = varrow_except (-1, <:expr< . >>) in
@@ -831,12 +836,20 @@ and fmt_record ~{cid} loc arg fields =
 
   (<:patt< Sexplib0.Sexp.List xs >>, e)
 
-in fmtrec ty0
+  in
+  let ty0 = match ty0 with [
+        <:ctyp:< { $list:_$ } >> when None <> extract_allowed_attribute_expr arg ("sexp", "allow_extra_fields") attrs ->
+        <:ctyp< $ty0$ [@allow_extra_fields] >>
+
+      | _ -> ty0
+      ] in
+
+ fmtrec ty0
 ;
 
 value fmt_of_top arg ~{msg} params = fun [
-  <:ctyp< $t1$ == $_priv:_$ $t2$ >> ->
-  of_expression arg ~{msg=msg} params t2
+  (<:ctyp< $t1$ == $_priv:_$ $t2$ >>, attrs) ->
+  of_expression arg ~{msg=msg} params (t2, attrs)
 | t -> of_expression arg ~{msg=msg} params t
 ]
 ;
@@ -846,11 +859,12 @@ value str_item_top_funs arg td =
   let runtime_module = Base.module_expr_runtime_module <:module_expr< Runtime >> in
   let param_map = PM.make "sexp" loc (uv td.tdPrm) in
   let ty = td.tdDef in
+  let attrs = uv td.tdAttributes in
   let tyname = uv tyname in
   let of_sexpfname = of_sexp_fname arg tyname in
   let paramfun_patts = List.map (PM.arg_patt ~{mono=True} loc) param_map in
   let paramtype_patts = List.map (fun p -> <:patt< (type $lid:PM.type_id p$) >>) param_map in
-  let body = fmt_of_top arg ~{msg=Printf.sprintf "%s.%s" (Ctxt.module_path_s arg) tyname} param_map ty in
+  let body = fmt_of_top arg ~{msg=Printf.sprintf "%s.%s" (Ctxt.module_path_s arg) tyname} param_map (ty, attrs) in
   let e = 
     let of_e = <:expr< let open! $runtime_module$ in let open! Stdlib in $body$ >> in
     (of_sexpfname, Expr.abstract_over (paramtype_patts@paramfun_patts)
@@ -946,7 +960,7 @@ value rec extend_str_items arg si = match si with [
     ] in
     let gcl = List.concat (List.map ec2gc ecs) in
     let ty = <:ctyp< [ $list:gcl$ ] >> in
-    let e = of_expression arg ~{msg=String.escaped (Pp_MLast.show_longid_lident t)} param_map ty in
+    let e = of_expression arg ~{msg=String.escaped (Pp_MLast.show_longid_lident t)} param_map (ty, []) in
     let branches = match e with [
       <:expr< fun [ $list:branches$ ] >> -> branches
     | _ -> assert False
@@ -1084,7 +1098,7 @@ value expr_sexp arg = fun [
     let loc = loc_of_ctyp ty in
     let runtime_module = Base.module_expr_runtime_module <:module_expr< Runtime >> in
     let param_map = ty |> type_params |> Of.PM.make_of_ids in
-    let e = Of.fmt_of_top ~{msg=Printf.sprintf "%s.of_sexp"  (Ctxt.module_path_s arg)} arg param_map ty in
+    let e = Of.fmt_of_top ~{msg=Printf.sprintf "%s.of_sexp"  (Ctxt.module_path_s arg)} arg param_map (ty,[]) in
     let e = <:expr< let open! $runtime_module$ in let open! Stdlib in $e$ >> in
     let parampats = List.map (Of.PM.arg_patt ~{mono=True} loc) param_map in
     let paramtype_patts = List.map (fun p -> <:patt< (type $lid:Of.PM.type_id p$) >>) param_map in
@@ -1124,6 +1138,7 @@ Pa_deriving.(Registry.add PI.{
                     ; "list"
                     ; "array"
                     ; "bool"
+                    ; "allow_extra_fields"
                     ; "sexp_of"; "of_sexp"]
 ; expr_extensions = ["of_sexp"; "sexp_of"]
 ; ctyp_extensions = ["of_sexp"; "sexp_of"]

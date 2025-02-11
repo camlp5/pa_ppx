@@ -603,8 +603,8 @@ end
 
 module Nonempty = struct
   type t =
-    { list : int list [@sexp.list]
-    ; array : int array [@sexp.array]
+    { list : int list [@list]
+    ; array : int array [@array]
     }
   [@@deriving sexp]
 
@@ -621,7 +621,7 @@ module Nonempty = struct
 end
 
 module Boolean = struct
-  type t = { no_arg : bool [@sexp.bool] } [@@deriving sexp]
+  type t = { no_arg : bool [@bool] } [@@deriving sexp]
 
   let sexp = Sexplib.Sexp.of_string "()"
   let t = { no_arg = false }
@@ -634,13 +634,13 @@ module Boolean = struct
     assert_equal (t_of_sexp sexp) t
   ; assert_equal (sexp_of_t t) sexp
 
-  type t_allow_extra_fields = { no_arg : bool [@sexp.bool] }
+  type t_allow_extra_fields = { no_arg : bool [@bool] }
   [@@deriving sexp] [@@sexp.allow_extra_fields]
 
 end
 
 module Inline = struct
-  type t = A of int list [@sexp.list] [@@deriving sexp]
+  type t = A of int list [@list] [@@deriving sexp]
 
   let sexp = Sexplib.Sexp.of_string "(A 1 2 3)"
   let t = A [ 1; 2; 3 ]
@@ -648,7 +648,7 @@ module Inline = struct
     assert_equal (t_of_sexp sexp) t
   ; assert_equal (sexp_of_t t) sexp
 
-  type u = [ `A of int list [@sexp.list] ] [@@deriving sexp]
+  type u = [ `A of int list [@list] ] [@@deriving sexp]
 
   let sexp = Sexplib.Sexp.of_string "(A 1 2 3)"
   let u = `A [ 1; 2; 3 ]
@@ -791,6 +791,10 @@ let suite = "Test_deriving(sexp)" >::: [
     ; "Optional0(2)" >:: Optional0.test2
     ; "Optional(1)" >:: Optional.test1
     ; "Optional(2)" >:: Optional.test2
+    ; "Nonempty(1)" >:: Nonempty.test1
+    ; "Nonempty(2)" >:: Nonempty.test2
+    ; "Boolean(1)" >:: Boolean.test1
+    ; "Boolean(2)" >:: Boolean.test2
     ]
 
 let _ = 

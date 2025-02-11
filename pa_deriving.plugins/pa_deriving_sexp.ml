@@ -774,7 +774,9 @@ and fmt_record ~{allow_extra_fields} ~{cid} loc arg fields =
     let l = varrow_except (i, <:expr< Result.Ok True >>) in
     let cons1exp = tupleexpr loc l in
     [(<:patt< [ Sexplib0.Sexp.List [ Sexplib0.Sexp.Atom $str:jskey$ ] :: xs] >>, <:vala< None >>,
-     <:expr< loop xs $cons1exp$ >>)]
+     <:expr< loop xs $cons1exp$ >>)
+    ;(<:patt< [ Sexplib0.Sexp.List [ Sexplib0.Sexp.Atom $str:jskey$ :: _] :: xs] >>, <:vala< None >>,
+     <:expr< failwith "boolean field with @bool still had a payload" >>)]
 
       | Option ->
     let l = varrow_except (i, <:expr< Result.Ok ( $fmt$ (Sexplib.Sexp.List $lid:v$) ) >>) in

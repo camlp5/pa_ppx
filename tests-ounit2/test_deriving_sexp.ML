@@ -641,7 +641,7 @@ module Boolean = struct
 
   let test3 ctxt =
 #ifdef PAPPX
-    Testutil.assert_raises_exn_pattern "Boolean.t" (fun _ -> t_of_sexp badsexp)
+    Testutil.assert_raises_exn_pattern "boolean field.*payload" (fun _ -> t_of_sexp badsexp)
 #else
   ()
 #endif
@@ -658,7 +658,7 @@ module Boolean = struct
 
   let test5 ctxt =
 #ifdef PAPPX
-  Testutil.assert_raises_exn_pattern "Boolean.t"
+  Testutil.assert_raises_exn_pattern "boolean field.*payload"
     (fun _ -> t_allow_extra_fields_of_sexp badsexp')
 #else
   ()

@@ -8,7 +8,7 @@ RM=rm
 
 DEBUG=-g
 NOT_OCAMLFIND=not-ocamlfind
-LAUNCH=env TOP=$(TOP) ocamlfind camlp5-buildscripts/LAUNCH --
+LAUNCH=env TOP=$(TOP) ocamlfind camlp5-buildscripts/LAUNCH $(DEBUG_LAUNCH) --
 OCAMLFIND=ocamlfind
 JOINMETA=ocamlfind camlp5-buildscripts/join_meta
 YAWRAP=ocamlfind camlp5-buildscripts/ya-wrap-ocamlfind

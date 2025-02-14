@@ -2,6 +2,14 @@
 pa_ppx Version 0.17
 -------------------
 
+* [13 Feb 2025] release it
+
+  * major change is that the sexp deriver has been upgraded to be as
+    close as possible to ppx_sexp_conv.  Copied over their unit-test,
+    converted to OUnit2, and got everything that made sense to work
+    the same as for ppx_sexp_conv.
+
+
 * [01 Feb 2025] sync config/Makefiles across pa_ppx* packages
 
   * add [%pp: <type>] to "show" deriver: this will produce the "pp"

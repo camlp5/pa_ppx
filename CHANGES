@@ -1,4 +1,13 @@
 
+pa_ppx Version 0.18
+-------------------
+
+* [19 Feb 2025] fix pa_ppx.deriving_plugins.std so that it doesn't
+  load CMO files directly for all the derivers; instead it requires
+  them, so that other packages that need specific derivers won't
+  conflict.
+
+
 pa_ppx Version 0.17
 -------------------
 

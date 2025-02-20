@@ -20,20 +20,20 @@ description = "pa_ppx_deriving_plugins support"
 package "std" (
 # For linking
   package "link" (
-requires = "camlp5,pa_ppx_deriving.link"
-archive(byte) = "pa_deriving_show.cmo pa_deriving_eq.cmo pa_deriving_ord.cmo pa_deriving_enum.cmo pa_deriving_iter.cmo pa_deriving_map.cmo pa_deriving_fold.cmo pa_deriving_make.cmo"
-archive(native) = "pa_deriving_show.cmx pa_deriving_eq.cmx pa_deriving_ord.cmx pa_deriving_enum.cmx pa_deriving_iter.cmx pa_deriving_map.cmx pa_deriving_fold.cmx pa_deriving_make.cmx"
+requires = "camlp5,pa_ppx_deriving.link,pa_ppx_deriving_plugins.show.link,pa_ppx_deriving_plugins.eq.link,pa_ppx_deriving_plugins.ord.link,pa_ppx_deriving_plugins.enum.link,pa_ppx_deriving_plugins.iter.link,pa_ppx_deriving_plugins.map.link,pa_ppx_deriving_plugins.fold.link,pa_ppx_deriving_plugins.make.link"
+archive(byte) = "pa_deriving_std.cmo"
+archive(native) = "pa_deriving_std.cmx"
   )
   requires = "pa_ppx_runtime"
 
 # For the toploop:
-requires(toploop) = "camlp5,pa_ppx_deriving"
-archive(byte,toploop) = "pa_deriving_show.cmo pa_deriving_eq.cmo pa_deriving_ord.cmo pa_deriving_enum.cmo pa_deriving_iter.cmo pa_deriving_map.cmo pa_deriving_fold.cmo pa_deriving_make.cmo"
+requires(toploop) = "camlp5,pa_ppx_deriving,pa_ppx_deriving_plugins.show,pa_ppx_deriving_plugins.eq,pa_ppx_deriving_plugins.ord,pa_ppx_deriving_plugins.enum,pa_ppx_deriving_plugins.iter,pa_ppx_deriving_plugins.map,pa_ppx_deriving_plugins.fold,pa_ppx_deriving_plugins.make"
+archive(byte,toploop) = "pa_deriving_std.cmo"
 
   # For the preprocessor itself:
-  requires(syntax,preprocessor) = "camlp5,pa_ppx_deriving"
-  archive(syntax,preprocessor,-native) = "pa_deriving_show.cmo pa_deriving_eq.cmo pa_deriving_ord.cmo pa_deriving_enum.cmo pa_deriving_iter.cmo pa_deriving_map.cmo pa_deriving_fold.cmo pa_deriving_make.cmo"
-  archive(syntax,preprocessor,native) = "pa_deriving_show.cmx pa_deriving_eq.cmx pa_deriving_ord.cmx pa_deriving_enum.cmx pa_deriving_iter.cmx pa_deriving_map.cmx pa_deriving_fold.cmx pa_deriving_make.cmx"
+  requires(syntax,preprocessor) = "camlp5,pa_ppx_deriving,pa_ppx_deriving_plugins.show,pa_ppx_deriving_plugins.eq,pa_ppx_deriving_plugins.ord,pa_ppx_deriving_plugins.enum,pa_ppx_deriving_plugins.iter,pa_ppx_deriving_plugins.map,pa_ppx_deriving_plugins.fold,pa_ppx_deriving_plugins.make"
+  archive(syntax,preprocessor,-native) = "pa_deriving_std.cmo"
+  archive(syntax,preprocessor,native) = "pa_deriving_std.cmx"
 
 )
 

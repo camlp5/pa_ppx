@@ -22,6 +22,7 @@ ML=\
 	pa_deriving_make.ml \
 	pa_deriving_yojson.ml \
 	pa_deriving_sexp.ml \
+	pa_deriving_std.ml \
 
 ALLSRC=$(ML) $(MLI)
 ALLPACKAGES=$(PACKAGES)

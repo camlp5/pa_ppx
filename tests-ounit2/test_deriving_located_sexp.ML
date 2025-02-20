@@ -67,7 +67,7 @@ module Sum_and_polymorphic_variants = struct
       [ No_arg, "No_arg"
       ; (One_arg 1, "(One_arg 1)")
       ; (One_tuple (1, "a"), "(One_tuple (1 a))")
-      ; (Two_args (1, "a"), "(Two_args (1 a))")
+      ; (Two_args (1, "a"), "(Two_args 1 a)")
       ]
   ;;
 end

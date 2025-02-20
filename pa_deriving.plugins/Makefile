@@ -21,6 +21,7 @@ ML=\
 	pa_deriving_fold.ml \
 	pa_deriving_make.ml \
 	pa_deriving_yojson.ml \
+	pa_deriving_located_sexp.ml \
 	pa_deriving_sexp.ml \
 	pa_deriving_std.ml \
 

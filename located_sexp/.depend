@@ -1,0 +1,36 @@
+wslexer.cmo sexp0.cmo pa_sexp.cmo sexp.cmo conv.cmo wslexer.cmi sexp0.cmi pa_sexp.cmi sexp.cmi conv.cmi wslexer.cmx sexp0.cmx pa_sexp.cmx sexp.cmx conv.cmx: 
+wslexer.cmo :
+wslexer.cmx :
+sexp0.cmo : \
+    sexp0.cmi
+sexp0.cmx : \
+    sexp0.cmi
+pa_sexp.cmo : \
+    wslexer.cmo \
+    sexp0.cmi \
+    pa_sexp.cmi
+pa_sexp.cmx : \
+    wslexer.cmx \
+    sexp0.cmx \
+    pa_sexp.cmi
+sexp.cmo : \
+    sexp0.cmi \
+    pa_sexp.cmi \
+    sexp.cmi
+sexp.cmx : \
+    sexp0.cmx \
+    pa_sexp.cmx \
+    sexp.cmi
+conv.cmo : \
+    sexp.cmi \
+    conv.cmi
+conv.cmx : \
+    sexp.cmx \
+    conv.cmi
+sexp0.cmi :
+pa_sexp.cmi : \
+    sexp0.cmi
+sexp.cmi : \
+    sexp0.cmi
+conv.cmi : \
+    sexp.cmi

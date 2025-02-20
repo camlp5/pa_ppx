@@ -25,10 +25,12 @@ PPXPACKAGES:=$(PPXPACKAGES),ppx_sexp_conv
 export PPXPACKAGES:=$(PPXPACKAGES),ppx_here
 
 PAPACKAGES:=$(PAPACKAGES),$(PACKAGEPREFIX)utils
+PAPACKAGES:=$(PAPACKAGES),$(PACKAGEPREFIX)located_sexp
 PAPACKAGES:=$(PAPACKAGES),$(PACKAGEPREFIX)dock.link
 PAPACKAGES:=$(PAPACKAGES),$(PACKAGEPREFIX)deriving_plugins.std
 PAPACKAGES:=$(PAPACKAGES),$(PACKAGEPREFIX)deriving_plugins.yojson
 PAPACKAGES:=$(PAPACKAGES),$(PACKAGEPREFIX)deriving_plugins.sexp
+PAPACKAGES:=$(PAPACKAGES),$(PACKAGEPREFIX)deriving_plugins.located_sexp
 PAPACKAGES:=$(PAPACKAGES),$(PACKAGEPREFIX)params_runtime
 PAPACKAGES:=$(PAPACKAGES),$(PACKAGEPREFIX)runtime_fat
 PAPACKAGES:=$(PAPACKAGES),$(PACKAGEPREFIX)hashrecons
@@ -61,6 +63,7 @@ TESTS= \
 	test_deriving_make.ppx.byte \
 	test_deriving_params.byte \
 	test_deriving_sexp.byte \
+	test_deriving_located_sexp.byte \
 	test_here.byte \
 	test_here_original.byte \
 	test_here.ppx.byte \

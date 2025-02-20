@@ -8,7 +8,7 @@ WD=$(shell pwd)
 DESTDIR=
 RM=rm
 
-PRESYSDIRS= util-lib runtime runtime_fat testutils base pa_unmatched_vala \
+PRESYSDIRS= util-lib located_sexp runtime runtime_fat testutils base pa_unmatched_vala \
 	pa_dock pa_here pa_here_original pa_undo_deriving pa_assert \
 	pa_inline_test pa_expect_test pa_hashrecons \
 	pa_deriving pa_deriving.plugins pa_import
@@ -148,7 +148,10 @@ META: sys
 		-rewrite pa_ppx_testutils:pa_ppx.testutils \
 		-wrap-subdir testutils:testutils \
 		-rewrite pa_ppx_utils:pa_ppx.utils \
-		-wrap-subdir utils:util-lib >> META
+		-wrap-subdir utils:util-lib \
+		-rewrite pa_ppx_located_sexp:pa_ppx.located_sexp \
+		-wrap-subdir located_sexp:located_sexp \
+		>> META
 
 install: sys META
 	$(OCAMLFIND) remove pa_ppx || true

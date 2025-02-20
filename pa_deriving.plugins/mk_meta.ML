@@ -197,6 +197,22 @@ package "sexp" (
   requires = "pa_ppx_runtime,pa_ppx_deriving_plugins.eq,pa_ppx_deriving_plugins.ord"
 )
 
+package "located_sexp" (
+  requires(toploop) = "camlp5,pa_ppx_deriving,pa_ppx_deriving_plugins.eq,pa_ppx_deriving_plugins.ord"
+  archive(toploop) = "pa_deriving_located_sexp.cmo"
+
+    requires(syntax,preprocessor) = "camlp5,pa_ppx_deriving,pa_ppx_deriving_plugins.eq,pa_ppx_deriving_plugins.ord"
+    archive(syntax,preprocessor,-native) = "pa_deriving_located_sexp.cmo"
+    archive(syntax,preprocessor,native) = "pa_deriving_located_sexp.cmx"
+
+  package "link" (
+  requires = "camlp5,pa_ppx_deriving.link,pa_ppx_deriving_plugins.eq.link,pa_ppx_deriving_plugins.ord.link"
+  archive(byte) = "pa_deriving_located_sexp.cmo"
+  archive(native) = "pa_deriving_located_sexp.cmx"
+  )
+  requires = "pa_ppx_runtime,pa_ppx_deriving_plugins.eq,pa_ppx_deriving_plugins.ord"
+)
+
 package "params" (
   requires(toploop) = "fmt,camlp5,pa_ppx_deriving,pa_ppx_base,camlp5.parser_quotations,camlp5.pa_r"
   archive(toploop) = "pa_deriving_params.cmo"

@@ -10,3 +10,4 @@ val of_string : string -> t
 val equal : t -> t -> bool
 val input_sexp : in_channel -> Sexp0.t
 val load_sexp : string -> Sexp0.t
+val pp_hum : Format.formatter -> Sexp0.t -> unit

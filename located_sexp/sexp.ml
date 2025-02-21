@@ -23,3 +23,5 @@ let equal a b = Sexplib.Sexp.equal (to_sexplib_sexp a) (to_sexplib_sexp b)
 
 let input_sexp = Pa_sexp.input_sexp
 let load_sexp = Pa_sexp.load_sexp
+let pp_hum pps se = Sexplib.Sexp.pp_hum pps (to_sexplib_sexp se)
+

@@ -1,5 +1,5 @@
 #ifdef PAPPX
-(**pp -syntax camlp5o -package $(PAPACKAGES) -ppopt -pa_ppx-runtime -ppopt Pa_ppx_runtime_fat *)
+(**pp -syntax camlp5o -package $(PAPACKAGES) *)
 let filemod = "Test_deriving_located_sexp."
 #else
 (**pp -package $(PPXPACKAGES) *)

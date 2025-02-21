@@ -1,6 +1,7 @@
-(**pp -syntax camlp5o -package camlp5 *)
+(**pp -syntax camlp5o -package camlp5,sexplib *)
 
 val input_file : string ref
+val raw_token : Lexing.lexbuf -> Sexplib.Parser.token * Ploc.t
 val token : Lexing.lexbuf -> (string * string) * Ploc.t
 val lexer : (string * string) Plexing.lexer
 val g : Grammar.g

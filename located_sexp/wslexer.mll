@@ -2,4 +2,4 @@
 let ws = [' ' '\t' '\r' '\n']*
 
 rule token = parse
-| ws     { () }
+| ws     { Lexing.lexeme lexbuf; () }

@@ -3,24 +3,28 @@
 
 value input_file = ref "" ;
 
-value token lb =
+value raw_token lb =
   let open Sexplib in
   let buf = Buffer.create 23 in
   let main = Sexplib.Lexer.main ~{buf=buf} in
   let () = Wslexer.token lb in
-  let spos = Lexing.lexeme_start lb in
+  let spos = Lexing.lexeme_end lb in
   let tok = main lb in
+  let epos = Lexing.lexeme_end lb in
+  (tok, Ploc.make_unlined (spos, epos))
+;
+
+value token lb =
+  let (tok,loc) = raw_token lb in
   let tok = match tok with [
-      Parser.STRING s -> ("STRING",s)
+      Sexplib.Parser.STRING s -> ("STRING",s)
     | LPAREN -> ("","(")
     | RPAREN -> ("",")")
     | EOF -> ("EOI","EOI")
     | HASH_SEMI -> ("","#;")
       ]
   in
-
-  let epos = Lexing.lexeme_start lb in
-  (tok, Ploc.make_unlined (spos, epos))
+  (tok, loc)
 ;
 
 value lexer = Plexing.lexer_func_of_ocamllex_located token ;

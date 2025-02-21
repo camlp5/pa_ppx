@@ -93,7 +93,7 @@ and __ocaml_lex_token_rec lexbuf __ocaml_lex_state =
   match Lexing.engine __ocaml_lex_tables __ocaml_lex_state lexbuf with
       | 0 ->
 # 5 "wslexer.mll"
-         ( () )
+         ( Lexing.lexeme lexbuf; () )
 # 98 "wslexer.ml"
 
   | __ocaml_lex_state -> lexbuf.Lexing.refill_buff lexbuf;

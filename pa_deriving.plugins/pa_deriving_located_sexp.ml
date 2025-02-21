@@ -717,8 +717,8 @@ value of_expression arg ~{msg} param_map (ty0, attrs) =
   let rights = List.map (mustRight "of_located_sexp") rights in
 
   let righte = List.fold_right (fun fmtf rhs ->
-    <:expr< try ( $fmtf$ sexp :> $ty0$ ) with [ Failure _ -> $rhs$ ] >>)
-    rights <:expr< failwith $str:msg$ >> in
+    <:expr< try ( $fmtf$ sexp :> $ty0$ ) with [ Ploc.Exc _ _ -> $rhs$ ] >>)
+    rights <:expr< raise (Ploc.Exc (Pa_ppx_located_sexp.Sexp.loc_of_sexp sexp) (Failure $str:msg$)) >> in
 
   let last_branch = (<:patt< sexp >>, <:vala< None >>,
                      righte) in
@@ -735,11 +735,11 @@ value of_expression arg ~{msg} param_map (ty0, attrs) =
       let unmarshexps = List.map2 (fun fmte v -> <:expr< $fmte$ $lid:v$ >>) fmts vars in
       <:expr< ( $list:unmarshexps$ ) >> in
     <:expr< fun [ Pa_ppx_located_sexp.Sexp.List _ $listpat$ -> $unmarshe$
-                | _ -> failwith "wrong number of members in list" ] >>
+                | sexp -> raise (Ploc.Exc (Pa_ppx_located_sexp.Sexp.loc_of_sexp sexp) (Failure "wrong number of members in tuple")) ] >>
 
 | <:ctyp:< { $list:fields$ } >> ->
   let (recpat, body) = fmt_record ~{allow_extra_fields=attrmod.allow_extra_fields} ~{cid=None} loc arg fields in
-  <:expr< fun [ $recpat$ -> $body$ | _ -> failwith $str:msg$ ] >>
+  <:expr< fun [ $recpat$ -> $body$ | sexp -> raise (Ploc.Exc (Pa_ppx_located_sexp.Sexp.loc_of_sexp sexp) (Failure $str:msg$)) ] >>
 
 | [%unmatched_vala] -> failwith "pa_deriving_sexp.of_expression"
 | ty ->
@@ -801,7 +801,7 @@ and fmt_record ~{allow_extra_fields} ~{cid} loc arg fields =
 
   let catch_branch =
     if Ctxt.is_strict arg || not allow_extra_fields then
-      (<:patt< [_ :: _] >>, <:vala< None >>, <:expr< failwith $str:msg$ >>)
+      (<:patt< [hsexp :: _] >>, <:vala< None >>, <:expr< raise (Ploc.Exc (Pa_ppx_located_sexp.Sexp.loc_of_sexp hsexp) (Failure $str:msg$)) >>)
   else
     let varrow = varrow_except (-1, <:expr< . >>) in
     let cons1exp = tupleexpr loc varrow in

@@ -28,6 +28,12 @@ let assert_raises_exc_at loc f =
      | _ -> false)
     f
 
+let assert_conversion_failure convf pos txt =
+  let loc = (Ploc.make_unlined pos) in
+  assert_raises_exc_at loc
+    (fun _ ->
+      txt |> Sexp.of_string |> convf)
+
 module Case_insensitive = struct
   type t =
     | ABC
@@ -37,15 +43,9 @@ module Case_insensitive = struct
     assert_equal ~printer:(fun s -> s) (Sexp.to_string (located_sexp_of_t ABC)) "ABC"
   ; assert_equal ~printer:show ABC (t_of_located_sexp (Pa_sexp.of_string "ABC"))
   ; assert_equal ~printer:show ABC (t_of_located_sexp (Pa_sexp.of_string "aBC"))
-  ; assert_raises_exc_at (Ploc.make_unlined (1,6))
-      (fun _ ->
-        {| (abc) |} |> Sexp.of_string |> t_of_located_sexp)
-  ; assert_raises_exc_at (Ploc.make_unlined (1,4))
-      (fun _ ->
-        {| abc |} |> Sexp.of_string |> t_of_located_sexp)
-  ; assert_raises_exc_at (Ploc.make_unlined (1,3))
-      (fun _ ->
-        {| () |} |> Sexp.of_string |> t_of_located_sexp)
+  ; assert_conversion_failure t_of_located_sexp (1,6) {| (abc) |}
+  ; assert_conversion_failure t_of_located_sexp (1,4) {| abc |}
+  ; assert_conversion_failure t_of_located_sexp (1,3) {| () |}
 end
 
 module Sum_and_polymorphic_variants = struct
@@ -71,6 +71,13 @@ module Sum_and_polymorphic_variants = struct
       ]
   ;;
 
+  let test1b ctxt =
+    assert_conversion_failure poly_of_located_sexp (1,3) {| () |}
+  ; assert_conversion_failure poly_of_located_sexp (1,6) {| Yadda |}
+  ; assert_conversion_failure poly_of_located_sexp (0,9) {|(One_arg)|}
+  ; assert_conversion_failure poly_of_located_sexp (0,14) {|(Two_args 1 a)|}
+  ; assert_conversion_failure poly_of_located_sexp (11,12) {|(Two_args (a 1))|}
+
   type nominal =
     | No_arg
     | One_arg of int
@@ -90,6 +97,10 @@ module Sum_and_polymorphic_variants = struct
       ; (Two_args (1, "a"), "(Two_args 1 a)")
       ]
   ;;
+
+  let test2b ctxt =
+    assert_conversion_failure nominal_of_located_sexp (12,19) {| (One_tuple (1 a b)) |}
+
 end
 
 module Records = struct
@@ -105,6 +116,10 @@ module Records = struct
     assert_equal (t_of_located_sexp sexp) t;
     assert_equal ~printer:Sexp.to_string ~cmp:Sexp.equal (located_sexp_of_t t) sexp
   ;;
+
+  let testb ctxt =
+    assert_conversion_failure t_of_located_sexp (1,2) {| a |}
+  ; assert_conversion_failure t_of_located_sexp (7,12) {| ((a 2)(w 3)) |}
 
 end
 
@@ -817,10 +832,12 @@ module Allow_extra_fields = struct
 end
 
 let suite = "Test_deriving(located_sexp)" >::: [
-      "Sum_and_polymorphic_variants(1)" >:: Sum_and_polymorphic_variants.test1
+      "Sum_and_polymorphic_variants(1b)" >:: Sum_and_polymorphic_variants.test1b
     ; "Case_insensitive" >:: Case_insensitive.test
     ; "Sum_and_polymorphic_variants(2)" >:: Sum_and_polymorphic_variants.test2
+    ; "Sum_and_polymorphic_variants(2b)" >:: Sum_and_polymorphic_variants.test2b
     ; "Records" >:: Records.test
+    ; "Records.b" >:: Records.testb
     ; "Inline_records" >:: Inline_records.test
     ; "User_specified_conversion" >:: User_specified_conversion.test
 #ifndef PAPPX

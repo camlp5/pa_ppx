@@ -1,4 +1,4 @@
-wslexer.cmo sexp0.cmo pa_sexp.cmo sexp.cmo conv.cmo wslexer.cmi sexp0.cmi pa_sexp.cmi sexp.cmi conv.cmi wslexer.cmx sexp0.cmx pa_sexp.cmx sexp.cmx conv.cmx: 
+wslexer.cmo sexp0.cmo pa_sexp.cmo sexp.cmo conv.cmo runtime.cmo wslexer.cmi sexp0.cmi pa_sexp.cmi sexp.cmi conv.cmi runtime.cmi wslexer.cmx sexp0.cmx pa_sexp.cmx sexp.cmx conv.cmx runtime.cmx: 
 wslexer.cmo :
 wslexer.cmx :
 sexp0.cmo : \
@@ -27,6 +27,8 @@ conv.cmo : \
 conv.cmx : \
     sexp.cmx \
     conv.cmi
+runtime.cmo :
+runtime.cmx :
 sexp0.cmi :
 pa_sexp.cmi : \
     sexp0.cmi

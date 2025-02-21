@@ -20,3 +20,6 @@ let of_sexplib_sexp loc e =
 let to_string se = Sexplib.Sexp.to_string (to_sexplib_sexp se)
 let of_string = Pa_sexp.of_string
 let equal a b = Sexplib.Sexp.equal (to_sexplib_sexp a) (to_sexplib_sexp b)
+
+let input_sexp = Pa_sexp.input_sexp
+let load_sexp = Pa_sexp.load_sexp

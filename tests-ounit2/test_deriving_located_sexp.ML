@@ -7,9 +7,10 @@ let filemod = ""
 open Ppx_sexp_conv_lib
 open Conv
 #endif
-open Pa_ppx_located_sexp
 open OUnit2
 #ifdef PAPPX
+open Pa_ppx_base
+open Pa_ppx_located_sexp
 open Pa_ppx_testutils
 #else
 #endif
@@ -20,11 +21,20 @@ Pa_ppx_runtime_fat.Exceptions.Ploc.pp_loc_verbose := true ;;
 (* Module names below are used in error messages being tested. *)
 [@@@warning "-unused-module"]
 
+let eq_loc loc1 loc2 =
+  Ploc.first_pos loc1 = Ploc.first_pos loc2 &&
+  Ploc.last_pos loc1 = Ploc.last_pos loc2
+
 let assert_raises_exc_at loc f =
   Testutil.assert_raises_exn_pred
     (function
        Ploc.Exc(loc',_) as exc ->
-        loc=loc'
+        if not(eq_loc loc loc') then begin
+            Fmt.(pf stderr "Locations didn't match: %a <> %a@."
+                   Pp_MLast.Ploc.pp loc Pp_MLast.Ploc.pp loc') ;
+            false
+          end
+        else true
      | _ -> false)
     f
 

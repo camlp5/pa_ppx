@@ -11,7 +11,7 @@ value raw_token lb =
   let spos = Lexing.lexeme_end lb in
   let tok = main lb in
   let epos = Lexing.lexeme_end lb in
-  (tok, Ploc.make_unlined (spos, epos))
+  (tok, Ploc.make_loc input_file.val 1 0 (spos, epos) "")
 ;
 
 value token lb =
@@ -55,3 +55,26 @@ END;
 
 value parse_sexp_eoi = Grammar.Entry.parse sexp_eoi ;
 value of_string s = s |> Stream.of_string |> parse_sexp_eoi ;
+
+value input_sexp ic =
+  ic |> Stream.of_channel |> Grammar.Entry.parse sexp_eoi
+;
+
+value load_sexp fname =
+  let ic = open_in fname in
+  let old_input_file = input_file.val in
+  try do {
+    input_file.val := fname ;
+    let rv = input_sexp ic
+    in do {
+      close_in ic ;
+      input_file.val := old_input_file ;
+      rv
+    }
+  }
+  with e -> do {
+    close_in ic ;
+    input_file.val := old_input_file ;
+    raise e
+  }
+;

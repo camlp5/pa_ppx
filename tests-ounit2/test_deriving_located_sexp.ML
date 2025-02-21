@@ -17,6 +17,13 @@ open Pa_ppx_testutils
 (* Module names below are used in error messages being tested. *)
 [@@@warning "-unused-module"]
 
+let assert_raises_exc_at loc f =
+  Testutil.assert_raises_exn_pred
+    (function
+       Ploc.Exc(loc',_) -> loc=loc'
+     | _ -> false)
+    f
+
 module Case_insensitive = struct
   type t =
     | ABC
@@ -26,6 +33,15 @@ module Case_insensitive = struct
     assert_equal ~printer:(fun s -> s) (Sexp.to_string (located_sexp_of_t ABC)) "ABC"
   ; assert_equal ~printer:show ABC (t_of_located_sexp (Pa_sexp.of_string "ABC"))
   ; assert_equal ~printer:show ABC (t_of_located_sexp (Pa_sexp.of_string "aBC"))
+  ; assert_raises_exc_at (Ploc.make_unlined (1,6))
+      (fun _ ->
+        {| (abc) |} |> Sexp.of_string |> t_of_located_sexp)
+  ; assert_raises_exc_at (Ploc.make_unlined (1,4))
+      (fun _ ->
+        {| abc |} |> Sexp.of_string |> t_of_located_sexp)
+  ; assert_raises_exc_at (Ploc.make_unlined (1,3))
+      (fun _ ->
+        {| () |} |> Sexp.of_string |> t_of_located_sexp)
 end
 
 module Sum_and_polymorphic_variants = struct

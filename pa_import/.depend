@@ -1,3 +1,3 @@
-pa_import.cmo pa_import.cmi pa_import.cmx: ../local-install/lib/pa_ppx_base/META
-pa_import.cmo :
-pa_import.cmx :
+pa_ppx_import.cmo pa_ppx_import.cmi pa_ppx_import.cmx: ../local-install/lib/pa_ppx_base/META
+pa_ppx_import.cmo :
+pa_ppx_import.cmx :

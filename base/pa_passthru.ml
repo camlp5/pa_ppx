@@ -1053,7 +1053,11 @@ Pcaml.(set_ast_transform transduce_interf) (fun x -> passthru loc_of_interf inte
 value loc_of_top_phrase = fun [ Some si -> loc_of_str_item si | None -> Ploc.dummy ] ;
 Pcaml.(set_ast_transform transduce_top_phrase) (fun x -> passthru loc_of_top_phrase top_phrase (List.rev eflist.val) x);
 
-value loc_of_use_file (l, _) = loc_of_str_item (List.hd l) ;
+value loc_of_use_file (l, _) =
+  match l with [
+    [] -> Ploc.dummy
+  | [h::_] -> loc_of_str_item h
+    ] ;
 Pcaml.(set_ast_transform transduce_use_file) (fun x -> passthru loc_of_use_file use_file (List.rev eflist.val) x);
 
 Pcaml.add_option "-pa_passthru-debug" (Arg.Set debug)

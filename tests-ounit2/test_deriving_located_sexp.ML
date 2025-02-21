@@ -14,13 +14,17 @@ open Pa_ppx_testutils
 #else
 #endif
 
+Pa_ppx_runtime.Exceptions.Ploc.pp_loc_verbose := true ;;
+Pa_ppx_runtime_fat.Exceptions.Ploc.pp_loc_verbose := true ;;
+
 (* Module names below are used in error messages being tested. *)
 [@@@warning "-unused-module"]
 
 let assert_raises_exc_at loc f =
   Testutil.assert_raises_exn_pred
     (function
-       Ploc.Exc(loc',_) -> loc=loc'
+       Ploc.Exc(loc',_) as exc ->
+        loc=loc'
      | _ -> false)
     f
 

@@ -618,10 +618,10 @@ value of_expression arg ~{msg} param_map (ty0, attrs) =
     let allow_extra_fields = None <> extract_allowed_attribute_expr arg ("located_sexp", "allow_extra_fields") (uv attrs) in
     let (recpat, body) = fmt_record ~{allow_extra_fields=allow_extra_fields} ~{cid=Some cid} loc arg fields in
     let recpat_liste = match recpat with [
-          <:patt< Pa_ppx_located_sexp.Sexp.List _ xs >>-> <:patt< xs >>
+          <:patt< Pa_ppx_located_sexp.Sexp.List loc xs >> -> <:patt< xs >>
         | _ -> failwith "internal error handling inline records"
         ] in
-    let conspat = <:patt< Pa_ppx_located_sexp.Sexp.List _ [ Pa_ppx_located_sexp.Sexp.Atom _ $str:jscid$ :: $recpat_liste$ ] >> in
+    let conspat = <:patt< Pa_ppx_located_sexp.Sexp.List loc [ Pa_ppx_located_sexp.Sexp.Atom _ $str:jscid$ :: $recpat_liste$ ] >> in
     (conspat, <:vala< None >>, body)
 
   | <:constructor:< $uid:cid$ of $list:tyl$ $_algattrs:attrs$ >> ->
@@ -775,8 +775,8 @@ and fmt_record ~{allow_extra_fields} ~{cid} loc arg fields =
     let cons1exp = tupleexpr loc l in
     [(<:patt< [ Pa_ppx_located_sexp.Sexp.List _ [ Pa_ppx_located_sexp.Sexp.Atom _ $str:jskey$ ] :: xs] >>, <:vala< None >>,
      <:expr< loop xs $cons1exp$ >>)
-    ;(<:patt< [ Pa_ppx_located_sexp.Sexp.List _ [ Pa_ppx_located_sexp.Sexp.Atom _ $str:jskey$ :: _] :: xs] >>, <:vala< None >>,
-     <:expr< failwith "boolean field with @bool still had a payload" >>)]
+    ;(<:patt< [ Pa_ppx_located_sexp.Sexp.List loc [ Pa_ppx_located_sexp.Sexp.Atom _ $str:jskey$ :: _] :: xs] >>, <:vala< None >>,
+     <:expr< raise (Ploc.Exc loc (Failure "boolean field with @bool still had a payload")) >>)]
 
       | Option ->
     let l = varrow_except (i, <:expr< Result.Ok ( $fmt$ (Pa_ppx_located_sexp.Sexp.List Ploc.dummy $lid:v$) ) >>) in
@@ -834,9 +834,9 @@ and fmt_record ~{allow_extra_fields} ~{cid} loc arg fields =
         ]) labels_vars_fmts_omits_jskeys in
     let tupleinit = tupleexpr loc initexps in
     <:expr< let rec loop xs $tuplevars$ = match xs with [ $list:branches$ ]
-            in match loop xs $tupleinit$ with [ Result.Ok r -> r | Result.Error msg -> failwith msg ] >> in
+            in match loop xs $tupleinit$ with [ Result.Ok r -> r | Result.Error msg -> raise (Ploc.Exc loc (Failure msg)) ] >> in
 
-  (<:patt< Pa_ppx_located_sexp.Sexp.List _ xs >>, e)
+  (<:patt< Pa_ppx_located_sexp.Sexp.List loc xs >>, e)
 
   in
   let ty0 = match ty0 with [

@@ -120,6 +120,7 @@ module Records = struct
   let testb ctxt =
     assert_conversion_failure t_of_located_sexp (1,2) {| a |}
   ; assert_conversion_failure t_of_located_sexp (7,12) {| ((a 2)(w 3)) |}
+  ; assert_conversion_failure t_of_located_sexp (1,8) {| ((a 2)) |}
 
 end
 
@@ -135,8 +136,9 @@ module Inline_records = struct
   let test ctxt =
     let t = A { a = 2; b = Some [ 1., "a"; 2.3, "b" ] } in
     let sexp = Pa_ppx_located_sexp.Sexp.of_string "(A (a 2)(b (((1 a)(2.3 b)))))" in
-    assert_equal (t_of_located_sexp sexp) t;
-    assert_equal ~printer:Sexp.to_string ~cmp:Sexp.equal (located_sexp_of_t t) sexp
+    assert_equal (t_of_located_sexp sexp) t
+  ; assert_equal ~printer:Sexp.to_string ~cmp:Sexp.equal (located_sexp_of_t t) sexp
+  ; assert_conversion_failure t_of_located_sexp (1,11) {| (A (a 2) ) |}
   ;;
 end
 
@@ -682,6 +684,7 @@ module Boolean = struct
   let test3 ctxt =
 #ifdef PAPPX
     Testutil.assert_raises_exn_pattern "boolean field.*payload" (fun _ -> t_of_located_sexp badsexp)
+  ; assert_conversion_failure t_of_located_sexp (1,14) "((no_arg true))"
 #else
   ()
 #endif

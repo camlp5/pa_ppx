@@ -1,4 +1,4 @@
-(**pp -syntax camlp5o -package sexplib,camlp5,pa_ppx.import *)
+(**pp -syntax camlp5o -package sexplib,camlp5,pa_ppx_import *)
 
 [%%import: Sexp0.t]
 

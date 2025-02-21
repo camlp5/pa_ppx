@@ -8,10 +8,10 @@ WD=$(shell pwd)
 DESTDIR=
 RM=rm
 
-PRESYSDIRS= util-lib located_sexp runtime runtime_fat testutils base pa_unmatched_vala \
+PRESYSDIRS= util-lib runtime runtime_fat testutils base pa_unmatched_vala \
 	pa_dock pa_here pa_here_original pa_undo_deriving pa_assert \
 	pa_inline_test pa_expect_test pa_hashrecons \
-	pa_deriving pa_deriving.plugins pa_import
+	pa_deriving pa_deriving.plugins pa_import located_sexp
 
 SYSDIRS= $(PRESYSDIRS) \
 	params_runtime

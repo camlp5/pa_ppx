@@ -11,10 +11,10 @@ RM=rm
 PRESYSDIRS= util-lib runtime runtime_fat testutils base pa_unmatched_vala \
 	pa_dock pa_here pa_here_original pa_undo_deriving pa_assert \
 	pa_inline_test pa_expect_test pa_hashrecons \
-	pa_deriving pa_deriving.plugins pa_import located_sexp
+	pa_deriving pa_deriving.plugins pa_import
 
 SYSDIRS= $(PRESYSDIRS) \
-	params_runtime
+	located_sexp params_runtime
 
 TESTDIRS= tests-ounit2
 

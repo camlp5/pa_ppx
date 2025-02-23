@@ -64,7 +64,7 @@ let test_exceptions ctxt =
 ; assert_equal (Stdlib.Failure "foo") (Failure "foo")
 ; assert_equal ~printer:(fun x -> x) {|(Stdlib.Failure "foo")|} (Exn.show (Stdlib.Failure "foo"))
 ; assert_roundtrip_sexp Exn.show Exn.sexp_of_t Exn.t_of_sexp
-    Not_found "(Stdlib.Not_found)"
+    Not_found "Stdlib.Not_found"
 ; assert_roundtrip_sexp Exn.show Exn.sexp_of_t Exn.t_of_sexp
     (Failure"foo") {|(Stdlib.Failure "foo")|}
 ; assert_roundtrip Exn.pp Exn.to_yojson Exn.of_yojson

@@ -211,7 +211,7 @@ and expr =
     | ExSeq of loc and Ploc.vala (list expr)
     | ExSnd of loc and expr and Ploc.vala string
     | ExSte of loc and Ploc.vala string and expr and Ploc.vala (list expr)
-    | ExStr of loc and Ploc.vala (loc * Ploc.vala string)
+    | ExStr of loc and Ploc.vala string
     | ExTry of loc and expr and Ploc.vala (list case_branch)
     | ExTup of loc and Ploc.vala (list expr)
     | ExTyc of loc and expr and ctyp
@@ -1313,14 +1313,8 @@ and pp_expr : Fmt.t expr =
            let open Pa_ppx_runtime.Runtime.Fmt in
            pf ofmt "(@[<2>MLast.ExStr@ (@,%a,@ %a@,))@]" pp_loc v0
              (Ploc.pp_vala
-                (fun (ofmt : Format.formatter) (v0, v1) →
-                   let open Pa_ppx_runtime.Runtime.Fmt in
-                   pf ofmt "(@[%a,@ %a@])" pp_loc v0
-                     (Ploc.pp_vala
-                        (fun ofmt arg →
-                           let open Pa_ppx_runtime.Runtime.Fmt in
-                           pf ofmt "%S" arg))
-                     v1))
+                (fun ofmt arg →
+                   let open Pa_ppx_runtime.Runtime.Fmt in pf ofmt "%S" arg))
              v1
        | ExTry v0 v1 v2 →
            let open Pa_ppx_runtime.Runtime.Fmt in

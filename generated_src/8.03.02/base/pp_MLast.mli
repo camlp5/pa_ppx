@@ -154,7 +154,7 @@ and expr =
     | ExSeq of loc and Ploc.vala (list expr)
     | ExSnd of loc and expr and Ploc.vala string
     | ExSte of loc and Ploc.vala string and expr and Ploc.vala (list expr)
-    | ExStr of loc and Ploc.vala (loc * Ploc.vala string)
+    | ExStr of loc and Ploc.vala string
     | ExTry of loc and expr and Ploc.vala (list case_branch)
     | ExTup of loc and Ploc.vala (list expr)
     | ExTyc of loc and expr and ctyp

@@ -1,0 +1,3 @@
+pa_ppx_fail.cmo pa_ppx_fail.cmi pa_ppx_fail.cmx: ../local-install/lib/pa_ppx_base/META
+pa_ppx_fail.cmo :
+pa_ppx_fail.cmx :

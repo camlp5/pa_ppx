@@ -63,7 +63,7 @@ test-everything: all
 test: all
 	set -e; for i in $(TESTDIRS); do cd $$i; $(MAKE) test; cd ..; done
 
-make full-bootstrap:
+full-bootstrap:
 	$(MAKE) clean
 	$(MAKE) initialize
 	$(MAKE) presys

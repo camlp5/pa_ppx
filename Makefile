@@ -16,7 +16,7 @@ PRESYSDIRS= util-lib runtime runtime_fat testutils base pa_unmatched_vala \
 SYSDIRS= $(PRESYSDIRS) \
 	located_sexp params_runtime
 
-TESTDIRS= tests-ounit2
+TESTDIRS= tests-ounit2 tests-mdx
 
 EXTRATESTDIRS = our-tests-inline tests-inline tests-expect
 
@@ -62,6 +62,13 @@ test-everything: all
 
 test: all
 	set -e; for i in $(TESTDIRS); do cd $$i; $(MAKE) test; cd ..; done
+
+make full-bootstrap:
+	$(MAKE) clean
+	$(MAKE) initialize
+	$(MAKE) presys
+	$(MAKE) bootstrap
+	$(MAKE) save-generated
 
 bootstrap:
 	$(MAKE) -C runtime bootstrap-exn bootstrap-exn-i

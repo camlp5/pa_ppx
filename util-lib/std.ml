@@ -351,6 +351,12 @@ let rec listrec acc = parser
 | [< >] -> List.rev acc
 in listrec [] strm
 
+let stream_of_list l =
+  let rec listrec = function
+      [] -> [< >]
+    | h::t -> [< 'h ; listrec t >]
+in listrec l
+
 (* [nway_partition P l] partition the list [l] into a list of lists [L],
    such that each value [x] in [L] has the property that for every two
    elements [a],[b] in [x], [P a b] returns [true].

@@ -357,6 +357,18 @@ let stream_of_list l =
     | h::t -> [< 'h ; listrec t >]
 in listrec l
 
+let stream_map f strm =
+  let rec srec = parser
+    [< 't ; strm >] -> [< 'f t ; srec strm >]
+  | [< >] -> [< >]
+  in srec strm
+
+let stream_concat_map f strm =
+  let rec srec = parser
+    [< 't ; strm >] -> [< f t ; srec strm >]
+  | [< >] -> [< >]
+  in srec strm
+
 (* [nway_partition P l] partition the list [l] into a list of lists [L],
    such that each value [x] in [L] has the property that for every two
    elements [a],[b] in [x], [P a b] returns [true].

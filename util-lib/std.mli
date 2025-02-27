@@ -124,6 +124,7 @@ val apply_to_out_channel : (out_channel -> 'a) -> string -> 'a
 val do_option : ('a -> unit) -> 'a option -> unit
 val implode_chars : char list -> string
 val list_of_stream : 'a Stream.t -> 'a list
+val stream_of_list : 'a list -> 'a Stream.t
 val nway_partition : ('a -> 'a -> bool) -> 'a list -> 'a list list
 val read_ic_fully : ?msg:string -> ?channel:in_channel -> unit -> string
 

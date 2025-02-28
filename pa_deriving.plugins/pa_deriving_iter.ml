@@ -94,7 +94,7 @@ value fmt_expression arg ?{coercion} param_map ty0 =
     let var1pats = List.map (fun (v,_) -> <:patt< $lid:v$ >>) vars_fmts in
 
     let flditers = List.map (fun (v1, fmtf) -> <:expr< $fmtf$ $lid:v1$ >>) vars_fmts in
-    let cmpexp = <:expr< do { $list:flditers$ } >> in
+    let cmpexp = if flditers = [] then <:expr< () >> else <:expr< do { $list:flditers$ } >> in
 
     <:expr< fun ( $list:var1pats$ ) -> $cmpexp$ >>
 
@@ -114,7 +114,7 @@ value fmt_expression arg ?{coercion} param_map ty0 =
     let conspat = List.fold_left (fun p vp -> <:patt< $p$ $vp$ >>)
         <:patt< $uid:cid$ >> var1pats in    
     let flditers = List.map (fun (v1, fmtf) -> <:expr< $fmtf$ $lid:v1$ >>) vars_fmts in
-    let cmpexp = <:expr< do { $list:flditers$ } >> in
+    let cmpexp = if flditers = [] then <:expr< () >> else <:expr< do { $list:flditers$ } >> in
 
     (conspat, <:vala< None >>, cmpexp)
 
@@ -136,7 +136,7 @@ value fmt_expression arg ?{coercion} param_map ty0 =
         <:patt< ` $cid$ >> var1pats in
 
     let flditers = List.map (fun (v1, fmtf) -> <:expr< $fmtf$ $lid:v1$ >>) vars_fmts in
-    let cmpexp = <:expr< do { $list:flditers$ } >> in
+    let cmpexp = if flditers = [] then <:expr< () >> else <:expr< do { $list:flditers$ } >> in
 
     (conspat, <:vala< None >>, cmpexp)
 
@@ -166,8 +166,7 @@ value fmt_expression arg ?{coercion} param_map ty0 =
   let v1_pl = List.map (fun (f, v,  _) -> (<:patt< $lid:f$ >>, <:patt< $lid:v$ >>)) labels_vars_fmts in
   let v1pat = <:patt< { $list:v1_pl$ } >> in
   let flditers = List.map (fun (v, v1, fmtf) -> <:expr< $fmtf$ $lid:v1$ >>) labels_vars_fmts in
-  let cmpexp = <:expr< do { $list:flditers$ } >>
-  in
+  let cmpexp = if flditers = [] then <:expr< () >> else <:expr< do { $list:flditers$ } >> in
   (v1pat, cmpexp)
  in fmtrec ?{coercion=coercion} ty0
 ;

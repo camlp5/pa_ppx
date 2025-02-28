@@ -5,6 +5,10 @@
 #endif
 open OUnit2
 
+module T0 = struct
+  type t = A[@@deriving iter]
+end
+
 module T : sig
 
   type 'a btree = Node of 'a btree * 'a * 'a btree | Leaf
@@ -71,6 +75,11 @@ let test_iter_res ctxt =
   assert_bool "set ok" !has_ok;
   iter_res0 (fun _ -> has_ok := false) (Result.Error 'c');
   assert_bool "set ok" !has_ok
+
+module PolyVariant = struct
+  type t = [ `A | `B  of t ] [@@deriving iter]
+
+end
 
 let suite = "Test deriving(iter)" >::: [
   "test_btree" >:: test_btree;

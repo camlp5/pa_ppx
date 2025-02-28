@@ -7,7 +7,19 @@ open Pa_ppx_utils;
 open Asttools;
 open MLast;
 
+value option_map f =
+  fun
+  [ Some x -> Some (f x)
+  | None -> None ]
+;
+
 value uv = Pcaml.unvala ;
+
+value vala_map f =
+    fun
+    [ Ploc.VaAnt s -> Ploc.VaAnt s
+    | Ploc.VaVal x -> Ploc.VaVal (f x) ]
+;
 
 (* borrowed from ounit *)
 value failwithf fmt = Fmt.kstr failwith fmt ;
@@ -206,6 +218,7 @@ value rec subst rho = fun [
   <:ctyp< ' $id$ >> when List.mem_assoc id rho -> List.assoc id rho
 | <:ctyp:< $t1$ $t2$ >> -> <:ctyp< $subst rho t1$ $subst rho t2$ >>
 | <:ctyp:< ( $list:l$ ) >> -> <:ctyp< ( $list:List.map (subst rho) l$ ) >>
+
 | <:ctyp:< [ $list:l$ ] >> ->
   let l = List.map (fun [
       <:constructor:< $uid:s$ of $list:lt$ $rto:ot$ $_algattrs:x$ >> ->
@@ -213,6 +226,15 @@ value rec subst rho = fun [
                      $rto:option_map (subst rho) ot$ $_algattrs:x$ >>
     ]) l in
   <:ctyp< [ $list:l$ ] >>
+
+| <:ctyp:< [= $list:l$ ] >> ->
+  let l = List.map (fun [
+      PvTag loc cid b tyl attrs ->
+      PvTag loc cid b (vala_map (List.map (subst rho)) tyl) attrs
+    | PvInh loc ty -> PvInh loc (subst rho ty)
+    ]) l in
+  <:ctyp< [= $list:l$ ] >>
+
 | <:ctyp:< { $list:l$ } >> ->
   let l = List.map (fun (a,b,c,ty,e) -> (a,b,c, subst rho ty,e)) l in
   <:ctyp< { $list:l$ } >>
@@ -300,18 +322,6 @@ value quote_position loc p =
 ;
 
 value loc_of_type_decl td = fst (uv td.tdNam) ;
-
-value option_map f =
-  fun
-  [ Some x -> Some (f x)
-  | None -> None ]
-;
-
-value vala_map f =
-    fun
-    [ Ploc.VaAnt s -> Ploc.VaAnt s
-    | Ploc.VaVal x -> Ploc.VaVal (f x) ]
-;
 
 module AList = struct
 

@@ -126,7 +126,6 @@ val implode_chars : char list -> string
 val list_of_stream : 'a Stream.t -> 'a list
 val stream_of_list : 'a list -> 'a Stream.t
 val stream_map : ('a -> 'b) -> 'a Stream.t -> 'b Stream.t
-val stream_map : ('a -> 'b) -> 'a Stream.t -> 'b Stream.t
 val stream_concat_map : ('a -> 'b Stream.t) -> 'a Stream.t -> 'b Stream.t
 val nway_partition : ('a -> 'a -> bool) -> 'a list -> 'a list list
 val read_ic_fully : ?msg:string -> ?channel:in_channel -> unit -> string

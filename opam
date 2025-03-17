@@ -50,6 +50,7 @@ depends: [
   "fmt"
   "uint" { >= "2.0.1" }
   "ounit"
+  "mdx" {>= "2.3.0" & with-test}
   "cppo"
   "sexplib" { with-test & >= "v0.14.0" }
   "ppx_import" { with-test & >= "1.7.1"  & <= "1.11.0" }

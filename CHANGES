@@ -5,6 +5,9 @@ pa_ppx Version 0.18
 * [19 Mar 2025] fixup location propagation in multiple places (so
   exceptions carry the correct location)
 
+  Also update to support Camlp5 8.03.02 (with bugfix for raw-strings &
+  quoted-extensions)
+
 * [19 Feb 2025] fix pa_ppx.deriving_plugins.std so that it doesn't
   load CMO files directly for all the derivers; instead it requires
   them, so that other packages that need specific derivers won't

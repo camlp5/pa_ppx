@@ -509,16 +509,15 @@ f.f :=
   | Finally_raised v0 →
       Sexplib0.Sexp.List
         [Sexplib0.Sexp.Atom "Fun.Finally_raised"; sexp_of_t v0]
-  | Undefined → Sexplib0.Sexp.List [Sexplib0.Sexp.Atom "Lazy.Undefined"]
-  | Parse_error →
-      Sexplib0.Sexp.List [Sexplib0.Sexp.Atom "Parsing.Parse_error"]
-  | QueueEmpty → Sexplib0.Sexp.List [Sexplib0.Sexp.Atom "Queue.Empty"]
+  | Undefined → Sexplib0.Sexp.Atom "Lazy.Undefined"
+  | Parse_error → Sexplib0.Sexp.Atom "Parsing.Parse_error"
+  | QueueEmpty → Sexplib0.Sexp.Atom "Queue.Empty"
   | Scan_failure v0 →
       Sexplib0.Sexp.List
         [Sexplib0.Sexp.Atom "Scanf.Scan_failure";
          Sexplib0.Sexp_conv.sexp_of_string v0]
-  | StackEmpty → Sexplib0.Sexp.List [Sexplib0.Sexp.Atom "Stack.Empty"]
-  | Exit → Sexplib0.Sexp.List [Sexplib0.Sexp.Atom "Stdlib.Exit"]
+  | StackEmpty → Sexplib0.Sexp.Atom "Stack.Empty"
+  | Exit → Sexplib0.Sexp.Atom "Stdlib.Exit"
   | Match_failure v0 →
       Sexplib0.Sexp.List
         [Sexplib0.Sexp.Atom "Stdlib.Match_failure";
@@ -545,20 +544,16 @@ f.f :=
       Sexplib0.Sexp.List
         [Sexplib0.Sexp.Atom "Stdlib.Failure";
          Sexplib0.Sexp_conv.sexp_of_string v0]
-  | Not_found → Sexplib0.Sexp.List [Sexplib0.Sexp.Atom "Stdlib.Not_found"]
-  | Out_of_memory →
-      Sexplib0.Sexp.List [Sexplib0.Sexp.Atom "Stdlib.Out_of_memory"]
-  | Stack_overflow →
-      Sexplib0.Sexp.List [Sexplib0.Sexp.Atom "Stdlib.Stack_overflow"]
+  | Not_found → Sexplib0.Sexp.Atom "Stdlib.Not_found"
+  | Out_of_memory → Sexplib0.Sexp.Atom "Stdlib.Out_of_memory"
+  | Stack_overflow → Sexplib0.Sexp.Atom "Stdlib.Stack_overflow"
   | Sys_error v0 →
       Sexplib0.Sexp.List
         [Sexplib0.Sexp.Atom "Stdlib.Sys_error";
          Sexplib0.Sexp_conv.sexp_of_string v0]
-  | End_of_file → Sexplib0.Sexp.List [Sexplib0.Sexp.Atom "Stdlib.End_of_file"]
-  | Division_by_zero →
-      Sexplib0.Sexp.List [Sexplib0.Sexp.Atom "Stdlib.Division_by_zero"]
-  | Sys_blocked_io →
-      Sexplib0.Sexp.List [Sexplib0.Sexp.Atom "Stdlib.Sys_blocked_io"]
+  | End_of_file → Sexplib0.Sexp.Atom "Stdlib.End_of_file"
+  | Division_by_zero → Sexplib0.Sexp.Atom "Stdlib.Division_by_zero"
+  | Sys_blocked_io → Sexplib0.Sexp.Atom "Stdlib.Sys_blocked_io"
   | Undefined_recursive_module v0 →
       Sexplib0.Sexp.List
         [Sexplib0.Sexp.Atom "Stdlib.Undefined_recursive_module";
@@ -568,12 +563,12 @@ f.f :=
                Sexplib0.Sexp_conv.sexp_of_int v1;
                Sexplib0.Sexp_conv.sexp_of_int v2])
            v0]
-  | StreamFailure → Sexplib0.Sexp.List [Sexplib0.Sexp.Atom "Stream.Failure"]
+  | StreamFailure → Sexplib0.Sexp.Atom "Stream.Failure"
   | Error v0 →
       Sexplib0.Sexp.List
         [Sexplib0.Sexp.Atom "Stream.Error";
          Sexplib0.Sexp_conv.sexp_of_string v0]
-  | Break → Sexplib0.Sexp.List [Sexplib0.Sexp.Atom "Sys.Break"]
+  | Break → Sexplib0.Sexp.Atom "Sys.Break"
   | Exc v0 v1 →
       Sexplib0.Sexp.List
         [Sexplib0.Sexp.Atom "Ploc.Exc"; Ploc.sexp_of_t v0; sexp_of_t v1]
@@ -582,21 +577,37 @@ let open M_t_of_sexp in
 let fallback = f.f in
 f.f :=
   fun
-  [ Sexplib0.Sexp.List [Sexplib0.Sexp.Atom "Arg.Help"; v0] →
+  [ Sexplib0.Sexp.List
+      [Sexplib0.Sexp.Atom "Arg.Help" | Sexplib0.Sexp.Atom "arg.Help"; v0] →
       Help (Sexplib0.Sexp_conv.string_of_sexp v0)
-  | Sexplib0.Sexp.List [Sexplib0.Sexp.Atom "Arg.Bad"; v0] →
+  | Sexplib0.Sexp.List
+      [Sexplib0.Sexp.Atom "Arg.Bad" | Sexplib0.Sexp.Atom "arg.Bad"; v0] →
       Bad (Sexplib0.Sexp_conv.string_of_sexp v0)
-  | Sexplib0.Sexp.List [Sexplib0.Sexp.Atom "Fun.Finally_raised"; v0] →
+  | Sexplib0.Sexp.List
+      [Sexplib0.Sexp.Atom "Fun.Finally_raised" |
+       Sexplib0.Sexp.Atom "fun.Finally_raised";
+       v0] →
       Finally_raised (t_of_sexp v0)
-  | Sexplib0.Sexp.List [Sexplib0.Sexp.Atom "Lazy.Undefined"] → Undefined
-  | Sexplib0.Sexp.List [Sexplib0.Sexp.Atom "Parsing.Parse_error"] →
+  | Sexplib0.Sexp.Atom "Lazy.Undefined" |
+    Sexplib0.Sexp.Atom "lazy.Undefined" →
+      Undefined
+  | Sexplib0.Sexp.Atom "Parsing.Parse_error" |
+    Sexplib0.Sexp.Atom "parsing.Parse_error" →
       Parse_error
-  | Sexplib0.Sexp.List [Sexplib0.Sexp.Atom "Queue.Empty"] → QueueEmpty
-  | Sexplib0.Sexp.List [Sexplib0.Sexp.Atom "Scanf.Scan_failure"; v0] →
+  | Sexplib0.Sexp.Atom "Queue.Empty" | Sexplib0.Sexp.Atom "queue.Empty" →
+      QueueEmpty
+  | Sexplib0.Sexp.List
+      [Sexplib0.Sexp.Atom "Scanf.Scan_failure" |
+       Sexplib0.Sexp.Atom "scanf.Scan_failure";
+       v0] →
       Scan_failure (Sexplib0.Sexp_conv.string_of_sexp v0)
-  | Sexplib0.Sexp.List [Sexplib0.Sexp.Atom "Stack.Empty"] → StackEmpty
-  | Sexplib0.Sexp.List [Sexplib0.Sexp.Atom "Stdlib.Exit"] → Exit
-  | Sexplib0.Sexp.List [Sexplib0.Sexp.Atom "Stdlib.Match_failure"; v0] →
+  | Sexplib0.Sexp.Atom "Stack.Empty" | Sexplib0.Sexp.Atom "stack.Empty" →
+      StackEmpty
+  | Sexplib0.Sexp.Atom "Stdlib.Exit" | Sexplib0.Sexp.Atom "stdlib.Exit" → Exit
+  | Sexplib0.Sexp.List
+      [Sexplib0.Sexp.Atom "Stdlib.Match_failure" |
+       Sexplib0.Sexp.Atom "stdlib.Match_failure";
+       v0] →
       Match_failure
         ((fun
           [ Sexplib0.Sexp.List [v0; v1; v2] →
@@ -605,7 +616,10 @@ f.f :=
                Sexplib0.Sexp_conv.int_of_sexp v2)
           | _ → failwith "wrong number of members in list" ])
            v0)
-  | Sexplib0.Sexp.List [Sexplib0.Sexp.Atom "Stdlib.Assert_failure"; v0] →
+  | Sexplib0.Sexp.List
+      [Sexplib0.Sexp.Atom "Stdlib.Assert_failure" |
+       Sexplib0.Sexp.Atom "stdlib.Assert_failure";
+       v0] →
       Assert_failure
         ((fun
           [ Sexplib0.Sexp.List [v0; v1; v2] →
@@ -614,24 +628,43 @@ f.f :=
                Sexplib0.Sexp_conv.int_of_sexp v2)
           | _ → failwith "wrong number of members in list" ])
            v0)
-  | Sexplib0.Sexp.List [Sexplib0.Sexp.Atom "Stdlib.Invalid_argument"; v0] →
+  | Sexplib0.Sexp.List
+      [Sexplib0.Sexp.Atom "Stdlib.Invalid_argument" |
+       Sexplib0.Sexp.Atom "stdlib.Invalid_argument";
+       v0] →
       Invalid_argument (Sexplib0.Sexp_conv.string_of_sexp v0)
-  | Sexplib0.Sexp.List [Sexplib0.Sexp.Atom "Stdlib.Failure"; v0] →
+  | Sexplib0.Sexp.List
+      [Sexplib0.Sexp.Atom "Stdlib.Failure" |
+       Sexplib0.Sexp.Atom "stdlib.Failure";
+       v0] →
       Failure (Sexplib0.Sexp_conv.string_of_sexp v0)
-  | Sexplib0.Sexp.List [Sexplib0.Sexp.Atom "Stdlib.Not_found"] → Not_found
-  | Sexplib0.Sexp.List [Sexplib0.Sexp.Atom "Stdlib.Out_of_memory"] →
+  | Sexplib0.Sexp.Atom "Stdlib.Not_found" |
+    Sexplib0.Sexp.Atom "stdlib.Not_found" →
+      Not_found
+  | Sexplib0.Sexp.Atom "Stdlib.Out_of_memory" |
+    Sexplib0.Sexp.Atom "stdlib.Out_of_memory" →
       Out_of_memory
-  | Sexplib0.Sexp.List [Sexplib0.Sexp.Atom "Stdlib.Stack_overflow"] →
+  | Sexplib0.Sexp.Atom "Stdlib.Stack_overflow" |
+    Sexplib0.Sexp.Atom "stdlib.Stack_overflow" →
       Stack_overflow
-  | Sexplib0.Sexp.List [Sexplib0.Sexp.Atom "Stdlib.Sys_error"; v0] →
+  | Sexplib0.Sexp.List
+      [Sexplib0.Sexp.Atom "Stdlib.Sys_error" |
+       Sexplib0.Sexp.Atom "stdlib.Sys_error";
+       v0] →
       Sys_error (Sexplib0.Sexp_conv.string_of_sexp v0)
-  | Sexplib0.Sexp.List [Sexplib0.Sexp.Atom "Stdlib.End_of_file"] → End_of_file
-  | Sexplib0.Sexp.List [Sexplib0.Sexp.Atom "Stdlib.Division_by_zero"] →
+  | Sexplib0.Sexp.Atom "Stdlib.End_of_file" |
+    Sexplib0.Sexp.Atom "stdlib.End_of_file" →
+      End_of_file
+  | Sexplib0.Sexp.Atom "Stdlib.Division_by_zero" |
+    Sexplib0.Sexp.Atom "stdlib.Division_by_zero" →
       Division_by_zero
-  | Sexplib0.Sexp.List [Sexplib0.Sexp.Atom "Stdlib.Sys_blocked_io"] →
+  | Sexplib0.Sexp.Atom "Stdlib.Sys_blocked_io" |
+    Sexplib0.Sexp.Atom "stdlib.Sys_blocked_io" →
       Sys_blocked_io
   | Sexplib0.Sexp.List
-      [Sexplib0.Sexp.Atom "Stdlib.Undefined_recursive_module"; v0] →
+      [Sexplib0.Sexp.Atom "Stdlib.Undefined_recursive_module" |
+       Sexplib0.Sexp.Atom "stdlib.Undefined_recursive_module";
+       v0] →
       Undefined_recursive_module
         ((fun
           [ Sexplib0.Sexp.List [v0; v1; v2] →
@@ -640,11 +673,17 @@ f.f :=
                Sexplib0.Sexp_conv.int_of_sexp v2)
           | _ → failwith "wrong number of members in list" ])
            v0)
-  | Sexplib0.Sexp.List [Sexplib0.Sexp.Atom "Stream.Failure"] → StreamFailure
-  | Sexplib0.Sexp.List [Sexplib0.Sexp.Atom "Stream.Error"; v0] →
+  | Sexplib0.Sexp.Atom "Stream.Failure" |
+    Sexplib0.Sexp.Atom "stream.Failure" →
+      StreamFailure
+  | Sexplib0.Sexp.List
+      [Sexplib0.Sexp.Atom "Stream.Error" | Sexplib0.Sexp.Atom "stream.Error";
+       v0] →
       Error (Sexplib0.Sexp_conv.string_of_sexp v0)
-  | Sexplib0.Sexp.List [Sexplib0.Sexp.Atom "Sys.Break"] → Break
-  | Sexplib0.Sexp.List [Sexplib0.Sexp.Atom "Ploc.Exc"; v0; v1] →
+  | Sexplib0.Sexp.Atom "Sys.Break" | Sexplib0.Sexp.Atom "sys.Break" → Break
+  | Sexplib0.Sexp.List
+      [Sexplib0.Sexp.Atom "Ploc.Exc" | Sexplib0.Sexp.Atom "ploc.Exc"; v0;
+       v1] →
       Exc (Ploc.t_of_sexp v0) (t_of_sexp v1)
   | z → fallback z ];
 let open M_pp in

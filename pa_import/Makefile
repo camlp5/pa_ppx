@@ -1,7 +1,11 @@
 # Makefile,v
 # Copyright (c) INRIA 2007-2017
 
+ifeq ($(OS),Windows_NT)
+WD=$(shell cygpath --absolute --windows .)
+else
 WD=$(shell pwd)
+endif
 TOP=..
 include $(TOP)/config/Makefile.sub
 

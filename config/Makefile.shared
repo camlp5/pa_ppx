@@ -8,10 +8,11 @@ RM=rm
 
 DEBUG=-g
 NOT_OCAMLFIND=not-ocamlfind
-LAUNCH=env TOP=$(TOP) ocamlfind camlp5-buildscripts/LAUNCH $(DEBUG_LAUNCH) --
+EXE:=$(shell ocamlc -config-var ext_exe)
+LAUNCH=env TOP=$(TOP) ocamlfind camlp5-buildscripts/LAUNCH$(EXE) $(DEBUG_LAUNCH) --
 OCAMLFIND=ocamlfind
-JOINMETA=ocamlfind camlp5-buildscripts/join_meta
-YAWRAP=ocamlfind camlp5-buildscripts/ya-wrap-ocamlfind
+JOINMETA=ocamlfind camlp5-buildscripts/join_meta$(EXE)
+YAWRAP=ocamlfind camlp5-buildscripts/ya-wrap-ocamlfind$(EXE)
 OCAMLTOPLEVEL=ocaml
 CAMLP5LIB=$(shell $(OCAMLFIND) query camlp5)
 MKCAMLP5=mkcamlp5 -verbose -I +dynlink

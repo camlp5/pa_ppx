@@ -37,7 +37,7 @@ PAPACKAGES:=$(PAPACKAGES),$(PACKAGEPREFIX)located_sexp
 PAPACKAGES:=$(PAPACKAGES),$(PACKAGEPREFIX)hashrecons
 export PAPACKAGES:=$(PAPACKAGES),$(PACKAGEPREFIX)testutils
 
-ALLSRC=$(shell ls *.pappx.ml hCPassthru.ml test_passthru_hashrecons.ml test_import_camlp5.ml test_import0.ml test_self_import.ml test_self_import.mli)
+ALLSRC=$(shell ls *.pappx.ml hCPassthru.ml test_passthru_hashrecons.ml test_import_camlp5.ml test_import0.ml test_located_sexp.ml test_self_import.ml test_self_import.mli)
 ALLPACKAGES = $(PACKAGES),$(PAPACKAGES),$(PPXPACKAGES)
 
 ML=papr_util.ml hCPassthru.ml
@@ -69,6 +69,7 @@ TESTS= \
 	test_here_original.byte \
 	test_here.ppx.byte \
 	test_import0.byte \
+	test_located_sexp.byte \
 	test_import_camlp5.byte \
 	test_ppx_import.byte \
 	test_ppx_import.ppx.byte \
@@ -130,6 +131,10 @@ test_here_original.ml: test_here.ml
 test_import0.cmo: stuff.cmo test_self_import.cmi
 test_import0.byte: test_import0.cmo
 	$(LAUNCH) $(OCAMLFIND) ocamlc $(DEBUG) $(WARNERR) -package $(PACKAGES),$(PACKAGEPREFIX)deriving_plugins.show,$(PACKAGEPREFIX)import,camlp5.pr_o,$(PACKAGEPREFIX)testutils \
+	-linkall -linkpkg -syntax camlp5o $< -o $@
+
+test_located_sexp.byte: test_located_sexp.cmo
+	$(LAUNCH) $(OCAMLFIND) ocamlc $(DEBUG) $(WARNERR) -package $(PACKAGES),$(PACKAGEPREFIX)runtime,$(PACKAGEPREFIX)runtime_fat,$(PACKAGEPREFIX)located_sexp,camlp5.pr_o,$(PACKAGEPREFIX)testutils \
 	-linkall -linkpkg -syntax camlp5o $< -o $@
 
 test_import_camlp5.cmo: stuff.cmo test_self_import.cmi

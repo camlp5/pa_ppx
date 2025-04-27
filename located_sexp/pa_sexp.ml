@@ -35,21 +35,27 @@ value lexer = {Plexing.tok_func = lexer;
  Plexing.tok_comm = None ; Plexing.kwds = Hashtbl.create 23 } ;
 
 value g = Grammar.gcreate lexer;
+(*
+value sexp = Grammar.Entry.create g "sexp";
+ *)
 value sexp_eoi = Grammar.Entry.create g "sexp_eoi";
-
+(*
+value sexp_comment = Grammar.Entry.create g "sexp_comment";
+value sexp_then_comments = Grammar.Entry.create g "sexp_then_comments";
+ *)
 EXTEND
-  GLOBAL: sexp_eoi;
+  GLOBAL: sexp_eoi (* sexp sexp_comment sexp_then_comments *);
 
   sexp: [
     [ s = STRING -> Sexp0.Atom loc s
-    | "(" ; ")" -> Sexp0.List loc []
-    | "(" ; l = LIST0 sexp ; ")" -> Sexp0.List loc l
-    | "#;" ; _ = sexp ; e = sexp -> e
+    | "(" ; OPT sexp_comment ; ")" -> Sexp0.List loc []
+    | "(" ; OPT sexp_comment ; l = LIST1 sexp_then_comments ; ")" -> Sexp0.List loc l
     ]
   ]
   ;
-
-  sexp_eoi: [ [ x = sexp; EOI -> x ] ];
+  sexp_then_comments: [ [ e = sexp ; LIST0 sexp_comment -> e ] ] ;
+  sexp_comment: [ [ "#;" ; _ = sexp -> () ] ] ;
+  sexp_eoi: [ [ OPT sexp_comment ; x = sexp_then_comments ; EOI -> x ] ];
 
 END;
 

@@ -5,16 +5,14 @@ module Pa_ppx_runtime = Pa_ppx_runtime_fat
 open Pa_ppx_runtime
 
 type json =
-  [ `Assoc of (string * json) list
-  | `Bool of bool
-  | `Float of float
-  | `Int of int
-  | `Intlit of string
-  | `List of json list
-  | `Null
-  | `String of string
-  | `Tuple of json list
-  | `Variant of string * json option ]
+        [ `Assoc of (string * json) list
+        | `Bool of bool
+        | `Float of float
+        | `Int of int
+        | `Intlit of string
+        | `List of json list
+        | `Null
+        | `String of string ]
   [@@deriving show]
 
 let show_error_or =

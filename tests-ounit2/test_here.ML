@@ -12,8 +12,8 @@ type position = [%import: Lexing.position] [@@deriving show]
 let test_simplest ctxt =
 #ifdef PAPPX
 let pos = {
-    Lexing.pos_fname = "test_here.ml.pappx.ml";
-    pos_lnum = 6;
+    Lexing.pos_fname = "test_here.ML";
+    pos_lnum = 8;
     pos_cnum = 180;
     pos_bol = 169
   } in

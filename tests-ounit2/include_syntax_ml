@@ -69,10 +69,8 @@ Pa_ppx_base.Pa_passthru.debug := true;;
 
 #require "pa_ppx_runtime_fat";;
 #require "sexplib";;
-#load "test_foo.cmo";;
 
 open Sexplib ;;
-open Test_foo.Omit_nil ;;
 
 (*
 ;;; Local Variables: ***

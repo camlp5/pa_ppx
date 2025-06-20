@@ -1,4 +1,16 @@
 
+pa_ppx Version 0.19
+-------------------
+
+* [20 Jun 2025] small changes to tests
+
+  * update some tests so they are compat with new camlp5 8.03.05
+    which fixed line directives so they work (the tests assumed
+    those did not)
+
+  * new yojson changed definition of Yojson.Safe.t, which affected
+    some tests
+
 pa_ppx Version 0.18
 -------------------
 

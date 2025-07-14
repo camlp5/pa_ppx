@@ -2,7 +2,7 @@ Implementation of PPX rewriters using camlp5 infrastructure.
 
 # Version
 
-This is ``pa_ppx`` version 0.16.
+This is ``pa_ppx`` version 0.20.
 
 # Overview
 

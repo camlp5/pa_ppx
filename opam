@@ -1,4 +1,4 @@
-version: "0.19"
+version: "0.20"
 synopsis: "PPX Rewriters for Ocaml, written using Camlp5"
 description:
 """
@@ -40,7 +40,7 @@ depends: [
   "ocaml"       { >= "4.10.0" & < "5.4.0" }
   "conf-perl"
   "camlp5-buildscripts" { >= "0.03" }
-  "camlp5"      { >= "8.03.05" }
+  "camlp5"      { >= "8.03.06" }
   "not-ocamlfind" { >= "0.10" }
   "pcre2"
   "result" { >= "1.5" }

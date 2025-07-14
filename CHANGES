@@ -1,4 +1,12 @@
 
+pa_ppx Version 0.20
+-------------------
+
+* [13 Jul 2025] update source to be compat with new camlp5 8.03.06
+
+  * the way that Camlp5's `Pp_debug` interfaces with generated pretty-printers has changed,
+    and so this release updates to be compatible with that.
+
 pa_ppx Version 0.19
 -------------------
 

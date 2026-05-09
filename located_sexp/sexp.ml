@@ -1,6 +1,15 @@
-(**pp -syntax camlp5o -package sexplib,pa_ppx_import *)
+(**pp -syntax camlp5o -package sexplib,pa_ppx_import,pa_ppx_deriving_plugins.std *)
 
-[%%import: Sexp0.t]
+[%%import: Sexp0.t
+ [@with Ploc.t := Pa_ppx_base.Pp_MLast.Ploc.t]
+][@@deriving show,eq]
+
+module ErasingLoc = struct
+type ploc_t = Pa_ppx_base.Pp_MLast.Ploc.t[@equal fun x y -> true][@@deriving show,eq]
+[%%import: Sexp0.t
+ [@with Ploc.t := ploc_t]
+][@@deriving show,eq]
+end
 
 let loc_of_sexp = Sexp0.loc_of_sexp
 let to_sexplib_sexp e =
@@ -19,7 +28,6 @@ let of_sexplib_sexp loc e =
 
 let to_string se = Sexplib.Sexp.to_string (to_sexplib_sexp se)
 let of_string = Pa_sexp.of_string
-let equal a b = Sexplib.Sexp.equal (to_sexplib_sexp a) (to_sexplib_sexp b)
 
 let input_sexp = Pa_sexp.input_sexp
 let load_sexp = Pa_sexp.load_sexp

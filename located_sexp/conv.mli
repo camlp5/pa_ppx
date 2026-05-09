@@ -27,3 +27,6 @@ val sexp_of_string : Ploc.t -> string -> Sexp.t
 
 val float_of_sexp : Sexp.t -> float
 val sexp_of_float : Ploc.t -> float -> Sexp.t
+
+val bool_of_sexp : Sexp.t -> bool
+val sexp_of_bool : Ploc.t -> bool -> Sexp.t

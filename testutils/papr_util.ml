@@ -40,6 +40,9 @@ value pr l = do {
     Buffer.contents b
 }
 ;
+value to_official x =
+  x |> List.map fst |> Ast2pt.implem "<stdin>";
+
 end;
 
 module Interf = struct
@@ -66,6 +69,9 @@ value pr l = do {
     Buffer.contents b
 }
 ;
+value to_official x =
+  x |> List.map fst |> Ast2pt.interf "<stdin>";
+
 end;
 value both_pa1 = (Implem.pa1, Interf.pa1) ;
 value both_pr = (Implem.pr, Interf.pr) ;

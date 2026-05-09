@@ -234,10 +234,15 @@ value generate_param_parser_expression arg ty =
 
 
   | <:ctyp:< ( $list:l$ ) >> as z ->
-    let vars_types = List.mapi (fun i ty -> (Printf.sprintf "v_%d" i, ty)) l in
-    let varantis = List.map (fun (v, _) -> Printf.sprintf "$%s$" v) vars_types in
+    let labs_vars_types = List.mapi (fun i (lab, ty) -> (lab, Printf.sprintf "v_%d" i, ty)) l in
+    let varantis = List.map (fun (_, v, _) -> Printf.sprintf "$%s$" v) labs_vars_types in
     let tuplepatt = expr_as_patt loc (Printf.sprintf "(%s)" (String.concat ", " varantis)) in
-    let l = List.map (fun (v, t) -> <:expr< $genrec t$ $lid:v$ >>) vars_types in
+    let l = List.map (fun (lab, v, t) ->
+                match uv lab with [
+                    None -> <:expr< $genrec t$ $lid:v$ >>
+                  | Some <:vala< lab >> -> <:expr< ~{$lid:lab$ = $genrec t$ $lid:v$} >>
+                  ]
+              ) labs_vars_types in
     <:expr< fun [
                   $tuplepatt$ -> ( $list:l$ )
                 | e -> Ploc.raise (loc_of_expr e)

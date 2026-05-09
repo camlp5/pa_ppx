@@ -13,7 +13,7 @@ Arg.(parse [
 ;;
 
 Fmt.(pf stdout {|# Sexp with locations (to help debug sexp deriver input errors)"
-requires = "sexplib"
+requires = "sexplib,pa_ppx_base"
 version = "%s"
 description = "Sexp with locations"
 

@@ -7,7 +7,7 @@ include $(TOP)/config/Makefile.sub
 
 DESTDIR=
 
-PACKAGES := $(PACKAGES)
+PACKAGES := $(PACKAGES),pa_ppx_base
 TARGET_PACKAGE=pa_ppx_located_sexp
 TARGET=$(TARGET_PACKAGE).cma
 ML = wslexer.ml sexp0.ml pa_sexp.ml sexp.ml conv.ml runtime.ml

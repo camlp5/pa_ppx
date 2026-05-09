@@ -269,7 +269,7 @@ and ctyp0 arg =
                 (generic_constructor arg))
              x1)
     | TyTup loc x1 →
-        TyTup loc (vala_map (List.map self) x1)
+        TyTup loc (vala_map (List.map (fun (l, ct) -> (l, self ct))) x1)
       | TyVrn loc x1 x2 →
         TyVrn loc (vala_map (List.map (poly_variant arg)) x1) x2
     | TyXtr loc x1 x2 →
@@ -331,12 +331,8 @@ and patt0 arg =
         PaFlo loc x1
     | PaInt loc x1 x2 →
         PaInt loc x1 x2
-    | PaLab loc x1 →
-        PaLab loc
-          (vala_map
-             (List.map
-                (fun (x1, x2) → (self x1, vala_map (option_map self) x2)))
-             x1)
+    | PaLab loc x1 x2 →
+        PaLab loc (self x1) (vala_map (option_map self) x2)
     | PaLaz loc x1 →
         PaLaz loc (self x1)
     | PaLid loc x1 →
@@ -353,8 +349,8 @@ and patt0 arg =
         PaRng loc (self x1) (self x2)
     | PaStr loc x1 →
         PaStr loc x1
-    | PaTup loc x1 →
-        PaTup loc (vala_map (List.map self) x1)
+    | PaTup loc x1 x2 →
+        PaTup loc (vala_map (List.map self) x1) x2
     | PaTyc loc x1 x2 →
         PaTyc loc (self x1) (ctyp arg x2)
     | PaTyp loc x1 →
@@ -418,13 +414,8 @@ and expr0 arg =
         ExIfe loc (self x1) (self x2) (self x3)
     | ExInt loc x1 x2 →
         ExInt loc x1 x2
-    | ExLab loc x1 →
-        ExLab loc
-          (vala_map
-             (List.map
-                (fun (x1, x2) →
-                   (patt arg x1, vala_map (option_map self) x2)))
-             x1)
+    | ExLab loc x1 x2 →
+        ExLab loc (patt arg x1) (vala_map (option_map self) x2)
     | ExLaz loc x1 →
         ExLaz loc (self x1)
     | ExLet loc x1 x2 x3 →

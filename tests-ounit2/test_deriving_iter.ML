@@ -81,6 +81,10 @@ module PolyVariant = struct
 
 end
 
+#ifdef PAPPX
+type 'a lt = A | B of (a: 'a * b: int) list[@@deriving iter]
+#endif
+
 let suite = "Test deriving(iter)" >::: [
   "test_btree" >:: test_btree;
   "test_record" >:: test_record;

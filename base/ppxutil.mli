@@ -46,6 +46,8 @@ module Ctyp :
     value unapplist : MLast.ctyp → (MLast.ctyp * list MLast.ctyp);
     value tuple : MLast.loc -> list MLast.ctyp -> MLast.ctyp ;
 
+    value labeled_tuple : MLast.loc -> list (Ploc.vala (option (Ploc.vala string)) * MLast.ctyp) -> MLast.ctyp ;
+
     type rho = Env.t MLast.ctyp ;
     value subst : rho -> MLast.ctyp -> MLast.ctyp;
   end

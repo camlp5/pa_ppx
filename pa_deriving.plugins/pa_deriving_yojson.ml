@@ -175,7 +175,7 @@ value to_expression arg ?{coercion} ~{msg} param_map ty0 =
     assert (List.length tyl <= 1) ;
     let tyl = match tyl with [
       [] -> []
-    | [<:ctyp< ( $list:l$ ) >>] -> l
+    | [<:ctyp< ( $list:l$ ) >>] -> List.map snd l
     | [t] -> [t]
     | [_::_] -> assert False ] in
     let vars = List.mapi (fun n _ -> Printf.sprintf "v%d" n) tyl in
@@ -206,7 +206,7 @@ value to_expression arg ?{coercion} ~{msg} param_map ty0 =
 
 | <:ctyp:< ( $list:tyl$ ) >> ->
     let vars = List.mapi (fun n _ -> Printf.sprintf "v%d" n) tyl in
-    let fmts = List.map fmtrec tyl in
+    let fmts = List.map fmtrec (List.map snd tyl) in
     let liste = List.fold_right2 (fun f v liste -> <:expr< [$f$ $lid:v$ :: $liste$] >>)
         fmts vars <:expr< [] >> in
     let varpats = List.map (fun v -> <:patt< $lid:v$ >>) vars in
@@ -541,7 +541,7 @@ value of_expression arg ~{msg} param_map ty0 =
     assert (List.length tyl <= 1) ;
     let tyl = match tyl with [
       [] -> []
-    | [<:ctyp< ( $list:l$ ) >>] -> l
+    | [<:ctyp< ( $list:l$ ) >>] -> List.map snd l
     | [t] -> [t]
     | [_::_] -> assert False ] in
     let vars = List.mapi (fun n _ -> Printf.sprintf "v%d" n) tyl in
@@ -590,7 +590,7 @@ value of_expression arg ~{msg} param_map ty0 =
     let varexps = List.map (fun v -> <:expr< $lid:v$ >>) vars in
     let tuplevars = tupleexpr loc varexps in
     let consexp = <:expr< Result.Ok $tuplevars$ >> in
-    let fmts = List.map (fmtrec ~{msg=msg}) tyl in
+    let fmts = List.map (fmtrec ~{msg=msg}) (List.map snd tyl) in
     let unmarshe = List.fold_right2 (fun fmte v rhs ->
         <:expr< Rresult.R.bind ($fmte$ $lid:v$) (fun $lid:v$ -> $rhs$) >>) fmts vars consexp in
     <:expr< fun [ `List $listpat$ -> $unmarshe$

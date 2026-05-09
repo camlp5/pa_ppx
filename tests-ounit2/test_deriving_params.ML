@@ -855,6 +855,12 @@ value test_a22 ctxt =
 }
 ;
 
+type a23 = (a:int * int * int * lident)[@@deriving (params, eq);] ;
+
+value test_a23 ctxt =
+  assert_equal ({foo| (1,2,3,foo) |foo} |> parse_expr |> params_a23) (~{a=1},2,3,"foo")
+;
+
 value suite = "Test deriving(params)" >::: [
     "test_simple"           >:: test_simple
   ; "test_errors"           >:: test_errors
@@ -874,6 +880,7 @@ value suite = "Test deriving(params)" >::: [
   ; "test_a20"              >:: test_a20
   ; "test_a21"              >:: test_a21
   ; "test_a22"              >:: test_a22
+  ; "test_a23"              >:: test_a23
   ]
 ;
 

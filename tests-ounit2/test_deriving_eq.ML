@@ -43,6 +43,13 @@ let test_ref1 ctxt =
 let test_ref2 ctxt =
   assert_equal ~printer true (equal_r2 (ref 0) (ref 0))
 
+#ifdef PAPPX
+type lt = (a:int * b:bool)        [@@deriving eq]
+
+let test_labeled_tuple ctxt =
+  assert_equal  ~printer true (equal_lt (~a:5, ~b:false) (~a:5, ~b:false))
+#endif
+
 type v = Foo | Bar of int * string | Baz of string [@@deriving eq]
 
 type rv = RFoo | RBar of { x: int; y: string; } [@@deriving eq]
@@ -164,6 +171,9 @@ let suite = "Test deriving(eq)" >::: [
     "test_poly_app"      >:: test_poly_app;
     "test_result"        >:: test_result;
     "test_result_result" >:: test_result_result;
+#ifdef PAPPX
+    "test_labeled_tuple"   >:: test_labeled_tuple;
+#endif
   ]
 
 #ifdef PAPPX

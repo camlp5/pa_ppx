@@ -94,7 +94,7 @@ and ctyp0 arg =
                 (generic_constructor arg))
              x1)[@hashrecons z;]
     | TyTup loc x1[@hashrecons z;] →
-        TyTup loc (vala_map (List.map self) x1)[@hashrecons z;]
+        TyTup loc (vala_map (List.map (fun (l,ct) -> (l, self ct))) x1)[@hashrecons z;]
       | TyVrn loc x1 x2[@hashrecons z;] →
         TyVrn loc (vala_map (List.map (poly_variant arg)) x1) x2[@hashrecons z;]
     | TyXtr loc x1 x2[@hashrecons z;] →
@@ -156,12 +156,9 @@ and patt0 arg =
         PaFlo loc x1[@hashrecons z;]
     | PaInt loc x1 x2[@hashrecons z;] →
         PaInt loc x1 x2[@hashrecons z;]
-    | PaLab loc x1[@hashrecons z;] →
+    | PaLab loc x1 x2[@hashrecons z;] →
         PaLab loc
-          (vala_map
-             (List.map
-                (fun (x1, x2)[@hashrecons z;] → (self x1, vala_map (option_map self) x2)[@hashrecons z;]))
-             x1)[@hashrecons z;]
+       (self x1) (vala_map (option_map self) x2)[@hashrecons z;]
     | PaLaz loc x1[@hashrecons z;] →
         PaLaz loc (self x1)[@hashrecons z;]
     | PaLid loc x1[@hashrecons z;] →
@@ -179,8 +176,8 @@ and patt0 arg =
         PaRng loc (self x1) (self x2)[@hashrecons z;]
     | PaStr loc x1[@hashrecons z;] →
         PaStr loc x1[@hashrecons z;]
-    | PaTup loc x1[@hashrecons z;] →
-        PaTup loc (vala_map (List.map self) x1)[@hashrecons z;]
+    | PaTup loc x1 x2[@hashrecons z;] →
+        PaTup loc (vala_map (List.map self) x1) x2[@hashrecons z;]
     | PaTyc loc x1 x2 [@hashrecons z;] →
         PaTyc loc (self x1) (ctyp arg x2)[@hashrecons z;]
     | PaTyp loc x1[@hashrecons z;] →
@@ -244,13 +241,9 @@ and expr0 arg =
         ExIfe loc (self x1) (self x2) (self x3)[@hashrecons z;]
     | (ExInt loc x1 x2)[@hashrecons z;] →
         (ExInt loc x1 x2)[@hashrecons z;]
-    | ExLab loc x1[@hashrecons z;] →
+    | ExLab loc x1 x2[@hashrecons z;] →
         ExLab loc
-          (vala_map
-             (List.map
-                (fun (x1, x2) →
-                   (patt arg x1, vala_map (option_map self) x2)))
-             x1)[@hashrecons z;]
+        (patt arg x1) (vala_map (option_map self) x2)[@hashrecons z;]
     | ExLaz loc x1[@hashrecons z;] →
         ExLaz loc (self x1)[@hashrecons z;]
     | ExLet loc x1 x2 x3[@hashrecons z;] →

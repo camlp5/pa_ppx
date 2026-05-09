@@ -217,7 +217,7 @@ type rho = Env.t MLast.ctyp ;
 value rec subst rho = fun [
   <:ctyp< ' $id$ >> when List.mem_assoc id rho -> List.assoc id rho
 | <:ctyp:< $t1$ $t2$ >> -> <:ctyp< $subst rho t1$ $subst rho t2$ >>
-| <:ctyp:< ( $list:l$ ) >> -> <:ctyp< ( $list:List.map (subst rho) l$ ) >>
+| <:ctyp:< ( $list:l$ ) >> -> <:ctyp< ( $list:List.map (subst_tuple rho) l$ ) >>
 
 | <:ctyp:< [ $list:l$ ] >> ->
   let l = List.map (fun [
@@ -244,8 +244,15 @@ value rec subst rho = fun [
 | <:ctyp:< $t1$ -> $t2$ >> -> <:ctyp< $subst rho t1$ -> $subst rho t2$ >>
 | z -> Ploc.raise (loc_of_ctyp z) (Failure Fmt.(str "Ctyp.subst: unhandled type: %a\n%!" Pp_MLast.pp_ctyp z))
 ]
+and subst_tuple rho (l,ct) = (l, subst rho ct)
 ;
-value tuple loc l = if List.length l = 1 then List.hd l else <:ctyp< ( $list:l$ ) >> ;
+value labeled_tuple loc l = <:ctyp< ( $list:l$ ) >> ;
+value tuple loc l =
+  if List.length l = 1 then
+    List.hd l
+  else
+    let l = List.map (fun ct -> (<:vala< None >>, ct)) l in
+    <:ctyp< ( $list:l$ ) >> ;
 end ;
 
 module Longid = struct

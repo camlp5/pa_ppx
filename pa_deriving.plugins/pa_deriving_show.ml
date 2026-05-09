@@ -73,7 +73,7 @@ value fmt_expression arg ?{coercion} param_map ty0 =
 | <:ctyp:< _ >> -> <:expr< let open $runtime_module$.Fmt in (const string "_") >>
 | <:ctyp:< unit >> -> <:expr< fun ofmt arg -> let open $runtime_module$.Fmt in (pf ofmt "()") >>
 | <:ctyp:< int >> -> <:expr< fun ofmt arg -> let open $runtime_module$.Fmt in (pf ofmt "%d" arg) >>
-| <:ctyp:< bool >> -> <:expr<  Fmt.bool >>
+| <:ctyp:< bool >> -> <:expr< let open $runtime_module$ in Fmt.bool >>
 | <:ctyp:< int32 >> | <:ctyp:< Int32.t >> -> <:expr< fun ofmt arg -> let open $runtime_module$.Fmt in (pf ofmt "%ldl" arg) >>
 | <:ctyp:< int64 >> | <:ctyp:< Int64.t >> -> <:expr< fun ofmt arg -> let open $runtime_module$.Fmt in (pf ofmt "%LdL" arg) >>
 | (<:ctyp:< string >> | <:ctyp:< Stdlib.String.t >> | <:ctyp:< String.t >>) ->
@@ -146,13 +146,26 @@ value fmt_expression arg ?{coercion} param_map ty0 =
 | <:ctyp:< $_$ -> $_$ >> -> <:expr< let open $runtime_module$.Fmt in (const string "<fun>") >>
 
 | <:ctyp:< ( $list:tyl$ ) >> ->
-    let vars = List.mapi (fun n _ -> Printf.sprintf "v%d" n) tyl in
-    let fmts = List.map fmtrec tyl in
+    let labs_vars = List.mapi (fun n (lab,_) -> (lab, Printf.sprintf "v%d" n)) tyl in
+    let fmtrec_tuple (lab, ty) =
+      match lab with [
+          <:vala< None >> -> fmtrec ty
+        | <:vala< Some lab >> ->
+           let lab = uv lab in
+           let fmts = lab^":%a" in
+           <:expr< (fun ofmt arg -> let open $runtime_module$.Fmt in (pf ofmt $str:fmts$ $fmtrec ty$ arg)) >>
+        ] in
+    let fmts = List.map fmtrec_tuple tyl in
     let fmtstring = Printf.sprintf "(@[%s@])"
-        (String.concat ",@ " (List.map (fun _ -> "%a") vars)) in
-    let e = List.fold_left2 (fun e f v -> <:expr< $e$ $f$ $lid:v$ >>)
-        <:expr< pf ofmt $str:fmtstring$ >> fmts vars in
-    let varpats = List.map (fun v -> <:patt< $lid:v$ >>) vars in
+        (String.concat ",@ " (List.map (fun _ -> "%a") labs_vars)) in
+    let e = List.fold_left2 (fun e f (_, v) -> <:expr< $e$ $f$ $lid:v$ >>)
+        <:expr< pf ofmt $str:fmtstring$ >> fmts labs_vars in
+    let varpats = List.map (fun (lab, v) ->
+                      match uv lab with [
+                          None -> <:patt< $lid:v$ >>
+                        | Some <:vala< lab >> -> <:patt< ~ { $lid:lab$ =  $lid:v$ } >>
+                        ]
+                    ) labs_vars in
     <:expr< fun (ofmt : Format.formatter) ($list:varpats$) -> let open $runtime_module$.Fmt in ($e$) >>
 
 | <:ctyp:< [ $list:l$ ] >> ->

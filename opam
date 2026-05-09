@@ -1,4 +1,4 @@
-version: "0.20"
+version: "8.04.01"
 synopsis: "PPX Rewriters for Ocaml, written using Camlp5"
 description:
 """
@@ -37,10 +37,10 @@ doc: "https://github.com/camlp5/pa_ppx/doc"
 x-ci-accept-failures: [ "opensuse-tumbleweed" ]
 
 depends: [
-  "ocaml"       { >= "4.10.0" & < "5.4.0" }
+  "ocaml"       { >= "4.10.0" & < "5.5.0" }
   "conf-perl"
   "camlp5-buildscripts" { >= "0.03" }
-  "camlp5"      { >= "8.03.06" }
+  "camlp5"      { >= "8.04.01" }
   "not-ocamlfind" { >= "0.10" }
   "pcre2"
   "result" { >= "1.5" }

@@ -44,6 +44,7 @@ ML=papr_util.ml hCPassthru.ml
 
 TESTS= \
 	test_utils.byte \
+	test_located_sexp.byte \
 	test_ppx_deriving.byte \
 	test_ppx_deriving.ppx.byte \
 	test_deriving_show.byte \
@@ -69,7 +70,6 @@ TESTS= \
 	test_here_original.byte \
 	test_here.ppx.byte \
 	test_import0.byte \
-	test_located_sexp.byte \
 	test_import_camlp5.byte \
 	test_ppx_import.byte \
 	test_ppx_import.ppx.byte \
@@ -139,6 +139,11 @@ test_located_sexp.byte: test_located_sexp.cmo
 
 test_import_camlp5.cmo: stuff.cmo test_self_import.cmi
 test_import_camlp5.byte: test_import_camlp5.cmo
+	$(LAUNCH) $(OCAMLFIND) ocamlc $(DEBUG) $(WARNERR) -package $(PACKAGES),$(PACKAGEPREFIX)import,$(PACKAGEPREFIX)deriving_plugins.show,$(PACKAGEPREFIX)testutils \
+	-linkpkg -syntax camlp5o $< -o $@
+
+test_argle.cmo: stuff.cmo test_self_import.cmi
+test_argle.byte: test_argle.cmo
 	$(LAUNCH) $(OCAMLFIND) ocamlc $(DEBUG) $(WARNERR) -package $(PACKAGES),$(PACKAGEPREFIX)import,$(PACKAGEPREFIX)deriving_plugins.show,$(PACKAGEPREFIX)testutils \
 	-linkpkg -syntax camlp5o $< -o $@
 

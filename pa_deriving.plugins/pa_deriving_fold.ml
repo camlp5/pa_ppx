@@ -88,13 +88,18 @@ value fmt_expression arg ?{coercion} param_map ty0 =
   Expr.prepend_longident li <:expr< $lid:fname$ >>
 
 | <:ctyp:< ( $list:tyl$ ) >> ->
-    let vars_fmts = List.mapi (fun i ty ->
-        (Printf.sprintf "a_%d" i, fmtrec ty)) tyl in
+    let labs_vars_fmts = List.mapi (fun i (lab, ty) ->
+        (lab, Printf.sprintf "a_%d" i, fmtrec ty)) tyl in
 
-    let var1pats = List.map (fun (v,_) -> <:patt< $lid:v$ >>) vars_fmts in
+    let var1pats = List.map (fun (lab, v,_) ->
+                       match uv lab with [
+                           None -> <:patt< $lid:v$ >>
+                         | Some <:vala< lab >> -> <:patt< ~{ $lid:lab$ = $lid:v$ } >>
+                         ]
+                     ) labs_vars_fmts in
 
-    let body = List.fold_right (fun (v,fmtf) body ->
-        <:expr< let acc = $fmtf$ acc $lid:v$ in $body$ >>) vars_fmts <:expr< acc >> in
+    let body = List.fold_right (fun (_, v,fmtf) body ->
+        <:expr< let acc = $fmtf$ acc $lid:v$ in $body$ >>) labs_vars_fmts <:expr< acc >> in
     
 
     <:expr< fun acc ( $list:var1pats$ ) -> $body$ >>

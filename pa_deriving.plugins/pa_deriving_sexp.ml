@@ -232,7 +232,7 @@ value to_expression arg ?{coercion} ~{msg} param_map ty0 =
     assert (List.length tyl <= 1) ;
     let tyl = match tyl with [
       [] -> []
-    | [<:ctyp< ( $list:l$ ) >>] -> l
+    | [<:ctyp< ( $list:l$ ) >>] -> List.map snd l
     | [t] -> [t]
     | [_::_] -> assert False ] in
     let vars = List.mapi (fun n _ -> Printf.sprintf "v%d" n) tyl in
@@ -278,11 +278,16 @@ value to_expression arg ?{coercion} ~{msg} param_map ty0 =
   <:expr< fun [ $list:branches$ ] >>
 
 | <:ctyp:< ( $list:tyl$ ) >> ->
-    let vars = List.mapi (fun n _ -> Printf.sprintf "v%d" n) tyl in
-    let fmts = List.map fmtrec tyl in
-    let liste = List.fold_right2 (fun f v liste -> <:expr< [$f$ $lid:v$ :: $liste$] >>)
-        fmts vars <:expr< [] >> in
-    let varpats = List.map (fun v -> <:patt< $lid:v$ >>) vars in
+    let labs_vars = List.mapi (fun n (lab, _) -> (lab, Printf.sprintf "v%d" n)) tyl in
+    let fmts = List.map fmtrec (List.map snd tyl) in
+    let liste = List.fold_right2 (fun f (_, v) liste -> <:expr< [$f$ $lid:v$ :: $liste$] >>)
+        fmts labs_vars <:expr< [] >> in
+    let varpats = List.map (fun (lab, v) ->
+                      match uv lab with [
+                          None -> <:patt< $lid:v$ >>
+                        | Some <:vala< lab >> -> <:patt< ~ { $lid:lab$ = $lid:v$ } >>
+                        ]
+                    ) labs_vars in
     <:expr< fun ($list:varpats$) -> Sexplib0.Sexp.List $liste$ >>
 
 | <:ctyp:< { $list:fields$ } >> ->
@@ -675,7 +680,7 @@ value of_expression arg ~{msg} param_map (ty0, attrs) =
     assert (List.length tyl <= 1) ;
     let tyl = match tyl with [
       [] -> []
-    | [<:ctyp< ( $list:l$ ) >>] -> l
+    | [<:ctyp< ( $list:l$ ) >>] -> List.map snd l
     | [t] -> [t]
     | [_::_] -> assert False ] in
     let vars = List.mapi (fun n _ -> Printf.sprintf "v%d" n) tyl in
@@ -727,12 +732,17 @@ value of_expression arg ~{msg} param_map (ty0, attrs) =
   <:expr< fun [ $list:branches$ ] >>
 
 | <:ctyp:< ( $list:tyl$ ) >> ->
-    let vars = List.mapi (fun n _ -> Printf.sprintf "v%d" n) tyl in
-    let varpats = List.map (fun v -> <:patt< $lid:v$ >>) vars in
+    let labs_vars = List.mapi (fun n (lab, _) -> (lab, Printf.sprintf "v%d" n)) tyl in
+    let varpats = List.map (fun (_, v) -> <:patt< $lid:v$ >>) labs_vars in
     let listpat = List.fold_right (fun v l -> <:patt< [$v$ :: $l$] >>) varpats <:patt< [] >> in
-    let fmts = List.map fmtrec tyl in
+    let fmts = List.map fmtrec (List.map snd tyl) in
     let unmarshe =
-      let unmarshexps = List.map2 (fun fmte v -> <:expr< $fmte$ $lid:v$ >>) fmts vars in
+      let unmarshexps = List.map2 (fun fmte (lab, v) ->
+                            match uv lab with [
+                                None -> <:expr< $fmte$ $lid:v$ >>
+                              | Some <:vala< lab >> -> <:expr< ~{$lid:lab$ = $fmte$ $lid:v$} >>
+                              ]
+                          ) fmts labs_vars in
       <:expr< ( $list:unmarshexps$ ) >> in
     <:expr< fun [ Sexplib0.Sexp.List $listpat$ -> $unmarshe$
                 | _ -> failwith "wrong number of members in list" ] >>

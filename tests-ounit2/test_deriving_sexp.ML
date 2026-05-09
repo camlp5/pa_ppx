@@ -791,6 +791,14 @@ module Allow_extra_fields = struct
   end
 end
 
+#ifdef PAPPX
+type lt = (a:int * b:bool)        [@@deriving sexp, show]
+
+let test_labeled_tuple ctxt =
+  assert_equal  ~printer:Sexp.to_string (Sexplib.Sexp.of_string "(5 false)") (sexp_of_lt (~a:5, ~b:false))
+; assert_equal  ~printer:show_lt (~a:5, ~b:false) (lt_of_sexp (Sexplib.Sexp.of_string "(5 false)"))
+#endif
+
 let suite = "Test_deriving(sexp)" >::: [
       "Sum_and_polymorphic_variants(1)" >:: Sum_and_polymorphic_variants.test1
     ; "Case_insensitive" >:: Case_insensitive.test
@@ -838,6 +846,9 @@ let suite = "Test_deriving(sexp)" >::: [
     ; "Inline(2)" >:: Inline.test2
     ; "Allow_extra_fields.M1" >:: Allow_extra_fields.M1.test
     ; "Allow_extra_fields.M2" >:: Allow_extra_fields.M2.test
+#ifdef PAPPX
+    ; "test_labeled_tuple"   >:: test_labeled_tuple;
+#endif
     ]
 
 let _ = 

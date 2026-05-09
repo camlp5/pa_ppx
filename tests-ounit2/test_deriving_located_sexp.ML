@@ -44,6 +44,8 @@ let assert_conversion_failure convf pos txt =
     (fun _ ->
       txt |> Sexp.of_string |> convf)
 
+let cmp = Sexp.ErasingLoc.equal
+
 module Case_insensitive = struct
   type t =
     | ABC
@@ -71,7 +73,7 @@ module Sum_and_polymorphic_variants = struct
     List.iter
       (fun (value, sexp_s) ->
         let sexp = Sexp.of_string sexp_s in
-        assert_equal ~cmp:Sexp.equal (located_sexp_of_poly value) sexp;
+        assert_equal ~cmp (located_sexp_of_poly value) sexp;
         assert_equal (poly_of_located_sexp sexp) value)
       [ `No_arg, "No_arg"
       ; (`One_arg 1, "(One_arg 1)")
@@ -99,7 +101,7 @@ module Sum_and_polymorphic_variants = struct
     List.iter
       (fun (value, sexp_s) ->
         let sexp = Sexp.of_string sexp_s in
-        assert_equal ~printer:Sexp.to_string ~cmp:Sexp.equal (located_sexp_of_nominal value) sexp;
+        assert_equal ~printer:Sexp.to_string ~cmp (located_sexp_of_nominal value) sexp;
         assert_equal (nominal_of_located_sexp sexp) value)
       [ No_arg, "No_arg"
       ; (One_arg 1, "(One_arg 1)")
@@ -124,7 +126,7 @@ module Records = struct
     let t = { a = 2; b = Some [ 1., "a"; 2.3, "b" ] } in
     let sexp = Pa_ppx_located_sexp.Sexp.of_string "((a 2)(b (((1 a)(2.3 b)))))" in
     assert_equal (t_of_located_sexp sexp) t;
-    assert_equal ~printer:Sexp.to_string ~cmp:Sexp.equal (located_sexp_of_t t) sexp
+    assert_equal ~printer:Sexp.to_string ~cmp (located_sexp_of_t t) sexp
   ;;
 
   let testb ctxt =
@@ -147,7 +149,7 @@ module Inline_records = struct
     let t = A { a = 2; b = Some [ 1., "a"; 2.3, "b" ] } in
     let sexp = Pa_ppx_located_sexp.Sexp.of_string "(A (a 2)(b (((1 a)(2.3 b)))))" in
     assert_equal (t_of_located_sexp sexp) t
-  ; assert_equal ~printer:Sexp.to_string ~cmp:Sexp.equal (located_sexp_of_t t) sexp
+  ; assert_equal ~printer:Sexp.to_string ~cmp (located_sexp_of_t t) sexp
   ; assert_conversion_failure t_of_located_sexp (1,11) {| (A (a 2) ) |}
   ;;
 end
@@ -286,7 +288,7 @@ module Polymorphic_variant_inclusion = struct
       (fun (t, sexp_as_str) ->
         let sexp = Sexp.of_string sexp_as_str in
         assert_equal ([%of_located_sexp: (string * string, float) t] sexp) t;
-        assert_equal ~printer:Sexp.to_string ~cmp:Sexp.equal ([%located_sexp_of: (string * string, float) t] t) sexp)
+        assert_equal ~printer:Sexp.to_string ~cmp ([%located_sexp_of: (string * string, float) t] t) sexp)
       cases
   ;;
 
@@ -341,8 +343,8 @@ module Default = struct
   type t = { a : int [@default 2] } [@@deriving located_sexp, show]
 
   let test ctxt =
-    assert_equal ~printer:Sexp.to_string ~cmp:Sexp.equal Sexp.(of_string "((a 1))") (located_sexp_of_t { a = 1 })
-  ; assert_equal ~printer:Sexp.to_string ~cmp:Sexp.equal Sexp.(of_string "((a 2))") (located_sexp_of_t { a = 2 })
+    assert_equal ~printer:Sexp.to_string ~cmp Sexp.(of_string "((a 1))") (located_sexp_of_t { a = 1 })
+  ; assert_equal ~printer:Sexp.to_string ~cmp Sexp.(of_string "((a 2))") (located_sexp_of_t { a = 2 })
   ; assert_equal (t_of_located_sexp Sexp.(of_string "((a 1))")) { a = 1 }
   ; assert_equal (t_of_located_sexp Sexp.(of_string "((a 2))")) { a = 2 }
   ; assert_equal (t_of_located_sexp Sexp.(of_string "()")) { a = 2 }
@@ -398,7 +400,7 @@ module Drop_default = struct
 
   let test ?cr t_of_sexp sexp_of_t =
     begin
-    let ( = ) = Sexp.equal in
+    let ( = ) = cmp in
     assert_bool "1" (Sexp.(of_string "((a 1))") = sexp_of_t { a = 1 });
     assert_bool "2" (Sexp.(of_string "()") = sexp_of_t { a = 2 })
     end;
@@ -457,10 +459,10 @@ module Drop_if = struct
   [@@deriving located_sexp]
 
   let test ctxt =
-    assert_equal ~printer:Sexp.to_string ~cmp:Sexp.equal Sexp.(of_string "((a 1))") (located_sexp_of_t { a = 1 })
-  ; assert_equal ~printer:Sexp.to_string ~cmp:Sexp.equal (Sexp.(of_string "()")) (located_sexp_of_t { a = 2 })
-  ; assert_equal ~printer:Sexp.to_string ~cmp:Sexp.equal Sexp.(of_string "((a 3))") (located_sexp_of_t { a = 3 })
-  ; assert_equal ~printer:Sexp.to_string ~cmp:Sexp.equal Sexp.(of_string "()") (located_sexp_of_t { a = 4 })
+    assert_equal ~printer:Sexp.to_string ~cmp Sexp.(of_string "((a 1))") (located_sexp_of_t { a = 1 })
+  ; assert_equal ~printer:Sexp.to_string ~cmp (Sexp.(of_string "()")) (located_sexp_of_t { a = 2 })
+  ; assert_equal ~printer:Sexp.to_string ~cmp Sexp.(of_string "((a 3))") (located_sexp_of_t { a = 3 })
+  ; assert_equal ~printer:Sexp.to_string ~cmp Sexp.(of_string "()") (located_sexp_of_t { a = 4 })
   ; assert_equal (t_of_located_sexp Sexp.(of_string "((a 1))")) { a = 1 }
   ; assert_equal (t_of_located_sexp Sexp.(of_string "((a 2))")) { a = 2 }
   ; assert_equal (t_of_located_sexp Sexp.(of_string "((a 3))")) { a = 3 }
@@ -493,7 +495,7 @@ module Omit_nil = struct
 
   let check show_t sexp_of_t t_of_sexp str t =
     let sexp = Sexp.of_string str in
-    assert_equal ~printer:Sexp.to_string ~cmp:Sexp.equal sexp (sexp_of_t t);
+    assert_equal ~printer:Sexp.to_string ~cmp sexp (sexp_of_t t);
     assert_equal ~printer:show_t (t_of_sexp sexp) t
   ;;
 
@@ -605,7 +607,7 @@ module Opaque = struct
   let sexp = Sexp.of_string "(<opaque> <opaque>)"
   let t = [ 1; 2 ]
   let test1 ctxt =
-    assert_equal ~printer:Sexp.to_string ~cmp:Sexp.equal (located_sexp_of_t t) sexp
+    assert_equal ~printer:Sexp.to_string ~cmp (located_sexp_of_t t) sexp
   ; assert_bool "2"
       (match t_of_located_sexp sexp with
        | _ -> false
@@ -617,7 +619,7 @@ module Opaque = struct
   let sexp = Sexp.of_string "<opaque>"
   let u = `A 1
   let test2 ctxt =
-    assert_equal ~printer:Sexp.to_string ~cmp:Sexp.equal (located_sexp_of_u u) sexp
+    assert_equal ~printer:Sexp.to_string ~cmp (located_sexp_of_u u) sexp
   ; assert_bool "3"
       (match u_of_located_sexp sexp with
        | _ -> false
@@ -634,12 +636,12 @@ module Optional0 = struct
   let t = { x = Some 1; y = Some 2 }
   let test1 ctxt =
     assert_equal ~printer:show (t_of_located_sexp sexp) t
-  ; assert_equal ~printer:Sexp.to_string ~cmp:Sexp.equal (located_sexp_of_t t) sexp
+  ; assert_equal ~printer:Sexp.to_string ~cmp (located_sexp_of_t t) sexp
   let sexp' = Sexp.of_string "((x ()))"
   let t' = { x = None  ; y = None }
   let test2 ctxt =
     assert_equal ~printer:show (t_of_located_sexp sexp') t'
-  ; assert_equal ~printer:Sexp.to_string ~cmp:Sexp.equal (located_sexp_of_t t') sexp'
+  ; assert_equal ~printer:Sexp.to_string ~cmp (located_sexp_of_t t') sexp'
 end
 
 module Optional = struct
@@ -649,12 +651,12 @@ module Optional = struct
   let t = { optional = None }
   let test1 ctxt =
     assert_equal (t_of_located_sexp sexp) t
-  ; assert_equal ~printer:Sexp.to_string ~cmp:Sexp.equal (located_sexp_of_t t) sexp
+  ; assert_equal ~printer:Sexp.to_string ~cmp (located_sexp_of_t t) sexp
   let sexp = Sexp.of_string "((optional 5))"
   let t = { optional = Some 5 }
   let test2 ctxt =
     assert_equal (t_of_located_sexp sexp) t
-  ; assert_equal ~printer:Sexp.to_string ~cmp:Sexp.equal (located_sexp_of_t t) sexp
+  ; assert_equal ~printer:Sexp.to_string ~cmp (located_sexp_of_t t) sexp
 end
 
 module Nonempty = struct
@@ -668,12 +670,12 @@ module Nonempty = struct
   let t = { list = []; array = [||] }
   let test1 ctxt =
     assert_equal (t_of_located_sexp sexp) t
-  ; assert_equal ~printer:Sexp.to_string ~cmp:Sexp.equal (located_sexp_of_t t) sexp
+  ; assert_equal ~printer:Sexp.to_string ~cmp (located_sexp_of_t t) sexp
   let sexp = Sexp.of_string "((list (1 2 3)) (array (3 2 1)))"
   let t = { list = [ 1; 2; 3 ]; array = [| 3; 2; 1 |] }
   let test2 ctxt =
     assert_equal (t_of_located_sexp sexp) t
-  ; assert_equal ~printer:Sexp.to_string ~cmp:Sexp.equal (located_sexp_of_t t) sexp
+  ; assert_equal ~printer:Sexp.to_string ~cmp (located_sexp_of_t t) sexp
 end
 
 module Boolean = struct
@@ -683,13 +685,13 @@ module Boolean = struct
   let t = { no_arg = false }
   let test1 ctxt =
     assert_equal ~printer:show (t_of_located_sexp sexp) t
-  ; assert_equal ~printer:Sexp.to_string ~cmp:Sexp.equal (located_sexp_of_t t) sexp
+  ; assert_equal ~printer:Sexp.to_string ~cmp (located_sexp_of_t t) sexp
   let sexp = Sexp.of_string "((no_arg))"
   let badsexp = Sexp.of_string "((no_arg true))"
   let t = { no_arg = true }
   let test2 ctxt =
     assert_equal ~printer:show (t_of_located_sexp sexp) t
-  ; assert_equal ~printer:Sexp.to_string ~cmp:Sexp.equal (located_sexp_of_t t) sexp
+  ; assert_equal ~printer:Sexp.to_string ~cmp (located_sexp_of_t t) sexp
 
   let test3 ctxt =
 #ifdef PAPPX
@@ -707,7 +709,7 @@ module Boolean = struct
   let t' = { no_arg = true }
   let test4 ctxt =
     assert_equal (t_allow_extra_fields_of_located_sexp sexp') t'
-  ; assert_equal ~printer:Sexp.to_string ~cmp:Sexp.equal (located_sexp_of_t_allow_extra_fields t') sexp'
+  ; assert_equal ~printer:Sexp.to_string ~cmp (located_sexp_of_t_allow_extra_fields t') sexp'
 
   let test5 ctxt =
 #ifdef PAPPX
@@ -723,7 +725,7 @@ module Boolean = struct
   let test6 ctxt =
     assert_equal (t_allow_extra_fields_of_located_sexp sexp'') t''
   ; assert_equal (t_allow_extra_fields_of_located_sexp sexp''') t''
-  ; assert_equal ~printer:Sexp.to_string ~cmp:Sexp.equal (located_sexp_of_t_allow_extra_fields t'') sexp'
+  ; assert_equal ~printer:Sexp.to_string ~cmp (located_sexp_of_t_allow_extra_fields t'') sexp'
 
 end
 
@@ -734,7 +736,7 @@ module Inline = struct
   let t = A [ 1; 2; 3 ]
   let test1 ctxt =
     assert_equal (t_of_located_sexp sexp) t
-  ; assert_equal ~printer:Sexp.to_string ~cmp:Sexp.equal (located_sexp_of_t t) sexp
+  ; assert_equal ~printer:Sexp.to_string ~cmp (located_sexp_of_t t) sexp
 
   type u = [ `A of int list [@list] ] [@@deriving located_sexp]
 
@@ -742,7 +744,7 @@ module Inline = struct
   let u = `A [ 1; 2; 3 ]
   let test2 ctxt =
     assert_equal (u_of_located_sexp sexp) u
-  ; assert_equal ~printer:Sexp.to_string ~cmp:Sexp.equal (located_sexp_of_u u) sexp
+  ; assert_equal ~printer:Sexp.to_string ~cmp (located_sexp_of_u u) sexp
 end
 
 module Clash = struct
@@ -844,6 +846,16 @@ module Allow_extra_fields = struct
   end
 end
 
+type tup = (int * bool)        [@@deriving located_sexp, show]
+
+#ifdef PAPPX
+type lt = (a:int * b:bool)        [@@deriving located_sexp, show]
+
+let test_labeled_tuple ctxt =
+  assert_equal ~cmp ~printer:Sexp.to_string (Sexp.of_string "(5 false)") (located_sexp_of_lt (~a:5, ~b:false))
+; assert_equal  ~printer:show_lt (~a:5, ~b:false) (lt_of_located_sexp (Sexp.of_string "(5 false)"))
+#endif
+
 let suite = "Test_deriving(located_sexp)" >::: [
       "Sum_and_polymorphic_variants(1b)" >:: Sum_and_polymorphic_variants.test1b
     ; "Case_insensitive" >:: Case_insensitive.test
@@ -897,6 +909,9 @@ let suite = "Test_deriving(located_sexp)" >::: [
     ; "Inline(2)" >:: Inline.test2
     ; "Allow_extra_fields.M1" >:: Allow_extra_fields.M1.test
     ; "Allow_extra_fields.M2" >:: Allow_extra_fields.M2.test
+#ifdef PAPPX
+    ; "test_labeled_tuple"   >:: test_labeled_tuple;
+#endif
     ]
 
 let _ = 

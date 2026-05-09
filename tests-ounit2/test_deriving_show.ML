@@ -52,6 +52,13 @@ let test_alias ctxt =
   ignore (Lazy.force y);
   assert_equal ~printer "2" (show_y y)
 
+#ifdef PAPPX
+type lt = (a:int * b:bool)        [@@deriving show]
+
+let test_labeled_tuple ctxt =
+  assert_equal  ~printer "(a:5, b:false)" (show_lt (~a:5, ~b:false))
+#endif
+
 type v = Foo | Bar of int * string | Baz of string [@@deriving show]
 let test_variant ctxt =
   assert_equal ~printer (filemod^"Foo")                (show_v Foo);
@@ -278,6 +285,9 @@ let suite = "Test deriving(show)" >::: [
     "test_paths"           >:: test_paths_printer;
     "test_result"          >:: test_result;
     "test_result_result"   >:: test_result_result;
+#ifdef PAPPX
+    "test_labeled_tuple"   >:: test_labeled_tuple;
+#endif
   ]
 
 #ifdef PAPPX

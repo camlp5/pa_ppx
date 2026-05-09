@@ -1,3 +1,17 @@
+pa_ppx Version 8.04.01
+----------------------
+
+* [08 May 2026]
+
+  * update source to be compat with new camlp5 8.04.01, OCaml 5.4.0
+
+    OCaml 5.4 introduces labeled-tuples.  Camlp5 8.04.00 added support for them,
+    but got some of the support wrong.  8.04.01 corrects that.
+
+  * Change version-numbering of pa_ppx so it matches that of Camlp5, since
+    it is almost always the case that a new version of Camlp5 requires a
+    new version of pa_ppx's base infra, and when it's new syntax, changes
+    to the various derivers to support that new syntax.
 
 pa_ppx Version 0.20
 -------------------

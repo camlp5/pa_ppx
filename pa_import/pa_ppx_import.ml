@@ -294,7 +294,8 @@ value substitute_ctyp renmap t =
     if RM.mem_assoc t renmap then
       RM.assoc t renmap
     else match t with [
-    <:ctyp:< ( $list:l$ ) >> -> <:ctyp< ( $list:List.map subrec l$ ) >>
+    <:ctyp:< $t1$ == $t2$ >> -> <:ctyp< $subrec t1$ == $subrec t2$ >>
+  | <:ctyp:< ( $list:l$ ) >> -> <:ctyp< ( $list:List.map subrec_tuple l$ ) >>
   | <:ctyp:< { $list:ldl$ } >> ->
     let sub_label_decl (loc, na,b,ty,al) =
       (loc,na,b,subrec ty, al) in
@@ -308,6 +309,7 @@ value substitute_ctyp renmap t =
     subst1 (Ctyp.unapplist z)
   | z -> subst1 (z,[])
   ]
+  and subrec_tuple (lab, ct) = (lab, subrec ct)
   and subst1 (t,args) =
     let args = List.map subrec args in
     if not (RM.mem_assoc t renmap) then Ctyp.applist t args

@@ -99,7 +99,7 @@ value monomorphize_ctyp cty =
           (loc, na, tyvars, vala_map (List.map mrec) tl, vala_map (Option.map mrec) rto, al)
             ]) l in
     <:ctyp:< [ $list:l$ ] >>
-  | <:ctyp:< ( $list:l$ ) >> -> <:ctyp:< ( $list:List.map mrec l$ ) >>
+  | <:ctyp:< ( $list:l$ ) >> -> <:ctyp:< ( $list:List.map mrec_tuple l$ ) >>
   | <:ctyp:< { $list:ltl$ } >> ->
       let ltl = List.map (fun (loc, na, b, ty, al) -> (loc, na, b, mrec ty, al)) ltl in
       <:ctyp:< { $list:ltl$ } >>
@@ -107,6 +107,7 @@ value monomorphize_ctyp cty =
   | <:ctyp:< $t1$ -> $t2$ >> -> <:ctyp:< $mrec t1$ -> $mrec t2$ >>
   | ty -> ty
   ]
+  and mrec_tuple (lab, ct) = (lab, mrec ct)
   in mrec cty
 ;
 
@@ -123,11 +124,13 @@ value type_params t =
   let rec brec = fun [
     <:ctyp< ' $tv$ >> -> add1 tv
   | <:ctyp< $a$ $b$ >> -> do { brec a; brec b }
-  | <:ctyp< ( $list:l$ ) >> -> List.iter brec l
+  | <:ctyp< ( $list:l$ ) >> -> List.iter brec_tuple l
   | <:ctyp< [= $list:branches$ ] >> ->
     List.iter (fun [ PvTag _ _ _ tyl _ -> List.iter brec (uv tyl) | PvInh _ ty -> brec ty ])  branches
   | _ -> ()
-  ] in do {
+  ]
+  and brec_tuple (_, ct) = brec ct
+  in do {
     brec t ; List.rev acc.val
   }
 ;

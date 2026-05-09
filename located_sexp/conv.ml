@@ -82,3 +82,6 @@ value sexp_of_string loc x =  Sexp.of_sexplib_sexp loc (Sexplib0.Sexp_conv.sexp_
 
 value float_of_sexp =  apply_converter Sexplib0.Sexp_conv.float_of_sexp ;
 value sexp_of_float loc x =  Sexp.of_sexplib_sexp loc (Sexplib0.Sexp_conv.sexp_of_float x) ;
+
+value bool_of_sexp =  apply_converter Sexplib0.Sexp_conv.bool_of_sexp ;
+value sexp_of_bool loc x =  Sexp.of_sexplib_sexp loc (Sexplib0.Sexp_conv.sexp_of_bool x) ;

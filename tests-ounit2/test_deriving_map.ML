@@ -161,6 +161,21 @@ let test_map_result_result ctxt =
   assert_equal ~printer (Ok 10) (f (Ok 9));
   assert_equal ~printer (Error true) (f (Error true))
 
+#ifdef PAPPX
+module LabeledTuple = struct
+
+  type 'a btree = Node of (left:'a btree * it:'a * right:'a btree) | Leaf
+  [@@deriving map, show]
+
+let test_btree ctxt =
+  let btree  = (Node (~left:(Node (~left:Leaf, ~it:0, ~right:Leaf)), ~it:1, ~right:(Node (~left:Leaf, ~it:2, ~right:Leaf)))) in
+  let btree' = map_btree (fun x -> x + 1) btree in
+  assert_equal ~printer:(show_btree fmt_int)
+               (Node (~left:(Node (~left:Leaf, ~it:1, ~right:Leaf)), ~it:2, ~right:(Node (~left:Leaf, ~it:3, ~right:Leaf))))
+               btree'
+end
+#endif
+
 let suite = "Test deriving(map)" >::: [
     "test_btree" >:: test_btree;
     "test_var0" >:: test_var0;
@@ -174,6 +189,9 @@ let suite = "Test deriving(map)" >::: [
     "test_pvar3" >:: test_pvar3;
     "test_map_result" >:: test_map_result;
     "test_map_result_result" >:: test_map_result_result;
+#ifdef PAPPX
+    "LabeledTuple.test_btree" >:: LabeledTuple.test_btree;
+#endif
   ]
 
 

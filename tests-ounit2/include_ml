@@ -1,10 +1,15 @@
 #use "topfind.camlp5";;
-#camlp5o ;;
 #require "ounit2";;
+#require "pa_ppx_base";;
 #require "pa_ppx_testutils";;
+#require "fmt";;
 #require "str";;
+#require "camlp5.pa_o";;
 #require "camlp5.pr_o";;
 
+let pp_location_t pps (loc : Location.t) = Fmt.(pf pps "<loc>") ;;
+
+#install_printer pp_location_t ;;
 
 let pp_ctyp ty = Fmt.(pf stdout "#<ctyp< %s >>" (Eprinter.apply Pcaml.pr_ctyp Pprintf.empty_pc ty));;
 let pp_expr ty = Fmt.(pf stdout "#<expr< %s >>" (Eprinter.apply Pcaml.pr_expr Pprintf.empty_pc ty));;
@@ -24,6 +29,7 @@ let pp_patt ty = Fmt.(pf stdout "#<patt< %a >>" Pa_ppx_base.Pp_MLast.pp_patt ty)
 #install_printer pp_str_item ;;
 #install_printer pp_sig_item ;;
 
+#install_printer Pprintast.expression ;;
 
 
 open OUnit2 ;;

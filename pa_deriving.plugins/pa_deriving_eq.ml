@@ -107,13 +107,23 @@ value fmt_expression arg ?{coercion} param_map ty0 =
   Expr.prepend_longident li <:expr< $lid:fname$ >>
 
 | <:ctyp:< ( $list:tyl$ ) >> ->
-    let vars_fmts = List.mapi (fun i ty ->
-        (Printf.sprintf "a_%d" i, Printf.sprintf "b_%d" i, fmtrec ty)) tyl in
+    let labs_vars_fmts = List.mapi (fun i (lab, ty) ->
+        (lab, Printf.sprintf "a_%d" i, Printf.sprintf "b_%d" i, fmtrec ty)) tyl in
 
-    let var1pats = List.map (fun (v, _, _) -> <:patt< $lid:v$ >>) vars_fmts in
-    let var2pats = List.map (fun (_, v, _) -> <:patt< $lid:v$ >>) vars_fmts in
+    let var1pats = List.map (fun (lab,  v, _, _) ->
+                       match uv lab with [
+                           None -> <:patt< $lid:v$ >>
+                         | Some <:vala< lab >> -> <:patt< ~{ $lid:lab$ = $lid:v$ } >>
+                         ]
+                     ) labs_vars_fmts in
+    let var2pats = List.map (fun (lab, _, v, _) ->
+                       match uv lab with [
+                           None -> <:patt< $lid:v$ >>
+                         | Some <:vala< lab >> -> <:patt< ~{ $lid:lab$ = $lid:v$ } >>
+                         ]
+                     ) labs_vars_fmts in
 
-    let fldcmps = List.map (fun (v1, v2, fmtf) -> <:expr< $fmtf$ $lid:v1$ $lid:v2$ >>) vars_fmts in
+    let fldcmps = List.map (fun (_, v1, v2, fmtf) -> <:expr< $fmtf$ $lid:v1$ $lid:v2$ >>) labs_vars_fmts in
     let cmpexp = match fldcmps with [
       [h::t] -> List.fold_left (fun e1 e2 -> <:expr< $e1$ && $e2$ >>) h t
     | [] -> assert False ] in

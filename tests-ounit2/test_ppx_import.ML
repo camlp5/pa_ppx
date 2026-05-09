@@ -45,16 +45,35 @@ module Test_optional : S_optional = struct
     ignore opt
 end
 
+type lexing_position = [%import: Lexing.position]
+[@@deriving show]
+type location_t = [%import: Location.t
+                   [@with Lexing.position := lexing_position;
+                          Stdlib.Lexing.position := lexing_position
+                   ]
+                  ]
+[@@deriving show]
+type 'a location_loc = [%import: 'a Location.loc
+                        [@with t := location_t]
+                       ]
+(*
+[@@deriving show]
+ *)
 type longident = [%import: Longident.t
-  [@with t := longident]
-] [@@deriving show]
-
+  [@with t := longident;
+         Location.loc := location_loc
+  ]
+]
+(*
+[@@deriving show]
+ *)
 type package_type =
 [%import: Parsetree.package_type
           [@with core_type    := Parsetree.core_type [@printer Pprintast.core_type];
+                 attributes   := Parsetree.attributes[@printer Pprintast.core_type];
                  Asttypes.loc := Asttypes.loc [@polyprinter fun pp fmt x -> pp fmt x.Asttypes.txt];
-                 Longident.t  := Longident.t [@printer pp_longident]]]
-[@@deriving show]
+                 Longident.t  := Longident.t [@printer pp_longident]
+          ]]
 
 module type Hashable = [%import: (module Hashtbl.HashedType)]
 

@@ -24,6 +24,10 @@ and w2 =
       B of w1 * Stuff.i[@with_deriving show]
 end
 
+[%%typedecls
+[%%import: Stuff.t1]
+[%%import: Stuff.wrapped]
+] [@@deriving show]
 
 let test_simplest ctxt =
  let (_ : t) = A1 in ()

@@ -463,6 +463,15 @@ value rewrite_import stri =
     ]
 ;
 
+value append_item_attributes tdl item_attrs =
+  let (last, tdl) = sep_last tdl in
+  let last =
+    let last_attrs = uv last.tdAttributes in
+    let new_attrs = last_attrs@item_attrs in
+    { (last) with tdAttributes = <:vala< new_attrs >> } in
+  tdl @ [last]
+;
+
 value rec expand_add_attribute arg attr =
   let sil = match uv attr with [
     <:attribute_body< "add" $structure:l$ >> when l <> [] -> l
@@ -515,12 +524,7 @@ and import_typedecl_group arg t item_attrs =
                else ct in
       { (td) with tdDef = ct }
     ) tdl in
-  let (last, tdl) = sep_last tdl in
-  let last =
-    let last_attrs = uv last.tdAttributes in
-    let new_attrs = last_attrs@item_attrs in
-    { (last) with tdAttributes = <:vala< new_attrs >> } in
-  let tdl = tdl @ [last] in
+  let tdl = append_item_attributes tdl item_attrs in
   (nrfl, tdl)
 
 and registered_str_item_extension arg = fun [
@@ -543,11 +547,21 @@ and registered_str_item_extension arg = fun [
   | <:str_item:< [%% import: $type:t$ ] $itemattrs:item_attrs$ >> ->
     let (nrfl, tdl) = import_typedecl_group arg t item_attrs in
     <:str_item< type $flag:nrfl$ $list:tdl$ >>
+
+  | <:str_item:< [%% typedecls $structure:sil$ ] $itemattrs:item_attrs$ >> ->
+    let sil = List.map (registered_str_item_extension arg) sil in
+    let tdl = List.concat_map (fun [
+      <:str_item< type $flag:_$ $list:tdl$ >> -> tdl
+    | _ -> failwith "str_item.%%typedecls: internal error: member didn't expand to an unattributed typedecl"
+                ]) sil in
+    let tdl = append_item_attributes tdl item_attrs in
+    <:str_item< type $list:tdl$ >>
+
 | _ -> assert False
 ]
 ;
 
-value registered_sig_item_extension arg = fun [
+value rec registered_sig_item_extension arg = fun [
   <:sig_item:< type $flag:nrfl$ $list:tdl$ >> ->
     let tdl = List.map (fun td ->
         match td.tdDef with [
@@ -564,6 +578,16 @@ value registered_sig_item_extension arg = fun [
   | <:sig_item:< [%% import: $type:t$ ] $itemattrs:item_attrs$ >> ->
     let (nrfl, tdl) = import_typedecl_group arg t item_attrs in
     <:sig_item< type $flag:nrfl$ $list:tdl$ >>
+
+  | <:sig_item:< [%% typedecls $structure:sil$ ] $itemattrs:item_attrs$ >> ->
+    let sil = List.map (registered_str_item_extension arg) sil in
+    let tdl = List.concat_map (fun [
+      <:str_item< type $flag:_$ $list:tdl$ >> -> tdl
+    | _ -> failwith "sig_item.%%typedecls: internal error: member didn't expand to an unattributed typedecl"
+                ]) sil in
+    let tdl = append_item_attributes tdl item_attrs in
+    <:sig_item< type$list:tdl$ >>
+
 | _ -> assert False
 ]
 ;
@@ -579,25 +603,22 @@ value install () =
 let ef = EF.mk() in
 let ef = EF.{ (ef) with
   str_item = extfun ef.str_item with [
-    <:str_item:< type $flag:_$ $list:_$ >> | <:str_item:< [%%import type $flag:_$ $list:_$ ; ] >> as z ->
-      fun arg _ ->
-        Some (registered_str_item_extension arg z)
-
-  | <:str_item< [%% import: $type:_$ ] $itemattrs:_$ >> as z -> 
-      fun arg _ ->
-        Some (registered_str_item_extension arg z)
-
+    (<:str_item:< type $flag:_$ $list:_$ >>
+   | <:str_item:< [%%import type $flag:_$ $list:_$ ; ] >>
+   | <:str_item< [%% import: $type:_$ ] $itemattrs:_$ >>
+   | <:str_item:< [%%typedecls $structure:_$ ] $itemattrs:_$ >>) as z ->
+    (fun arg _ ->
+      Some (registered_str_item_extension arg z))
+    
   ] } in
 
 let ef = EF.{ (ef) with
   sig_item = extfun ef.sig_item with [
-    <:sig_item:< type $flag:_$ $list:_$ >> as z ->
-      fun arg _ ->
-        Some (registered_sig_item_extension arg z)
-
-  | <:sig_item< [%% import: $type:_$ ] $itemattrs:_$ >> as z -> 
-      fun arg _ ->
-        Some (registered_sig_item_extension arg z)
+    (<:sig_item:< type $flag:_$ $list:_$ >>
+   | <:sig_item< [%% import: $type:_$ ] $itemattrs:_$ >>
+   | <:sig_item< [%% typedecls $structure:_$ ] $itemattrs:_$ >>) as z -> 
+    (fun arg _ ->
+      Some (registered_sig_item_extension arg z))
 
   ] } in
 

@@ -5,7 +5,8 @@ module DerivingConfig :
     value addsetl : ref (list α) → list α → unit;
     type form_t = [ Short | Medium | Long ];
     type t =
-      { all_plugins : ref (list string);
+      { in_decl: mutable bool ;
+        all_plugins : ref (list string);
         all_attributes : ref (list string);
         current_plugins : ref (list string);
         current_attributes : ref (list string);

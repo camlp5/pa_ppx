@@ -34,3 +34,6 @@ type w1 = A of w2 option
 and w2 = B of w1 * i
 
 type zz = int * (int * bool)
+
+type 'a wrapped = A | B of 'a
+type t1 = int wrapped

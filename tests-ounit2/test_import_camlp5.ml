@@ -10,13 +10,14 @@ val pp : t Fmt.t
 type 'a vala = [%import: 'a Ploc.vala] [@@deriving show]
 end
 
-[%%import: 'a Ploc.vala]
+[%%typedecls
 [%%import: MLast.expr
     [@add type loc = [%import: MLast.loc]
           and type_var = [%import: MLast.type_var]
     ]
+]
+[%%import: 'a Ploc.vala]
 ] [@@deriving show]
-
   end = struct
 module Ploc= struct
 include Ploc
@@ -26,12 +27,15 @@ let pp ppf x = Fmt.(const string "<loc>" ppf ())
 type 'a vala = [%import: 'a Ploc.vala] [@@deriving show]
 end
 
-[%%import: 'a Ploc.vala]
+[%%typedecls
 [%%import: MLast.expr
     [@add type loc = [%import: MLast.loc]
           and type_var = [%import: MLast.type_var]
     ]
+]
+[%%import: 'a Ploc.vala]
 ] [@@deriving show]
+
 end
 
 
@@ -39,12 +43,14 @@ module Again = struct
 
 module Ploc = T.Ploc
 
-[%%import: 'a Ploc.vala]
+[%%typedecls
 [%%import: MLast.expr
     [@add type loc = [%import: MLast.loc]
           type type_var = [%import: MLast.type_var]
     ]
     [@with Ploc.vala := vala]
+ ]
+ [%%import: 'a Ploc.vala]
 ]
 
 end
@@ -56,11 +62,13 @@ include Ploc
 let pp ppf x = Fmt.(const string "<loc>" ppf ())
 end
 
-[%%import: 'a Ploc.vala][@@deriving show]
+[%%typedecls
+[%%import: 'a Ploc.vala]
 [%%import: MLast.expr
     [@add [%%import: MLast.loc]]
     [@add [%%import: MLast.type_var]]
     [@with Ploc.vala := vala]
+]
 ] [@@deriving show]
 
 end

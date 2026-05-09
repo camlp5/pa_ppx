@@ -58,7 +58,8 @@ value addsetl r l = List.iter (addset r) l ;
 type form_t = [ Short | Medium | Long ] ;
 type t =
   {
-    all_plugins : ref (list string)
+    in_decl : mutable bool
+  ; all_plugins : ref (list string)
   ; all_attributes : ref (list string)
 
   ; current_plugins : ref (list string)
@@ -68,12 +69,13 @@ type t =
   }
 ;
 value mk () = { 
-  all_plugins = ref []
-; all_attributes = ref [] 
-; current_plugins = ref []
-; current_attributes = ref []
-; allowed_form = ref None
-} ;
+    in_decl = False
+  ; all_plugins = ref []
+  ; all_attributes = ref [] 
+  ; current_plugins = ref []
+  ; current_attributes = ref []
+  ; allowed_form = ref None
+  } ;
 
 type scratchdata_t += [ Pa_deriving of t ] ;
 
@@ -106,6 +108,7 @@ value superfluous_options dc (na, options) =
 ;
 
 value start_decl loc dc plugins = do {
+  assert (not dc.in_decl) ;
   assert ([] = dc.current_plugins.val) ;
   assert ([] = dc.current_attributes.val) ;
   List.iter (fun ((na, _) as r) ->
@@ -118,6 +121,7 @@ value start_decl loc dc plugins = do {
       else ()) plugins ;
   let plugins = Std.filter (fun (na,_) -> Registry.mem na) plugins in
   dc.current_plugins.val := List.map fst plugins ;
+  dc.in_decl := True ;
   plugins
 }
 ;
@@ -126,6 +130,7 @@ value end_decl dc = do {
   let attributes = dc.current_attributes.val in
   dc.current_plugins.val := [] ;
   dc.current_attributes.val := [] ;
+  dc.in_decl := False ;
   attributes
 }
 ;
@@ -203,7 +208,9 @@ value use_file arg fallback x = do {
 
 value add_current_attribute arg id =
   let dc = DC.get arg in
-  DC.addset dc.current_attributes id
+  if dc.in_decl then
+    DC.addset dc.current_attributes id
+  else ()
 ;
 
 value add_deriving_attributes ctxt attrs = do {

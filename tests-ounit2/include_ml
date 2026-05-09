@@ -6,6 +6,7 @@
 #require "str";;
 #require "camlp5.pa_o";;
 #require "camlp5.pr_o";;
+Pcaml.inter_phrases := Some ";;\n";;
 
 let pp_location_t pps (loc : Location.t) = Fmt.(pf pps "<loc>") ;;
 

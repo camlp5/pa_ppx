@@ -41,6 +41,28 @@ Here's an example of using this behaviour::
   type lam_node = [%import: Lam.lam]
   and lam = lam_node Hashcons.hash_consed
 
+Renaming can be accomplished by using `[@with ...]` just as with `[%import: ...]`.
+
+Sometimes you need to import a number of types and group them
+together in order to apply a type-deriver to the group.  And
+sometimes you need to apply different renamings to different
+types in the group.  To accomplish this, you can use:
+
+  [%%typedecls
+    [%%import: MLast.expr
+      [@add type loc = [%import: MLast.loc]
+            and type_var = [%import: MLast.type_var]
+      ]
+      [@with Ploc.vala := vala]
+    ]
+    [%%import: 'a Ploc.vala]
+  ]
+
+This imports the entire typedecl group containing `MLast.expr`,
+adds `MLast.loc`, `MLast.type_var`, and also `Ploc.vala`.
+But in the definitions of all but the last typedecl, it
+rewrites `Ploc.vala` to `vala`.
+
 Specifying Search-path for Import
 #################################
 

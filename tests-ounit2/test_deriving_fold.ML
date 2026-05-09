@@ -41,6 +41,7 @@ let test_result_result ctxt =
   assert_equal ~printer:string_of_int (-1) (f 0 (Result.Error 1))
 
 #ifdef PAPPX
+#if OCAML_VERSION >= (5,4,0)
 module LabelBtree = struct
 type 'a btree = Node of (left:'a btree * it:'a * right:'a btree) | Leaf
 [@@deriving fold]
@@ -49,7 +50,7 @@ let test_btree ctxt =
   let btree  = (Node (~left:(Node (~left:Leaf, ~it:3, ~right:Leaf)), ~it:1, ~right:(Node (~left:Leaf, ~it:2, ~right:Leaf)))) in
   assert_equal ~printer:string_of_int 6 (fold_btree (+) 0 btree)
 end
-
+#endif
 #endif
 
 let suite = "Test deriving(fold)" >::: [
@@ -58,7 +59,9 @@ let suite = "Test deriving(fold)" >::: [
   "test_result_result" >:: test_result_result;
   "test_reflist" >:: test_reflist;
 #ifdef PAPPX
+#if OCAML_VERSION >= (5,4,0)
     "LabelBtree.test_btree"   >:: LabelBtree.test_btree;
+#endif
 #endif
 ]
 

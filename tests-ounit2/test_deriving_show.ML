@@ -53,10 +53,12 @@ let test_alias ctxt =
   assert_equal ~printer "2" (show_y y)
 
 #ifdef PAPPX
+#if OCAML_VERSION >= (5,4,0)
 type lt = (a:int * b:bool)        [@@deriving show]
 
 let test_labeled_tuple ctxt =
   assert_equal  ~printer "(a:5, b:false)" (show_lt (~a:5, ~b:false))
+#endif
 #endif
 
 type v = Foo | Bar of int * string | Baz of string [@@deriving show]
@@ -286,7 +288,9 @@ let suite = "Test deriving(show)" >::: [
     "test_result"          >:: test_result;
     "test_result_result"   >:: test_result_result;
 #ifdef PAPPX
+#if OCAML_VERSION >= (5,4,0)
     "test_labeled_tuple"   >:: test_labeled_tuple;
+#endif
 #endif
   ]
 

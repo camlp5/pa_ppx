@@ -93,10 +93,10 @@ test: $(TESTS:.byte=)
 .SECONDARY:
 
 test_%.ml.pappx.ml: test_%.ML
-	cppo -D PAPPX $< > $@
+	cppo -V OCAML:$(ocamlVERSION) -D PAPPX $< > $@
 
 test_%.ml.ppx.ml: test_%.ML
-	cppo -U PAPPX $< > $@
+	cppo -V OCAML:$(ocamlVERSION) -U PAPPX $< > $@
 
 test_%.byte: test_%.ml.pappx.cmo
 	$(LAUNCH) $(OCAMLFIND) ocamlc $(DEBUG) $(WARNERR) -package $(PACKAGES),$(PAPACKAGES) \
@@ -106,7 +106,7 @@ test_%.ppx.byte: stuff.cmo test_self_import.cmo test_%.ml.ppx.cmo
 	$(OCAMLFIND) ocamlc $(DEBUG) -custom $(WARNERR) -package $(PACKAGES),oUnit,$(PPXPACKAGES) -linkpkg $^ -o $@
 
 test_ppx_yojson.ppx.byte: test_ppx_yojson.ML stuff.cmo test_self_import.cmo
-	cppo test_ppx_yojson.ML > test_ppx_yojson.ppx.ml
+	cppo -V OCAML:$(ocamlVERSION) test_ppx_yojson.ML > test_ppx_yojson.ppx.ml
 	$(NOT_OCAMLFIND) preprocess -package $(PACKAGES),oUnit,$(PPXPACKAGES),ppx_sexp_conv test_ppx_yojson.ppx.ml >  test_ppx_yojson.ppx.ml.ppo
 	$(OCAMLFIND) ocamlc $(DEBUG) -custom $(WARNERR) -package $(PACKAGES),oUnit,$(PPXPACKAGES),ppx_sexp_conv -linkpkg stuff.cmo test_self_import.cmo test_ppx_yojson.ppx.ml -o $@
 

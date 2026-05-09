@@ -162,6 +162,7 @@ let test_map_result_result ctxt =
   assert_equal ~printer (Error true) (f (Error true))
 
 #ifdef PAPPX
+#if OCAML_VERSION >= (5,4,0)
 module LabeledTuple = struct
 
   type 'a btree = Node of (left:'a btree * it:'a * right:'a btree) | Leaf
@@ -174,6 +175,7 @@ let test_btree ctxt =
                (Node (~left:(Node (~left:Leaf, ~it:1, ~right:Leaf)), ~it:2, ~right:(Node (~left:Leaf, ~it:3, ~right:Leaf))))
                btree'
 end
+#endif
 #endif
 
 let suite = "Test deriving(map)" >::: [
@@ -190,7 +192,9 @@ let suite = "Test deriving(map)" >::: [
     "test_map_result" >:: test_map_result;
     "test_map_result_result" >:: test_map_result_result;
 #ifdef PAPPX
+#if OCAML_VERSION >= (5,4,0)
     "LabeledTuple.test_btree" >:: LabeledTuple.test_btree;
+#endif
 #endif
   ]
 

@@ -181,6 +181,7 @@ let test_record_order ctxt =
   assert_equal ~printer (1) (compare_ab { a = 2; b = 2; } { a = 1; b = 2; })
 
 #ifdef PAPPX
+#if OCAML_VERSION >= (5,4,0)
 module LabeledTuple = struct
 type ab = ( a : int * b : int ) [@@deriving ord]
 let test_record_order ctxt =
@@ -188,6 +189,7 @@ let test_record_order ctxt =
   assert_equal ~printer (0) (compare_ab ( ~a:1, ~b:2) ( ~a:1, ~b:2 ));
   assert_equal ~printer (1) (compare_ab ( ~a:2, ~b:2) ( ~a:1, ~b:2 ))
 end
+#endif
 #endif
 
 let suite = "Test deriving(ord)" >::: [
@@ -206,7 +208,9 @@ let suite = "Test deriving(ord)" >::: [
     "test_ord_result"    >:: test_ord_result;
     "test_ord_result_result" >:: test_ord_result_result;
 #ifdef PAPPX
+#if OCAML_VERSION >= (5,4,0)
     "LabeledTuple.test_record_order"  >:: LabeledTuple.test_record_order;
+#endif
 #endif
   ]
 

@@ -849,11 +849,13 @@ end
 type tup = (int * bool)        [@@deriving located_sexp, show]
 
 #ifdef PAPPX
+#if OCAML_VERSION >= (5,4,0)
 type lt = (a:int * b:bool)        [@@deriving located_sexp, show]
 
 let test_labeled_tuple ctxt =
   assert_equal ~cmp ~printer:Sexp.to_string (Sexp.of_string "(5 false)") (located_sexp_of_lt (~a:5, ~b:false))
 ; assert_equal  ~printer:show_lt (~a:5, ~b:false) (lt_of_located_sexp (Sexp.of_string "(5 false)"))
+#endif
 #endif
 
 let suite = "Test_deriving(located_sexp)" >::: [
@@ -910,7 +912,9 @@ let suite = "Test_deriving(located_sexp)" >::: [
     ; "Allow_extra_fields.M1" >:: Allow_extra_fields.M1.test
     ; "Allow_extra_fields.M2" >:: Allow_extra_fields.M2.test
 #ifdef PAPPX
+#if OCAML_VERSION >= (5,4,0)
     ; "test_labeled_tuple"   >:: test_labeled_tuple;
+#endif
 #endif
     ]
 

@@ -82,7 +82,9 @@ module PolyVariant = struct
 end
 
 #ifdef PAPPX
+#if OCAML_VERSION >= (5,4,0)
 type 'a lt = A | B of (a: 'a * b: int) list[@@deriving iter]
+#endif
 #endif
 
 let suite = "Test deriving(iter)" >::: [

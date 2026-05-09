@@ -792,11 +792,13 @@ module Allow_extra_fields = struct
 end
 
 #ifdef PAPPX
+#if OCAML_VERSION >= (5,4,0)
 type lt = (a:int * b:bool)        [@@deriving sexp, show]
 
 let test_labeled_tuple ctxt =
   assert_equal  ~printer:Sexp.to_string (Sexplib.Sexp.of_string "(5 false)") (sexp_of_lt (~a:5, ~b:false))
 ; assert_equal  ~printer:show_lt (~a:5, ~b:false) (lt_of_sexp (Sexplib.Sexp.of_string "(5 false)"))
+#endif
 #endif
 
 let suite = "Test_deriving(sexp)" >::: [
@@ -847,7 +849,9 @@ let suite = "Test_deriving(sexp)" >::: [
     ; "Allow_extra_fields.M1" >:: Allow_extra_fields.M1.test
     ; "Allow_extra_fields.M2" >:: Allow_extra_fields.M2.test
 #ifdef PAPPX
+#if OCAML_VERSION >= (5,4,0)
     ; "test_labeled_tuple"   >:: test_labeled_tuple;
+#endif
 #endif
     ]
 

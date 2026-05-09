@@ -44,10 +44,12 @@ let test_ref2 ctxt =
   assert_equal ~printer true (equal_r2 (ref 0) (ref 0))
 
 #ifdef PAPPX
+#if OCAML_VERSION >= (5,4,0)
 type lt = (a:int * b:bool)        [@@deriving eq]
 
 let test_labeled_tuple ctxt =
   assert_equal  ~printer true (equal_lt (~a:5, ~b:false) (~a:5, ~b:false))
+#endif
 #endif
 
 type v = Foo | Bar of int * string | Baz of string [@@deriving eq]
@@ -172,7 +174,9 @@ let suite = "Test deriving(eq)" >::: [
     "test_result"        >:: test_result;
     "test_result_result" >:: test_result_result;
 #ifdef PAPPX
+#if OCAML_VERSION >= (5,4,0)
     "test_labeled_tuple"   >:: test_labeled_tuple;
+#endif
 #endif
   ]
 

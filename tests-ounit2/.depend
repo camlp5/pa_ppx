@@ -43,6 +43,8 @@ test_import_camlp5.cmo : \
     stuff.cmo
 test_import_camlp5.cmx : \
     stuff.cmx
+test_located_sexp.cmo :
+test_located_sexp.cmx :
 test_passthru_hashrecons.cmo : \
     hCPassthru.cmo
 test_passthru_hashrecons.cmx : \

@@ -13,6 +13,18 @@ pa_ppx Version 8.04.01
     new version of pa_ppx's base infra, and when it's new syntax, changes
     to the various derivers to support that new syntax.
 
+  * BREAKING CHANGE: the `[@with a := b]` (which allows to substitute
+    instances of the type `a` with `b` in an imported type was not
+    applying the substitution in manifest types (viz. revised syntax
+    `type t = t1 == t2`; official syntax `type t = t1 = t2`).  This
+    fixes it.
+
+    Also, new function, `[%%typedecls ....]` wherein you can list a
+    series of typedecls, or `[%%import ....]` and they will all get
+    merged.  So you can apply different `[@with ...]` to each such
+    import, then merge them together into a single typedecl that then
+    can be the target of a type-deriver.
+
 pa_ppx Version 0.20
 -------------------
 

@@ -50,6 +50,8 @@ and ctyp0 arg =
     fun
     [ TyAtt loc ct attr[@hashrecons z;] ->
        TyAtt loc (self ct) (attribute arg attr)[@hashrecons z;]
+    | TyExt loc s[@hashrecons z;] ->
+       TyExt loc s[@hashrecons z;]
     | TyAcc loc x1 x2[@hashrecons z;] ->
         TyAcc loc (longid arg x1) x2[@hashrecons z;]
     | TyAli loc x1 x2 [@hashrecons z;] →
@@ -250,14 +252,8 @@ and expr0 arg =
         ExLet loc x1
           (vala_map (List.map (fun (x1, x2, x3) → (patt arg x1, self x2, attributes arg x3))) x2)
           (self x3)[@hashrecons z;]
-    | ExLEx loc x1 x2 x3 x4[@hashrecons z;] ->
-        ExLEx loc x1 (vala_map (List.map (ctyp arg)) x2) (self x3) (attributes arg x4)[@hashrecons z;]
     | ExLid loc x1[@hashrecons z;] →
         ExLid loc x1[@hashrecons z;]
-    | ExLmd loc x1 x2 x3[@hashrecons z;] →
-        ExLmd loc x1 (module_expr arg x2) (self x3)[@hashrecons z;]
-    | ExLop loc b x1 x2[@hashrecons z;] →
-        ExLop loc b (module_expr arg x1) (self x2)[@hashrecons z;]
     | ExMat loc x1 x2[@hashrecons z;] →
         ExMat loc (self x1) (vala_map (List.map (case_branch arg)) x2)[@hashrecons z;]
     | ExNew loc x1[@hashrecons z;] →
@@ -297,7 +293,9 @@ and expr0 arg =
     | ExXtr loc x1 x2[@hashrecons z;] →
         ExXtr loc x1 (option_map (vala_map self) x2)[@hashrecons z;]
     | ExExten loc exten[@hashrecons z;] ->
-        ExExten loc exten[@hashrecons z;]
+        ExExten loc (attribute arg exten)[@hashrecons z;]
+    | ExLSI loc si e[@hashrecons z;] ->
+       ExLSI loc (vala_map (str_item arg) si) (self e)[@hashrecons z;]
     | ExUnr loc[@hashrecons z;] ->
         ExUnr loc[@hashrecons z;]
     ] in

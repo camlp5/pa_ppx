@@ -225,6 +225,7 @@ and ctyp0 arg =
     fun
     [ TyAtt loc ct attr ->
        TyAtt loc (self ct) (attribute arg attr)
+    | TyExt loc s -> TyExt loc s
     | TyAcc loc x1 x2 ->
         TyAcc loc (longid arg x1) x2
     | TyAli loc x1 x2 →
@@ -422,14 +423,8 @@ and expr0 arg =
         ExLet loc x1
           (vala_map (List.map (fun (x1, x2, x3) → (patt arg x1, self x2, attributes arg x3))) x2)
           (self x3)
-    | ExLEx loc x1 x2 x3 x4 ->
-        ExLEx loc x1 (vala_map (List.map (ctyp arg)) x2) (self x3) (attributes arg x4)
     | ExLid loc x1 →
         ExLid loc x1
-    | ExLmd loc x1 x2 x3 →
-        ExLmd loc x1 (module_expr arg x2) (self x3)
-    | ExLop loc b x1 x2 →
-        ExLop loc b (module_expr arg x1) (self x2)
     | ExMat loc x1 x2 →
         ExMat loc (self x1) (vala_map (List.map (case_branch arg)) x2)
     | ExNew loc x1 →
@@ -470,6 +465,8 @@ and expr0 arg =
         ExXtr loc x1 (option_map (vala_map self) x2)
     | ExExten loc exten ->
         ExExten loc exten
+    | ExLSI loc si e ->
+       ExLSI loc (vala_map (str_item arg) si) (expr arg e)
     | ExUnr loc ->
         ExUnr loc
     ] in

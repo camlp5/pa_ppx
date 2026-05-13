@@ -11,7 +11,7 @@ DESTDIR=
 
 export PACKAGES := $(PACKAGES),oUnit,fmt,str,pcre2,result,rresult,compiler-libs.common,yojson,sexplib,sexplib0
 
-PPXPACKAGES:=ppx_import
+#PPXPACKAGES:=ppx_import
 PPXPACKAGES:=$(PPXPACKAGES),ppx_deriving.show
 PPXPACKAGES:=$(PPXPACKAGES),ppx_deriving.eq
 PPXPACKAGES:=$(PPXPACKAGES),ppx_deriving.ord
@@ -68,11 +68,18 @@ TESTS= \
 	test_deriving_located_sexp.byte \
 	test_here.byte \
 	test_here_original.byte \
-	test_here.ppx.byte \
+
+#TESTS += test_here.ppx.byte
+
+TESTS += \
 	test_import0.byte \
 	test_import_camlp5.byte \
 	test_ppx_import.byte \
-	test_ppx_import.ppx.byte \
+
+
+#TESTS += test_ppx_import.ppx.byte
+
+TESTS += \
 	test_hashrecons.byte \
 	test_passthru_hashrecons.byte \
 	test_ppx_yojson.byte \

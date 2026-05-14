@@ -5,6 +5,8 @@ pa_ppx Version 8.05.01
 
   * update source for compat with camlp5 8.05.01
 
+  * sync config/Makefile*
+
 pa_ppx Version 8.04.01
 ----------------------
 

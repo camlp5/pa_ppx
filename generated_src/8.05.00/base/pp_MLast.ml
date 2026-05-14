@@ -122,7 +122,10 @@ and ctyp =
     | TyAtt of loc and ctyp and attribute
     | TyExt of loc and Ploc.vala string
     | TyExten of loc and attribute
-    | TyOpen of loc and longid and ctyp ]
+    | TyOpen of loc and longid and ctyp
+    | TyFun of
+        loc and Ploc.vala (option (Ploc.vala string)) and Ploc.vala string and
+          module_type and ctyp ]
 and poly_variant =
   MLast.poly_variant ==
     [ PvTag of
@@ -734,7 +737,30 @@ and pp_ctyp : Fmt.t ctyp =
        | TyOpen v0 v1 v2 →
            let open Pa_ppx_runtime.Runtime.Fmt in
            pf ofmt "(@[<2>MLast.TyOpen@ (@,%a,@ %a,@ %a@,))@]" pp_loc v0
-             pp_longid v1 pp_ctyp v2 ])
+             pp_longid v1 pp_ctyp v2
+       | TyFun v0 v1 v2 v3 v4 →
+           let open Pa_ppx_runtime.Runtime.Fmt in
+           pf ofmt "(@[<2>MLast.TyFun@ (@,%a,@ %a,@ %a,@ %a,@ %a@,))@]" pp_loc
+             v0
+             (Ploc.pp_vala
+                (fun ofmt →
+                   fun
+                   [ None →
+                       let open Pa_ppx_runtime.Runtime.Fmt in
+                       const string "None" ofmt ()
+                   | Some arg →
+                       let open Pa_ppx_runtime.Runtime.Fmt in
+                       pf ofmt "(Some %a)"
+                         (Ploc.pp_vala
+                            (fun ofmt arg →
+                               let open Pa_ppx_runtime.Runtime.Fmt in
+                               pf ofmt "%S" arg))
+                         arg ]))
+             v1
+             (Ploc.pp_vala
+                (fun ofmt arg →
+                   let open Pa_ppx_runtime.Runtime.Fmt in pf ofmt "%S" arg))
+             v2 pp_module_type v3 pp_ctyp v4 ])
       ofmt arg[@@"ocaml.warning" "-39";] [@@"ocaml.warning" "-33";]
 and show_ctyp : ctyp → Stdlib.String.t =
   fun arg → Format.asprintf "%a" pp_ctyp arg[@@"ocaml.warning" "-39";] [@@"ocaml.warning" "-33";]

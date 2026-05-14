@@ -279,6 +279,8 @@ and ctyp0 arg =
         TyExten loc (attribute arg exten)
     | TyOpen loc x1 x2 ->
        TyOpen loc (longid arg x1) (ctyp arg x2)
+    | TyFun loc idopt mid mt ct ->
+        TyFun loc idopt mid (module_type arg mt) (ctyp arg ct)
     ] in
   self0
 

@@ -74,7 +74,10 @@ and ctyp =
     | TyAtt of loc and ctyp and attribute
     | TyExt of loc and Ploc.vala string
     | TyExten of loc and attribute
-    | TyOpen of loc and longid and ctyp ]
+    | TyOpen of loc and longid and ctyp
+    | TyFun of
+        loc and Ploc.vala (option (Ploc.vala string)) and Ploc.vala string and
+          module_type and ctyp ]
 and poly_variant =
   MLast.poly_variant ==
     [ PvTag of

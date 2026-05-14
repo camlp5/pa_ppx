@@ -105,6 +105,8 @@ and ctyp0 arg =
         TyExten loc (attribute arg exten)[@hashrecons z;]
     | TyOpen loc x1 x2[@hashrecons z;] ->
        TyOpen loc (longid arg x1) (ctyp arg x2)[@hashrecons z;]
+    | TyFun loc idopt mid mt ct[@hashrecons z;] ->
+       TyFun loc idopt mid (module_type arg mt) (ctyp arg ct)[@hashrecons z;]
     ] in
   self0
 

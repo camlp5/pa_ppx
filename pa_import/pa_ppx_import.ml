@@ -11,6 +11,8 @@ open Ppxutil ;
 
 value debug = Pa_passthru.debug ;
 
+value parse_interf = MLParsers.OP.Pretty.String.interf;
+
 value mli_only = ref False ;
 value redeclare = ref False ;
 value predicates = ref [] ;
@@ -140,7 +142,7 @@ value rec lookup_signature ~{impl_only} li =
 value reparse_signature li sil =
     let txt = Fmt.(str "%a%!" Printtyp.signature sil) in
     try
-      List.map fst (fst (Pcaml.parse_interf (Stream.of_string txt)))
+      List.map fst (fst (parse_interf txt))
     with exc -> do {
       let rbt = Printexc.get_raw_backtrace() in
       Fmt.(pf stderr "ERROR: reparse_signature %a: exception raised while reparsing CMI text:\n<<%s>>\n: %a"
@@ -162,7 +164,7 @@ module MLI = struct
 
 value parse_mli infile =
   let txt = infile |> Fpath.v|> Bos.OS.File.read |> Rresult.R.get_ok in
-  List.map fst (fst (Pcaml.parse_interf (Stream.of_string txt)))
+  List.map fst (fst (parse_interf txt))
 ;
 
 value _demarsh loc infile =

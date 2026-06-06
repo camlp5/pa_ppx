@@ -7,3 +7,11 @@ all:
 test:: mdx-test
 
 mdx-test:: error-handling.asciidoc.TEST
+
+%.asciidoc.TEST: %.asciidoc.corrected %.asciidoc
+	perl -n -i -e 'print unless (s,.*: added to search path.*,,)' $<
+	perl -n -i -e 'print unless (s,.*: loaded.*,,)' $<
+	perl -p -i -e 's,#<\|[^\|]+\|>,,' $<
+	diff -Bwiu $^
+
+error-handling.asciidoc.TEST: | stuff.cmo

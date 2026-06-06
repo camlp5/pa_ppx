@@ -58,3 +58,115 @@ Failure: bar
 Line 1, characters 0-0:
 Error: Stdlib.Exit
 ```
+
+```ocaml
+# #require "pa_ppx_deriving_plugins.located_sexp";;
+# #require "pa_ppx_deriving_plugins.sexp";;
+# #require "pa_ppx_deriving_plugins.yojson";;
+```
+
+```ocaml
+# type foo = int -> int
+  [@@deriving located_sexp_of] ;;
+File "_none_", line 1, characters 11-21:
+Failure: pa_deriving_located_sexp.to_expression: int -> int
+
+Line 1, characters 0-0:
+Error: Stdlib.Exit
+```
+
+```ocaml
+# type foo = int -> int
+  [@@deriving of_located_sexp] ;;
+File "_none_", line 1, characters 11-21:
+Failure: pa_deriving_located_sexp.of_expression: int -> int
+
+Line 1, characters 0-0:
+Error: Stdlib.Exit
+```
+
+```ocaml
+# type foo = int -> int
+  [@@deriving sexp_of] ;;
+File "_none_", line 1, characters 11-21:
+Failure: pa_deriving_sexp.to_expression: int -> int
+
+Line 1, characters 0-0:
+Error: Stdlib.Exit
+```
+
+```ocaml
+# type foo = int -> int
+  [@@deriving of_sexp] ;;
+File "_none_", line 1, characters 11-21:
+Failure: pa_deriving_sexp.of_expression: int -> int
+
+Line 1, characters 0-0:
+Error: Stdlib.Exit
+```
+
+```ocaml
+# type foo = int -> int
+  [@@deriving of_yojson] ;;
+File "_none_", line 1, characters 11-21:
+Failure: pa_deriving_yojson.of_expression: int -> int
+
+Line 1, characters 0-0:
+Error: Stdlib.Exit
+```
+
+```ocaml
+# type foo = int -> int
+  [@@deriving to_yojson] ;;
+File "_none_", line 1, characters 11-21:
+Failure: pa_deriving_yojson.to_expression: int -> int
+
+Line 1, characters 0-0:
+Error: Stdlib.Exit
+```
+
+```ocaml
+# #require "pa_ppx_import";;
+```
+
+```ocaml
+# [%%import: 'a option] ;;
+File "_none_", line 1, characters 11-20:
+Failure: unpack_imported_type: type-name lacks module-prefix: 'a option
+
+Line 1, characters 0-0:
+Error: Stdlib.Exit
+```
+
+```ocaml
+# [%%import: Argle.bargle] ;;
+File "_none_", line 1, characters 11-16:
+Failure: pa_import: lookup_signature (impl_only=false): cannot find module Argle
+(Stdlib.Failure
+   "lookup_file: module Argle (cmi) not found\n[import_type: packages: ]\n")
+(Stdlib.Failure
+   "lookup_file: module Argle (mli) not found\n[import_type: packages: ]\n")
+
+Line 1, characters 0-0:
+Error: Stdlib.Exit
+```
+
+```ocaml
+# [%%import: ('a, 'b) Stuff.choice] ;;
+type ('a, 'b) choice = ('a, 'b) Stuff.choice = Left of 'a | Right of 'b
+# type t = [%import: ('a, 'b, 'c) Stuff.choice] ;;
+Failure: import_type: type-param formal/actual list-length mismatch
+
+Line 1, characters 0-0:
+Error: Stdlib.Exit
+# type t = [%import: 'a Stuff.choice] ;;
+Failure: import_type: type-param formal/actual list-length mismatch
+
+Line 1, characters 0-0:
+Error: Stdlib.Exit
+# type t = [%import: Stuff.choice] ;;
+Failure: import_type: type-param formal/actual list-length mismatch
+
+Line 1, characters 0-0:
+Error: Stdlib.Exit
+```

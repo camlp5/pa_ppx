@@ -13,6 +13,10 @@ value debug = Pa_passthru.debug ;
 
 value parse_interf = MLParsers.OP.Pretty.String.interf;
 
+value pp_ctyp pps x = MLPrinters.OP.Pretty.pp_ctyp pps x ;
+value pp_longid pps x = MLPrinters.OP.Pretty.pp_longident pps x ;
+value pp_attribute pps x = MLPrinters.OP.pp_attribute pps x ;
+
 value mli_only = ref False ;
 value redeclare = ref False ;
 value predicates = ref [] ;
@@ -54,7 +58,7 @@ value add_include s =
 value pp_report pps () =
   let path = lookup_path.val in
   let path = String.concat ":" path in
-  Fmt.(pf pps "[import_type: packages: %s]\n%!" path)
+  Fmt.(pf pps "[import_type: packages: #<|path: %s|>]\n%!" path)
 ;
 
 value report () = pp_report Fmt.stderr () ;
@@ -146,7 +150,7 @@ value reparse_signature li sil =
     with exc -> do {
       let rbt = Printexc.get_raw_backtrace() in
       Fmt.(pf stderr "ERROR: reparse_signature %a: exception raised while reparsing CMI text:\n<<%s>>\n: %a"
-             Pp_MLast.pp_longid li
+             pp_longid li
              txt
              exn exc);
       Printexc.raise_with_backtrace exc rbt
@@ -224,7 +228,7 @@ value lookup_signature ~{impl_only=impl_only} li =
     with exc2 ->
       Fmt.(raise_failwithf (MLast.loc_of_longid li) "pa_import: lookup_signature (impl_only=%a): cannot find module %a\n%a\n%a"
              bool impl_only
-             Pp_MLast.pp_longid li
+             pp_longid li
              exn exc1
              exn exc2)
 ;
@@ -247,7 +251,7 @@ value import_typedecl t = do {
   | <:ctyp:< $longid:modname$ . $lid:lid$ >> ->
     match lookup_typedecl modname lid with [
         Some x -> x
-      | None -> Fmt.(raise_failwithf loc "CMI.import_typedecl: typedecl %a not found" Pp_MLast.pp_ctyp t)
+      | None -> Fmt.(raise_failwithf loc "CMI.import_typedecl: typedecl %a not found" pp_ctyp t)
       ]
   ]
 }
@@ -392,7 +396,7 @@ value unpack_imported_type arg full_t =
   let (unapp_t, args) = Ctyp.unapplist bare_t in
   let (li, lid) = match unapp_t with [
     <:ctyp< $longid:li$ . $lid:lid$ >> -> (li, lid)
-  | _ -> failwith "unpack_imported_type"
+  | _ -> Fmt.(raise_failwithf (loc_of_ctyp full_t) "unpack_imported_type: type-name lacks module-prefix: %a" pp_ctyp full_t)
   ] in
   let sl = Longid.to_string_list li in
   let self_import = (List.hd sl) = (List.hd (Ctxt.module_path arg)) in
@@ -479,7 +483,7 @@ value rec expand_add_attribute arg attr =
     <:attribute_body< "add" $structure:l$ >> when l <> [] -> l
   | _ -> Ploc.raise (attr |> uv |> fst |> uv |> fst)
       (Failure Fmt.(str "expand_add_attribute: malformed add attribute:@ %a"
-                      Pp_MLast.pp_attribute attr))
+                      pp_attribute attr))
   ] in
   let expanded_sil = sil |> List.map (fun [
     <:str_item:<  type $flag:_$ $list:_$ >>

@@ -7,7 +7,7 @@ include $(TOP)/config/Makefile.sub
 
 DESTDIR=
 
-PACKAGES := $(PACKAGES),pa_ppx_base,fmt,bos,compiler-libs.common,findlib.internal
+PACKAGES := $(PACKAGES),camlp5.parsers,camlp5.printers,pa_ppx_base,fmt,bos,compiler-libs.common,findlib.internal
 
 TARGET_PACKAGE=pa_ppx_import
 TARGET=$(TARGET_PACKAGE).cma

@@ -13,6 +13,9 @@ open Pa_ppx_deriving ;
 open Surveil ;
 open Pa_deriving_base ;
 
+value pp_ctyp = MLPrinters.OP.Pretty.pp_ctyp ;
+
+value show_longid_lident = MLPrinters.OP.show_longident_lident ;
 
 module Ctxt = struct
   include Pa_passthru.Ctxt ;
@@ -105,7 +108,7 @@ value omission_instructions loc arg attrs =
     | (_, None, None, None, None, None, None, None, Some <:expr< () >>, None, None) -> Some List
     | (_, None, None, None, None, None, None, None, None, Some <:expr< () >>, None) -> Some Array
     | (_, None, None, None, None, None, None, None, None, None, Some <:expr< () >>) -> Some Bool
-    | _ -> Ploc.raise loc (Failure "pa_deriving.sexp: unrecognized or malformed drop instructions")
+    | _ -> Ploc.raise loc (Failure "pa_deriving.located_sexp: unrecognized or malformed drop instructions")
     ]
 ;
 
@@ -165,7 +168,7 @@ value to_expression arg ?{coercion} ~{msg} param_map ty0 =
   let p = match PM.find i param_map with [
     x -> x
   | exception Not_found ->
-    Ploc.raise loc (Failure "pa_deriving.sexp: unrecognized param-var in type-decl")
+    Ploc.raise loc (Failure "pa_deriving.located_sexp: unrecognized param-var in type-decl")
   ] in
   PM.arg_expr loc p
 
@@ -295,9 +298,9 @@ value to_expression arg ?{coercion} ~{msg} param_map ty0 =
   let recpat = match coercion with [ None -> recpat | Some ty -> <:patt< ( $recpat$ : $ty$ ) >> ] in
   <:expr< fun $recpat$ -> $body$ >>
 
-| [%unmatched_vala] -> failwith "pa_deriving_sexp.to_expression"
+| [%unmatched_vala] -> failwith "pa_deriving_located_sexp.to_expression"
 | ty ->
-  Ploc.raise (loc_of_ctyp ty) (Failure (Printf.sprintf "pa_deriving_sexp.to_expression: %s" (Pp_MLast.show_ctyp ty)))
+  Ploc.raise (loc_of_ctyp ty) (Failure Fmt.(str "pa_deriving_located_sexp.to_expression: %a" pp_ctyp ty))
 ]
 and fmt_record loc arg fields = 
   let labels_vars_tys_fmts_omits_jskeys = List.map (fun (_, fname, _, ty, attrs) ->
@@ -451,7 +454,7 @@ value rec extend_str_items arg si = match si with [
     let param_map = PM.make "located_sexp" loc (uv td.tdPrm) in
     let (to_sexpfname, toftype) = List.hd (sig_item_top_funs arg td) in
     let modname = Printf.sprintf "M_%s" to_sexpfname in
-    let msg1 = Printf.sprintf "%s: Maybe a [@@deriving sexp] is missing when extending the type " to_sexpfname in
+    let msg1 = Printf.sprintf "%s: Maybe a [@@deriving located_sexp] is missing when extending the type " to_sexpfname in
     let msg2 = td.tdNam |> uv |> snd |> uv in
 
     let field_type = PM.quantify_over_ctyp param_map toftype in
@@ -482,7 +485,7 @@ value rec extend_str_items arg si = match si with [
     ] in
     let gcl = List.concat (List.map ec2gc ecs) in
     let ty = <:ctyp< [ $list:gcl$ ] >> in
-    let e = to_expression arg ~{msg=String.escaped (Pp_MLast.show_longid_lident t)} param_map ty in
+    let e = to_expression arg ~{msg=String.escaped (show_longid_lident t)} param_map ty in
     let branches = match e with [
       <:expr< fun [ $list:branches$ ] >> -> branches
     | _ -> assert False
@@ -603,7 +606,7 @@ value of_expression arg ~{msg} param_map (ty0, attrs) =
   let p = match PM.find i param_map with [
     x -> x
   | exception Not_found ->
-    Ploc.raise loc (Failure "pa_deriving.sexp: unrecognized param-var in type-decl")
+    Ploc.raise loc (Failure "pa_deriving.located_sexp: unrecognized param-var in type-decl")
   ] in
   PM.arg_expr loc p
 
@@ -751,9 +754,9 @@ value of_expression arg ~{msg} param_map (ty0, attrs) =
   let (recpat, body) = fmt_record ~{allow_extra_fields=attrmod.allow_extra_fields} ~{cid=None} loc arg fields in
   <:expr< fun [ $recpat$ -> $body$ | sexp -> raise (Ploc.Exc (Pa_ppx_located_sexp.Sexp.loc_of_sexp sexp) (Failure $str:msg$)) ] >>
 
-| [%unmatched_vala] -> failwith "pa_deriving_sexp.of_expression"
+| [%unmatched_vala] -> failwith "pa_deriving_located_sexp.of_expression"
 | ty ->
-  Ploc.raise (loc_of_ctyp ty) (Failure (Printf.sprintf "pa_deriving_sexp.of_expression: %s" (Pp_MLast.show_ctyp ty)))
+  Ploc.raise (loc_of_ctyp ty) (Failure Fmt.(str "pa_deriving_located_sexp.of_expression: %a" pp_ctyp ty))
 ]
 and fmt_record ~{allow_extra_fields} ~{cid} loc arg fields = 
   let labels_vars_fmts_omits_jskeys = List.map (fun (_, fname, _, ty, attrs) ->
@@ -972,7 +975,7 @@ value rec extend_str_items arg si = match si with [
     ] in
     let gcl = List.concat (List.map ec2gc ecs) in
     let ty = <:ctyp< [ $list:gcl$ ] >> in
-    let e = of_expression arg ~{msg=String.escaped (Pp_MLast.show_longid_lident t)} param_map (ty, []) in
+    let e = of_expression arg ~{msg=String.escaped (show_longid_lident t)} param_map (ty, []) in
     let branches = match e with [
       <:expr< fun [ $list:branches$ ] >> -> branches
     | _ -> assert False

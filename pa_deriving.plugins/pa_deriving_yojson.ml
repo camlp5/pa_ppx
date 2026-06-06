@@ -13,6 +13,10 @@ open Pa_ppx_deriving ;
 open Surveil ;
 open Pa_deriving_base ;
 
+value pp_ctyp pps x = MLPrinters.OP.Pretty.pp_ctyp pps x ;
+
+value show_longid_lident x = MLPrinters.OP.show_longident_lident x ;
+
 module Ctxt = struct
   include Pa_passthru.Ctxt ;
 
@@ -218,6 +222,8 @@ value to_expression arg ?{coercion} ~{msg} param_map ty0 =
   <:expr< fun $recpat$ -> $body$ >>
 
 | [%unmatched_vala] -> failwith "pa_deriving_yojson.to_expression"
+| ty ->
+  Ploc.raise (loc_of_ctyp ty) (Failure Fmt.(str "pa_deriving_yojson.to_expression: %a" pp_ctyp ty))
 ]
 and fmt_record loc arg fields = 
   let labels_vars_fmts_defaults_jskeys = List.map (fun (_, fname, _, ty, attrs) ->
@@ -369,7 +375,7 @@ value rec extend_str_items arg si = match si with [
     ] in
     let gcl = List.concat (List.map ec2gc ecs) in
     let ty = <:ctyp< [ $list:gcl$ ] >> in
-    let msg = Fmt.(str "Extending type %a" Pp_MLast.pp_longid_lident t) in
+    let msg = show_longid_lident t in
     let e = to_expression arg ~{msg=String.escaped msg} param_map ty in
     let branches = match e with [
       <:expr< fun [ $list:branches$ ] >> -> branches
@@ -601,6 +607,8 @@ value of_expression arg ~{msg} param_map ty0 =
   <:expr< fun [ $recpat$ -> $body$ | _ -> Result.Error $str:msg$ ] >>
 
 | [%unmatched_vala] -> failwith "pa_deriving_yojson.of_expression"
+| ty ->
+  Ploc.raise (loc_of_ctyp ty) (Failure Fmt.(str "pa_deriving_yojson.of_expression: %a" pp_ctyp ty))
 ]
 and fmt_record ~{cid} ~{msg} loc arg fields = 
   let labels_vars_fmts_defaults_jskeys = List.map (fun (_, fname, _, ty, attrs) ->
@@ -800,7 +808,7 @@ value rec extend_str_items arg si = match si with [
     ] in
     let gcl = List.concat (List.map ec2gc ecs) in
     let ty = <:ctyp< [ $list:gcl$ ] >> in
-    let msg = Fmt.(str "Extending type %a" Pp_MLast.pp_longid_lident t) in
+    let msg = show_longid_lident t in
     let e = of_expression arg ~{msg=String.escaped msg} param_map ty in
     let branches = match e with [
       <:expr< fun [ $list:branches$ ] >> -> branches

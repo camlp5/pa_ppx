@@ -8,7 +8,7 @@ include $(TOP)/config/Makefile.sub
 DESTDIR=
 
 TARGET_PACKAGE=pa_ppx_deriving_plugins
-PACKAGES := $(PACKAGES),pa_ppx_deriving,pa_ppx_base,pa_ppx_unmatched_vala,camlp5.parser_quotations.link
+PACKAGES := $(PACKAGES),pa_ppx_deriving,pa_ppx_base,pa_ppx_unmatched_vala
 
 ML=\
 	pa_deriving_params.ml \
@@ -27,25 +27,11 @@ ML=\
 
 ALLSRC=$(ML) $(MLI)
 ALLPACKAGES=$(PACKAGES)
-BATCHTOP=camlp5o.pa_ppx_deriving_plugins camlp5o.pa_ppx_deriving_plugins.opt \
-	camlp5r.pa_ppx_deriving_plugins camlp5r.pa_ppx_deriving_plugins.opt
 
-all: $(CMO) $(BATCHTOP)
+all: $(CMO) $(CMX)
 	$(MAKE) DESTDIR=$(WD)/$(TOP)/local-install/ install
 
 doc: $(CMT) $(CMTI)
-
-camlp5r.pa_ppx_deriving_plugins: $(CMO)
-	$(LAUNCH) $(MKCAMLP5) -package camlp5.printers,camlp5.parsers,camlp5.pa_r,camlp5.pr_r,pa_ppx_deriving $(CMO) -o $@
-
-camlp5r.pa_ppx_deriving_plugins.opt: $(CMX)
-	$(LAUNCH) $(MKCAMLP5OPT) -package camlp5.printers,camlp5.parsers,camlp5.pa_r,camlp5.pr_r,pa_ppx_deriving $(CMX) -o $@
-
-camlp5o.pa_ppx_deriving_plugins: $(CMO)
-	$(LAUNCH) $(MKCAMLP5) -package camlp5.printers,camlp5.parsers,camlp5.pa_o,camlp5.pr_o,pa_ppx_deriving $(CMO) -o $@
-
-camlp5o.pa_ppx_deriving_plugins.opt: $(CMX)
-	$(LAUNCH) $(MKCAMLP5OPT) -package camlp5.printers,camlp5.parsers,camlp5.pa_o,camlp5.pr_o,pa_ppx_deriving $(CMX) -o $@
 
 TARGET_INSTALL_FILES= $(FILES_TARGET_INSTALL_FILES)
 install:: default_install

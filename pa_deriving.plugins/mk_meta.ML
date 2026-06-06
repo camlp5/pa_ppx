@@ -214,15 +214,15 @@ package "located_sexp" (
 )
 
 package "params" (
-  requires(toploop) = "fmt,camlp5,camlp5.printers,camlp5.parsers,pa_ppx_deriving,pa_ppx_base,camlp5.parser_quotations,camlp5.pa_r"
+  requires(toploop) = "fmt,camlp5,camlp5.printers,camlp5.parsers,pa_ppx_deriving,pa_ppx_base"
   archive(toploop) = "pa_deriving_params.cmo"
 
-    requires(syntax,preprocessor) = "fmt,camlp5,camlp5.printers,camlp5.parsers,pa_ppx_deriving,pa_ppx_base.link,camlp5.parser_quotations,camlp5.pa_r"
+    requires(syntax,preprocessor) = "fmt,camlp5,camlp5.printers,camlp5.parsers,pa_ppx_deriving,pa_ppx_base.link"
     archive(syntax,preprocessor,-native) = "pa_deriving_params.cmo"
     archive(syntax,preprocessor,native) = "pa_deriving_params.cmx"
 
   package "link" (
-  requires = "fmt,camlp5,camlp5.printers,camlp5.parsers,pa_ppx_deriving.link,pa_ppx_base.link,camlp5.parser_quotations.link,camlp5.pa_r.link"
+  requires = "fmt,camlp5,camlp5.printers,camlp5.parsers,pa_ppx_deriving.link,pa_ppx_base.link"
   archive(byte) = "pa_deriving_params.cmo"
   archive(native) = "pa_deriving_params.cmx"
   )

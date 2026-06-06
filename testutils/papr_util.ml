@@ -70,12 +70,20 @@ value with_input_file fname f arg =
 ;
 
 module Implem = struct
-value pa ?{input_file="-"} strm = let (ast, _) = with_input_file input_file (Grammar.Entry.parse PA.implem) strm in ast ;
-value pa1 ?{input_file="-"} s = let ast = pa ~{input_file=input_file} (Stream.of_string s) in ast ;
-value pa_all s =
+value pa0 ~{parse_only} x =
+  if parse_only then
+    Grammar.Entry.parse PA.implem x
+  else
+    Pcaml.ParseBase.parse_implem x
+;
+value pa ?{parse_only=False} ?{input_file="-"} strm =
+  let (ast, _) = with_input_file input_file (pa0 ~{parse_only}) strm in ast ;
+value pa1 ?{parse_only=False} ?{parse_only=False} ?{input_file="-"} s =
+  let ast = pa ~{parse_only} ~{input_file=input_file} (Stream.of_string s) in ast ;
+value pa_all ?{parse_only=False} s =
   let strm = Stream.of_string s in
   let rec pall = parser [
-    [: x = pa ; strm :] ->
+    [: x = pa ~{parse_only} ; strm :] ->
     if x = [] then [] else
       x @ (pall strm)
   | [: :] -> [] ] in
@@ -98,12 +106,20 @@ value to_official x =
 end;
 
 module Interf = struct
-value pa ?{input_file="-"} strm = let (ast, _) = with_input_file input_file (Grammar.Entry.parse PA.interf) strm in ast ;
-value pa1 ?{input_file="-"} s = let ast = pa ~{input_file=input_file} (Stream.of_string s) in ast ;
-value pa_all s =
+value pa0 ~{parse_only} x =
+  if parse_only then
+    Grammar.Entry.parse PA.interf x
+  else
+    Pcaml.ParseBase.parse_interf x
+;
+value pa ?{parse_only=False} ?{input_file="-"} strm =
+  let (ast, _) = with_input_file input_file (pa0 ~{parse_only}) strm in ast ;
+value pa1 ?{parse_only=False} ?{parse_only=False} ?{input_file="-"} s =
+  let ast = pa ~{parse_only} ~{input_file=input_file} (Stream.of_string s) in ast ;
+value pa_all ?{parse_only=False} s =
   let strm = Stream.of_string s in
   let rec pall = parser [
-    [: x = pa ; strm :] ->
+    [: x = pa ~{parse_only} ; strm :] ->
     if x = [] then [] else
       x @ (pall strm)
   | [: :] -> [] ] in
@@ -122,7 +138,7 @@ value pr l = do {
 }
 ;
 value to_official x =
-  x |> List.map fst |> Ast2pt.implem "<stdin>";
+  x |> List.map fst |> Ast2pt.interf "<stdin>";
 end;
 value both_pa1 = ((fun x -> Implem.pa1 x), (fun x -> Interf.pa1 x)) ;
 value both_pr = ((fun x -> Implem.pr x), (fun x -> Interf.pr x)) ;

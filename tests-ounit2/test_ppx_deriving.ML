@@ -15,3 +15,10 @@ type a1 = int        [@@deriving show
 , arglebargle { optional = true }
 #endif
 ]
+
+let suite = "No tests" >::: []
+
+let _ = 
+if not !Sys.interactive then
+  run_test_tt_main suite
+else ()

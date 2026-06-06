@@ -43,57 +43,57 @@ ALLPACKAGES = $(PACKAGES),$(PAPACKAGES),$(PPXPACKAGES)
 ML=papr_util.ml hCPassthru.ml
 
 TESTS= \
-	test_utils.byte \
-	test_located_sexp.byte \
-	test_ppx_deriving.byte \
-	test_ppx_deriving.ppx.byte \
-	test_deriving_show.byte \
-	test_deriving_show.ppx.byte \
-	test_deriving_eq.byte \
-	test_deriving_eq.ppx.byte \
-	test_deriving_ord.byte \
-	test_deriving_ord.ppx.byte \
-	test_deriving_enum.byte \
-	test_deriving_enum.ppx.byte \
-	test_deriving_iter.byte \
-	test_deriving_iter.ppx.byte \
-	test_deriving_map.byte \
-	test_deriving_map.ppx.byte \
-	test_deriving_fold.byte \
-	test_deriving_fold.ppx.byte \
-	test_deriving_make.byte \
-	test_deriving_make.ppx.byte \
-	test_deriving_params.byte \
-	test_deriving_sexp.byte \
-	test_deriving_located_sexp.byte \
-	test_here.byte \
-	test_here_original.byte \
+	test_utils.TEST \
+	test_located_sexp.TEST \
+	test_ppx_deriving.TEST \
+	test_ppx_deriving.ppx.TEST \
+	test_deriving_show.TEST \
+	test_deriving_show.ppx.TEST \
+	test_deriving_eq.TEST \
+	test_deriving_eq.ppx.TEST \
+	test_deriving_ord.TEST \
+	test_deriving_ord.ppx.TEST \
+	test_deriving_enum.TEST \
+	test_deriving_enum.ppx.TEST \
+	test_deriving_iter.TEST \
+	test_deriving_iter.ppx.TEST \
+	test_deriving_map.TEST \
+	test_deriving_map.ppx.TEST \
+	test_deriving_fold.TEST \
+	test_deriving_fold.ppx.TEST \
+	test_deriving_make.TEST \
+	test_deriving_make.ppx.TEST \
+	test_deriving_params.TEST \
+	test_deriving_sexp.TEST \
+	test_deriving_located_sexp.TEST \
+	test_here.TEST \
+	test_here_original.TEST \
 
-#TESTS += test_here.ppx.byte
-
-TESTS += \
-	test_import0.byte \
-	test_import_camlp5.byte \
-	test_ppx_import.byte \
-
-
-#TESTS += test_ppx_import.ppx.byte
+#TESTS += test_here.ppx.TEST
 
 TESTS += \
-	test_hashrecons.byte \
-	test_passthru_hashrecons.byte \
-	test_ppx_yojson.byte \
-	test_ppx_yojson.ppx.byte \
-	test_extensible_variants.byte \
-	test_comment_lexer.byte \
-	o_top_test.byte \
-	test_linked_expander.byte
+	test_import0.TEST \
+	test_import_camlp5.TEST \
+	test_ppx_import.TEST \
 
-all: $(CMO) $(TESTS)
 
-test: $(TESTS:.byte=)
+#TESTS += test_ppx_import.ppx.TEST
 
-% : %.byte
+TESTS += \
+	test_hashrecons.TEST \
+	test_passthru_hashrecons.TEST \
+	test_ppx_yojson.TEST \
+	test_ppx_yojson.ppx.TEST \
+	test_extensible_variants.TEST \
+	test_comment_lexer.TEST \
+	o_top_test.TEST \
+	test_linked_expander.TEST
+
+all: $(CMO) $(TESTS:.TEST=.byte)
+
+test: $(TESTS)
+
+%.TEST : %.byte
 	mkdir -p _build && ./$<
 
 .SUFFIXES: .ML
@@ -117,9 +117,9 @@ test_ppx_yojson.ppx.byte: test_ppx_yojson.ML stuff.cmo test_self_import.cmo
 	$(NOT_OCAMLFIND) preprocess -package $(PACKAGES),oUnit,$(PPXPACKAGES),ppx_sexp_conv test_ppx_yojson.ppx.ml >  test_ppx_yojson.ppx.ml.ppo
 	$(OCAMLFIND) ocamlc $(DEBUG) -custom $(WARNERR) -package $(PACKAGES),oUnit,$(PPXPACKAGES),ppx_sexp_conv -linkpkg stuff.cmo test_self_import.cmo test_ppx_yojson.ppx.ml -o $@
 
-test_passthru_hashrecons.byte: hCPassthru.cmo test_passthru_hashrecons.ml
+test_passthru_hashrecons.byte: hCPassthru.cmo test_passthru_hashrecons.cmo
 	$(LAUNCH) $(OCAMLFIND) ocamlc $(DEBUG) $(WARNERR) -package $(PACKAGES),$(PAPACKAGES) \
-	-linkpkg -syntax camlp5o $< -o $@
+	-package camlp5.printers,camlp5.parsers -linkpkg $^ -o $@
 
 test_deriving_params.byte: test_deriving_params.ml.pappx.cmo
 	$(LAUNCH) $(OCAMLFIND) ocamlc $(DEBUG) $(WARNERR) -package $(PACKAGES),$(PAPACKAGES),camlp5.pa_r.link \

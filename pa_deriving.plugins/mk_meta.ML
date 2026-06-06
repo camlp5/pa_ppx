@@ -214,7 +214,7 @@ package "located_sexp" (
 )
 
 package "params" (
-  requires(toploop) = "fmt,camlp5,camlp5.printers,camlp5.parsers,pa_ppx_deriving,pa_ppx_base"
+  requires(toploop) = "fmt,camlp5,camlp5.printers,camlp5.parsers,pa_ppx_deriving,pa_ppx_base,pa_ppx_params_runtime"
   archive(toploop) = "pa_deriving_params.cmo"
 
     requires(syntax,preprocessor) = "fmt,camlp5,camlp5.printers,camlp5.parsers,pa_ppx_deriving,pa_ppx_base.link"

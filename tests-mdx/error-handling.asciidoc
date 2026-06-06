@@ -170,3 +170,67 @@ Failure: import_type: type-param formal/actual list-length mismatch
 Line 1, characters 0-0:
 Error: Stdlib.Exit
 ```
+
+```ocaml
+# #require "pa_ppx_deriving_plugins.params";;
+# #require "camlp5.parser_quotations";;
+# let loc = Ploc.dummy ;;
+val loc : Ploc.t = <"":1:0-0>
+# let parse_expr = MLParsers.OP.Pretty.String.expr ;;
+val parse_expr : string -> MLParsers.RP_PAQ.Q_ast_base.E_MetaSig.t = <fun>
+```
+
+```ocaml
+# type foo = int -> int
+  [@@deriving params] ;;
+File "_none_", line 1, characters 11-21:
+Failure: generate_param_parser_expression: unhandled type
+int -> int
+
+Line 1, characters 0-0:
+Error: Stdlib.Exit
+```
+
+```ocaml
+# type foo = int
+  [@@deriving params] ;;
+type foo = int
+val params_foo : MLast.expr -> foo = <fun>
+# params_foo <:expr< 1 >> ;;
+- : foo = 1
+# params_foo (parse_expr {|   "x"|}) ;;
+Exception:
+(Ploc.Exc (<"_none_":1:3-6>,
+   (Stdlib.Failure "param should be integer: \"x\"")))
+```
+
+```ocaml
+# type foo = string * string
+  [@@deriving params] ;;
+type foo = string * string
+val params_foo : MLast.expr -> string * string = <fun>
+# params_foo <:expr< 1 >> ;;
+Exception:
+(Ploc.Exc (<"":1:0-0>,
+   (Stdlib.Failure
+      "param must be a tuple of type: string * string\n\nparam: 1")
+   ))
+# params_foo (parse_expr{| ("x", 1) |}) ;;
+Exception:
+(Ploc.Exc (<"_none_":1:7-8>, (Stdlib.Failure "param should be string: 1")))
+```
+
+```ocaml
+# type foo = A of int * string | B of bool
+  [@@deriving params] ;;
+type foo = A of int * string | B of bool
+val params_foo : MLast.expr -> foo = <fun>
+# {|A (5,"a")|} |> parse_expr |> params_foo ;;
+- : foo = A (5, "a")
+# {|  C (5,"a")|} |> parse_expr |> params_foo ;;
+Exception:
+(Ploc.Exc (<"_none_":1:2-11>,
+   (Stdlib.Failure
+      "param must be a constructor of type:   A of int * string\n| B of bool\n\nparam: C (5, \"a\")")
+   ))
+```

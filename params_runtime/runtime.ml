@@ -28,3 +28,7 @@ value convert_down_ne_list_expr conv1 = fun [
 ]
 ;
   
+value pp_expr pps x = MLPrinters.OP.Pretty.pp_expr pps x ;
+value pp_ctyp pps x = MLPrinters.OP.Pretty.pp_ctyp pps x ;
+value pp_patt pps x = MLPrinters.OP.Pretty.pp_patt pps x ;
+value show_ctyp x = MLPrinters.OP.Pretty.show_ctyp x ;

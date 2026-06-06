@@ -11,6 +11,11 @@ open Pa_ppx_deriving ;
 open Surveil ;
 open Pa_deriving_base ;
 
+value pp_expr pps x = MLPrinters.OP.Pretty.pp_expr pps x ;
+value pp_ctyp pps x = MLPrinters.OP.Pretty.pp_ctyp pps x ;
+value pp_patt pps x = MLPrinters.OP.Pretty.pp_patt pps x ;
+value show_ctyp x = MLPrinters.OP.Pretty.show_ctyp x ;
+
 value params_fname arg tyname =
   if tyname = "t" then "params"
   else "params_"^tyname
@@ -31,14 +36,14 @@ value generate_param_parser_expression arg ty =
         let p = expr_as_patt loc "$int:i$" in
         <:expr< fun [ $p$ → int_of_string i
                 | e -> Ploc.raise (loc_of_expr e)
-                            (Failure (Fmt.str "param should be integer: %a" Pp_MLast.pp_expr e))
+                            (Failure (Fmt.str "param should be integer: %a" pp_expr e))
                 ] >>
 
   | <:ctyp:< float >> ->
       let p = expr_as_patt loc "$flo:i$" in
     <:expr< fun [ $p$ → float_of_string i
                 | e -> Ploc.raise (loc_of_expr e)
-                            (Failure (Fmt.str "param should be float: %a" Pp_MLast.pp_expr e))
+                            (Failure (Fmt.str "param should be float: %a" pp_expr e))
                 ] >>
 
   | <:ctyp:< bool >> ->
@@ -46,25 +51,25 @@ value generate_param_parser_expression arg ty =
       let false_patt = expr_as_patt loc "False" in
     <:expr< fun [ $true_patt$ → True | $false_patt$ → False
                 | e -> Ploc.raise (loc_of_expr e)
-                            (Failure (Fmt.str "param should be bool: %a" Pp_MLast.pp_expr e))
+                            (Failure (Fmt.str "param should be bool: %a" pp_expr e))
                 ] >>
   | <:ctyp:< lident >> ->
       let p = expr_as_patt loc "$lid:lid$" in
     <:expr< fun [ $p$ →  lid
                 | e -> Ploc.raise (loc_of_expr e)
-                            (Failure (Fmt.str "param should be LIDENT: %a" Pp_MLast.pp_expr e))
+                            (Failure (Fmt.str "param should be LIDENT: %a" pp_expr e))
                 ] >>
   | <:ctyp:< string >> ->
       let p = expr_as_patt loc "$str:s$" in
     <:expr< fun [ $p$ →  s
                 | e -> Ploc.raise (loc_of_expr e)
-                            (Failure (Fmt.str "param should be string: %a" Pp_MLast.pp_expr e))
+                            (Failure (Fmt.str "param should be string: %a" pp_expr e))
                 ] >>
   | <:ctyp:< uident >> ->
       let p = expr_as_patt loc "$uid:uid$" in
     <:expr< fun [ $p$ →  uid
                 | e -> Ploc.raise (loc_of_expr e)
-                            (Failure (Fmt.str "param should be UIDENT: %a" Pp_MLast.pp_expr e))
+                            (Failure (Fmt.str "param should be UIDENT: %a" pp_expr e))
                 ] >>
   | <:ctyp:< expr >> ->
     <:expr< fun [ e →  e ] >>
@@ -72,14 +77,14 @@ value generate_param_parser_expression arg ty =
       let p = expr_as_patt loc "[%typ: $type:t$]" in
     <:expr< fun [ $p$ →  t
                 | e -> Ploc.raise (loc_of_expr e)
-                            (Failure (Fmt.str "param should be of the form [%%typ: <type>]: %a" Pp_MLast.pp_expr e))
+                            (Failure (Fmt.str "param should be of the form [%%typ: <type>]: %a" pp_expr e))
                 ] >>
 
   | <:ctyp:< patt >> ->
       let p = expr_as_patt loc "[%patt ? $patt:q$]" in
     <:expr< fun [ $p$ →  q
                 | e -> Ploc.raise (loc_of_expr e)
-                            (Failure (Fmt.str "param should be of the form [%%patt? <patt>]: %a" Pp_MLast.pp_expr e))
+                            (Failure (Fmt.str "param should be of the form [%%patt? <patt>]: %a" pp_expr e))
                 ] >>
 
   | <:ctyp:< longid >> ->
@@ -160,7 +165,7 @@ value generate_param_parser_expression arg ty =
               (Failure Fmt.(str "superfluous (not-allowed) fields: %a" (list ~{sep=const string " "} string) superfluous_fields))
                 | e -> Ploc.raise (loc_of_expr e)
                          (Failure Fmt.(str "param did not match record-type:@ record-type: %s\n@ param: %a"
-                                           $str:String.escaped (Pp_MLast.show_ctyp z)$ Pp_MLast.pp_expr e)) 
+                                           $str:String.escaped (show_ctyp z)$ pp_expr e)) 
                 ] >>
 
   | <:ctyp:< alist lident $rngty$ >> as z ->
@@ -168,7 +173,7 @@ value generate_param_parser_expression arg ty =
     let full_body = <:expr<
       List.map (fun [ ($lid_patt$, e) -> (k, $genrec rngty$ e)
                     | (p, _) -> Ploc.raise (loc_of_patt p)
-                            (Failure (Fmt.str "key should be of the form LIDENT: %a" Pp_MLast.pp_patt p))
+                            (Failure (Fmt.str "key should be of the form LIDENT: %a" pp_patt p))
                     ]) __lel__
     >> in         
     let recpat = expr_as_patt loc "{ $list:__lel__$ }" in
@@ -177,7 +182,7 @@ value generate_param_parser_expression arg ty =
                 | $recpat$ -> $full_body$
                 | e -> Ploc.raise (loc_of_expr e)
                          (Failure Fmt.(str "param did not match alist-type:@ alist-type: %s\n@ param: %a"
-                                           $str:String.escaped (Pp_MLast.show_ctyp z)$ Pp_MLast.pp_expr e)) 
+                                           $str:String.escaped (show_ctyp z)$ pp_expr e)) 
                 ] >>
 
   | <:ctyp:< alist longid_lident $rngty$ >> as z ->
@@ -187,7 +192,7 @@ value generate_param_parser_expression arg ty =
       List.map (fun [ ($lid_patt$, e) -> ((None, Ploc.VaVal lid), $genrec rngty$ e)
                     | ($longlid_patt$, e) -> ((Some (Ploc.VaVal li), Ploc.VaVal lid), $genrec rngty$ e)
                     | (p, _) -> Ploc.raise (loc_of_patt p)
-                            (Failure (Fmt.str "key should be of the form [longid.]LIDENT: %a" Pp_MLast.pp_patt p))
+                            (Failure (Fmt.str "key should be of the form [longid.]LIDENT: %a" pp_patt p))
                     ]) __lel__
     >> in
     let recpat = expr_as_patt loc "{ $list:__lel__$ }" in
@@ -196,7 +201,7 @@ value generate_param_parser_expression arg ty =
                 | $recpat$ -> $full_body$
                 | e -> Ploc.raise (loc_of_expr e)
                          (Failure Fmt.(str "param did not match alist-type:@ alist-type: %s\n@ param: %a"
-                                           $str:String.escaped (Pp_MLast.show_ctyp z)$ Pp_MLast.pp_expr e)) 
+                                           $str:String.escaped (show_ctyp z)$ pp_expr e)) 
                 ] >>
 
   | <:ctyp:< alist ctyp $rngty$ >> as z ->
@@ -227,7 +232,7 @@ value generate_param_parser_expression arg ty =
           (<:patt< e >>, <:vala< None >>,
            <:expr< Ploc.raise (loc_of_expr e)
                          (Failure Fmt.(str "param must be a constructor of type: %s\n@ param: %a"
-                                           $str:String.escaped (Pp_MLast.show_ctyp z)$ Pp_MLast.pp_expr e)) 
+                                           $str:String.escaped (show_ctyp z)$ pp_expr e)) 
            >>)
         ] in
       <:expr< fun [ $list:branches$ ] >>
@@ -247,7 +252,7 @@ value generate_param_parser_expression arg ty =
                   $tuplepatt$ -> ( $list:l$ )
                 | e -> Ploc.raise (loc_of_expr e)
                          (Failure Fmt.(str "param must be a tuple of type: %s\n@ param: %a"
-                                           $str:String.escaped (Pp_MLast.show_ctyp z)$ Pp_MLast.pp_expr e)) 
+                                           $str:String.escaped (show_ctyp z)$ pp_expr e)) 
                 ] >>
 
   | <:ctyp:< $t$ [@convert ( [%typ: $type:srct$], $convf$ );] >> ->
@@ -260,7 +265,7 @@ value generate_param_parser_expression arg ty =
       Expr.applist <:expr< $genrec t$ >> args
 
   | t -> Ploc.raise (loc_of_ctyp t) (Failure Fmt.(str "generate_param_parser_expression: unhandled type@ %a"
-                                                    Pp_MLast.pp_ctyp t))
+                                                    pp_ctyp t))
   ] in
   match genrec ty with [
     <:expr< fun [ $list:_$ ] >> as z -> z
@@ -275,7 +280,7 @@ value generate_param_parser arg name ty =
   | <:expr< { $list:lel$ } >> -> lel
   | e -> Ploc.raise (loc_of_expr e)
       (Failure Fmt.(str "generate_param_parser: malformed \"formal_args\" option@ %a"
-                      Pp_MLast.pp_expr e))
+                      pp_expr e))
   ] in
   let listexp_opt = List.find_map (fun [
       (<:patt< $lid:name'$ >>, listexp) when name = name' -> Some listexp
@@ -288,7 +293,7 @@ value generate_param_parser arg name ty =
         <:expr< $lid:lid$ >> -> lid
       | e -> Ploc.raise (loc_of_expr e)
           (Failure Fmt.(str "generate_param_parser: malformed \"formal_args\" list member@ %a"
-                          Pp_MLast.pp_expr e))
+                          pp_expr e))
       ]) listexp
   ] in
   let ppexp = generate_param_parser_expression arg ty in
@@ -297,15 +302,15 @@ value generate_param_parser arg name ty =
     List.map (fun [
         (<:patt< $lid:n$ >>, e) -> (n,e)
       | _ -> Ploc.raise (loc_of_ctyp ty)
-        (Failure Fmt.(str "malformed validator:@ %a" Pp_MLast.pp_ctyp ty))
+        (Failure Fmt.(str "malformed validator:@ %a" pp_ctyp ty))
       ]) lel
   | <:expr< () >> -> []
   | _ -> Ploc.raise (loc_of_ctyp ty)
-      (Failure Fmt.(str "malformed validator:@ %a" Pp_MLast.pp_ctyp ty))
+      (Failure Fmt.(str "malformed validator:@ %a" pp_ctyp ty))
   | exception Not_found ->
       Ploc.raise (loc_of_ctyp ty)
         (Failure Fmt.(str "internal error: generate_param_parser: missing validator option:@ %a"
-                        Pp_MLast.pp_ctyp ty))
+                        pp_ctyp ty))
   ] in
   let validator = match List.assoc name validators with [
     x -> x

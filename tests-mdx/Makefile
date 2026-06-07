@@ -17,7 +17,7 @@ mdx-test:: toplevel-error-handling.asciidoc.TEST shell-error-handling.asciidoc.T
 	perl -p -i -e 's,#<\|[^\|]+\|>,,' $<
 	diff -Bwiu $^
 
-toplevel-error-handling.asciidoc.TEST: | stuff.cmo
+#evel-error-handling.asciidoc.TEST: | stuff.cmi
 shell-error-handling.asciidoc.TEST: | *.ml
 
 clean::

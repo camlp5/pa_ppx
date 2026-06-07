@@ -3,7 +3,15 @@ Test OCaml Toplevel Error Handling
 :toc:
 :toc-placement: preamble
 
+```sh
+$ ocamlc -c stuff.mli
+$ ls stuff.*
+stuff.cmi
+stuff.mli
+```
+
 ```ocaml
+# #directory ".";;
 # #use "topfind.camlp5";;
 - : unit = ()
 Findlib has been successfully loaded. Additional directives:
@@ -32,7 +40,6 @@ Additional Camlp5 directives:
 ```
 
 ```ocaml
-# #require "pa_ppx_fail" ;;
 # let exc_converter = function
     Exit as exc ->
     let s = Printexc.to_string exc in
@@ -41,6 +48,9 @@ Additional Camlp5 directives:
 val exc_converter : exn -> Location.report option = <fun>
 # Location.register_error_of_exn exc_converter ;;
 - : unit = ()
+```
+```ocaml
+# #require "pa_ppx_fail" ;;
 ```
 
 ```ocaml
@@ -52,9 +62,23 @@ Error: Stdlib.Exit
 ```
 
 ```ocaml
+# #require "pa_ppx_deriving_plugins.fail" ;;
+```
+
+```ocaml
 #     [%fail "bar"] ;;
 File "_none_", line 1, characters 4-17:
 Failure: bar
+
+Line 1, characters 0-0:
+Error: Stdlib.Exit
+```
+
+```ocaml
+# type t = int[@@deriving fail] ;;
+File "_none_", line 1, characters 0-29:
+Failure: Deriving.fail: failure at str_item
+
 Line 1, characters 0-0:
 Error: Stdlib.Exit
 ```

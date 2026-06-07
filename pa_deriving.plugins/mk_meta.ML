@@ -37,6 +37,22 @@ archive(byte,toploop) = "pa_deriving_std.cmo"
 
 )
 
+package "fail" (
+  requires(toploop) = "camlp5,pa_ppx_deriving"
+  archive(toploop) = "pa_deriving_fail.cmo"
+
+    requires(syntax,preprocessor) = "camlp5,pa_ppx_deriving"
+    archive(syntax,preprocessor,-native) = "pa_deriving_fail.cmo"
+    archive(syntax,preprocessor,native) = "pa_deriving_fail.cmx"
+
+  package "link" (
+  requires = "camlp5,pa_ppx_deriving.link"
+  archive(byte) = "pa_deriving_fail.cmo"
+  archive(native) = "pa_deriving_fail.cmx"
+  )
+  requires = "pa_ppx_runtime"
+)
+
 package "show" (
   requires(toploop) = "camlp5,pa_ppx_deriving"
   archive(toploop) = "pa_deriving_show.cmo"

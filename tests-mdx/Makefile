@@ -6,16 +6,19 @@ all:
 
 test:: mdx-test
 
-mdx-test:: error-handling.asciidoc.TEST
+mdx-test:: toplevel-error-handling.asciidoc.TEST shell-error-handling.asciidoc.TEST
 
 %.asciidoc.TEST: %.asciidoc.corrected %.asciidoc
 	cp $< $<.UNMODIFIED
 	perl -n -i -e 'print unless (s,.*: added to search path.*,,)' $<
 	perl -n -i -e 'print unless (s,.*: loaded.*,,)' $<
+	perl -n -i -e 'print unless (m,Command line,)' $<
+	perl -n -i -e 'print unless (m,Cannot read directory,)' $<
 	perl -p -i -e 's,#<\|[^\|]+\|>,,' $<
 	diff -Bwiu $^
 
-error-handling.asciidoc.TEST: | stuff.cmo
+toplevel-error-handling.asciidoc.TEST: | stuff.cmo
+shell-error-handling.asciidoc.TEST: | *.ml
 
 clean::
 	rm -f *.UNMODIFIED

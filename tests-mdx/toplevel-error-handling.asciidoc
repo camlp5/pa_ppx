@@ -1,5 +1,5 @@
-Test Error Handling
-===================
+Test OCaml Toplevel Error Handling
+==================================
 :toc:
 :toc-placement: preamble
 

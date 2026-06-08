@@ -94,7 +94,7 @@ type t 'a = list (string * 'a) ;
 
 value add loc rho id ty =
   if List.mem_assoc id rho then
-    Ploc.raise loc (Failure "Ctyp.add_rho: adding same type-variable more than once")
+    Ploc.raise loc (Failure "Env.add: adding same type-variable more than once")
   else [ (id, ty) :: rho ]
 ;
 

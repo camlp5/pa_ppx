@@ -27,8 +27,16 @@ value convert_down_ne_list_expr conv1 = fun [
 | e -> [conv1 e]
 ]
 ;
-  
+
 value pp_expr pps x = MLPrinters.OP.Pretty.pp_expr pps x ;
 value pp_ctyp pps x = MLPrinters.OP.Pretty.pp_ctyp pps x ;
 value pp_patt pps x = MLPrinters.OP.Pretty.pp_patt pps x ;
+value pp_longid pps x = MLPrinters.OP.Pretty.pp_longident pps x ;
+value pp_lident pps x = Fmt.(pf pps "%s" x) ;
+value pp_alist ppk ppv pps l =
+  Fmt.(pf pps "%a" (list (pair ppk ppv)) l) ;
 value show_ctyp x = MLPrinters.OP.Pretty.show_ctyp x ;
+value pp_case_branch pps b =
+  let show b = MLPrinters.OP.O.match_assoc False Pprintf.empty_pc (b, False) in
+  Fmt.(pf pps "%s" (show b))
+;

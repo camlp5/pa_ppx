@@ -87,16 +87,6 @@ endif
 	$(OCAMLFIND) ocamlc $(DEBUG) $(OCAMLCFLAGS) -package $(PACKAGES),pa_ppx_dock -bin-annot -c $< -o .cmt/$*.cmi
 	cp .cmt/$*.cmti $*.cmti
 
-.PRECIOUS: %.asciidoc.corrected
-
-%.asciidoc.corrected: %.asciidoc
-	$(LAUNCH) ocaml-mdx test -o $@ $<
-
-%.asciidoc.TEST: %.asciidoc.corrected %.asciidoc
-	perl -n -i -e 'print unless (s,.*: added to search path.*,,)' $<
-	perl -n -i -e 'print unless (s,.*: loaded.*,,)' $<
-	diff -Bwiu $^
-
 toplevel::
 	$(LAUNCH) ocaml -nopromptcont
 

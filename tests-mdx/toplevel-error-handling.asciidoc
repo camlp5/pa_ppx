@@ -4,10 +4,10 @@ Test OCaml Toplevel Error Handling
 :toc-placement: preamble
 
 ```sh
-$ ocamlc -c stuff.mli
-$ ls stuff.*
-stuff.cmi
-stuff.mli
+$ ocamlc -c fixtures/stuff.mli
+$ ls fixtures/stuff.*
+fixtures/stuff.cmi
+fixtures/stuff.mli
 ```
 
 ```ocaml
@@ -151,6 +151,9 @@ Error: Stdlib.Exit
 
 ```ocaml
 # #require "pa_ppx_import";;
+# Pa_ppx_import.add_include "fixtures" ;;
+- : unit = ()
+# #directory "fixtures";;
 ```
 
 ```ocaml

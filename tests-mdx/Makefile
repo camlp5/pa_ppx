@@ -8,16 +8,12 @@ test:: mdx-test
 
 mdx-test:: toplevel-error-handling.asciidoc.TEST shell-error-handling.asciidoc.TEST
 
+shell-error-handling.asciidoc.TEST: | fixtures/*.ml
+
 %.asciidoc.TEST: %.asciidoc.corrected %.asciidoc
 	cp $< $<.UNMODIFIED
-	perl -n -i -e 'print unless (s,.*: added to search path.*,,)' $<
-	perl -n -i -e 'print unless (s,.*: loaded.*,,)' $<
-	perl -n -i -e 'print unless (m,Command line,)' $<
-	perl -n -i -e 'print unless (m,Cannot read directory,)' $<
-	perl -p -i -e 's,#<\|[^\|]+\|>,,' $<
+	./clean-ocaml-mdx-output $< > $<.NEW && mv $<.NEW $<
 	diff -Bwiu $^
 
-shell-error-handling.asciidoc.TEST: | *.ml
-
 clean::
-	rm -f *.UNMODIFIED
+	$(RM) -f fixtures/*.cm* *.cm* *.byte *.log *.cache *.ppo tools/*.byte tools/*.opt link* *.NEW *.corrected *.corrected.UNMODIFIED

@@ -31,28 +31,32 @@ open Pa_ppx_testutils ;;
 open Papr_util ;;
 open PAPR ;;
 
+#require "camlp5.parser_quotations";;
 #require "pa_ppx_deriving_plugins.show";;
 #require "pa_ppx_deriving_plugins.yojson";;
 #require "pa_ppx_deriving_plugins.sexp";;
-open Pa_deriving_sexp ;;
-
-#trace To.fmt_to_top ;;
-#trace To.to_expression ;;
-#trace Pa_deriving_sexp.To.drop_default_instructions ;;
-#trace Pa_ppx_deriving.Pa_deriving_base.extract_allowed_attribute_expr ;;
-#trace Pa_ppx_deriving.Surveil.DC.allowed_attribute ;;
-#trace Pa_ppx_deriving.Surveil.DC.start_decl ;;
-#trace Pa_ppx_deriving.Surveil.DC.end_decl ;;
-#trace Pa_ppx_deriving.Surveil.add_current_attribute ;;
-#trace Pa_ppx_deriving.Surveil.add_deriving_attributes ;;
-#trace Pa_ppx_deriving.Surveil.str_item ;;
-#trace Pa_ppx_deriving.Surveil.sig_item ;;
+#require "pa_ppx_deriving_plugins.params";;
+#require "sexplib";;
+#require "pa_ppx_deriving_plugins.located_sexp";;
+#require "pa_ppx_import";;
+#require "pa_ppx_here";;
 
 Pa_ppx_base.Pa_passthru.debug := true;;
 
 #require "pa_ppx_runtime_fat";;
 
 print_string "================================================================\n";;
+
+#trace Pa_ppx_import.registered_str_item_extension ;;
+#trace Pa_ppx_import.import_type ;;
+#trace Pa_ppx_import.import_typedecl_group ;;
+
+(*
+{foo|
+type foo = int -> int
+  [@@deriving yojson]
+|foo} |> PAPR.Implem.pa1 |> PAPR.Implem.pr |> print_string ;;
+ *)
 
 (*
 ;;; Local Variables: ***

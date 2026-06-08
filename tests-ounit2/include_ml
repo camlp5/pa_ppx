@@ -4,9 +4,11 @@
 #require "pa_ppx_testutils";;
 #require "fmt";;
 #require "str";;
+#require "bos";;
 #require "camlp5.pa_o";;
 #require "camlp5.pr_o";;
 Pcaml.inter_phrases := Some ";;\n";;
+
 
 let pp_location_t pps (loc : Location.t) = Fmt.(pf pps "<loc>") ;;
 
@@ -41,25 +43,26 @@ open PAPR ;;
 #require "pa_ppx_deriving_plugins.show";;
 #require "pa_ppx_deriving_plugins.yojson";;
 #require "pa_ppx_deriving_plugins.sexp";;
-open Pa_deriving_sexp ;;
-
-#trace To.fmt_to_top ;;
-#trace To.to_expression ;;
-#trace Pa_deriving_sexp.To.drop_default_instructions ;;
-#trace Pa_ppx_deriving.Pa_deriving_base.extract_allowed_attribute_expr ;;
-#trace Pa_ppx_deriving.Surveil.DC.allowed_attribute ;;
-#trace Pa_ppx_deriving.Surveil.DC.start_decl ;;
-#trace Pa_ppx_deriving.Surveil.DC.end_decl ;;
-#trace Pa_ppx_deriving.Surveil.add_current_attribute ;;
-#trace Pa_ppx_deriving.Surveil.add_deriving_attributes ;;
-#trace Pa_ppx_deriving.Surveil.str_item ;;
-#trace Pa_ppx_deriving.Surveil.sig_item ;;
 
 Pa_ppx_base.Pa_passthru.debug := true;;
 
 #require "pa_ppx_runtime_fat";;
 
 print_string "================================================================\n";;
+
+#require "pa_ppx_deriving_plugins.located_sexp";;
+
+Pa_ppx_base.Pp_MLast.Ploc.pp_loc_verbose := true ;;
+Pa_ppx_runtime_fat.Exceptions.Ploc.pp_loc_verbose := true ;;
+(*
+{foo|
+  type foo = int -> int
+  [@@deriving located_sexp_of]
+ |foo} |> PAPR.Implem.pa1 |> PAPR.Implem.pr |> print_string ;;
+ *)
+
+"../tests-mdx/located_sexp1.ml" |> Fpath.v |> Bos.OS.File.read |> Result.get_ok |> PAPR.Implem.pa1 |> PAPR.Implem.pr |> print_string ;;
+
 
 (*
 ;;; Local Variables: ***

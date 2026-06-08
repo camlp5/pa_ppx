@@ -319,8 +319,8 @@ value generate_param_parser arg name ty =
   let ppexp = <:expr< fun __arg__ ->
                       let __e__ = $ppexp$ __arg__ in
                       match ($validator$ __e__) with [
-                        Result.Error msg ->
-                        Ploc.raise (MLast.loc_of_expr __arg__)
+                        Result.Error (loc, msg) ->
+                        Ploc.raise loc
                           (Failure (Printf.sprintf "params failed validation check: %s" msg))
                       | Result.Ok False ->
                         Ploc.raise (MLast.loc_of_expr __arg__)

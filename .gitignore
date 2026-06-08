@@ -11,8 +11,6 @@ local-install
 META
 */camlp5*.pa_*
 camlp5*.pa_*
-tests-*/*.corrected
-tests-*/*.corrected.UNMODIFIED
 */*.odoc
 docs
 .tramp_history

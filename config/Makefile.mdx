@@ -8,7 +8,7 @@
 	diff -Bwiu $^
 
 %.asciidoc.corrected.CLEANED: %.asciidoc.corrected
-	./clean-ocaml-mdx-output $< > $@.NEW && mv $@.NEW $@
+	$(TOP)/tools/clean-ocaml-mdx-output $< > $@.NEW && mv $@.NEW $@
 
 clean::
 	$(RM) -f fixtures/*.cm* *.cm* *.byte *.log *.cache *.ppo tools/*.byte tools/*.opt link* *.NEW *.corrected *.corrected.CLEANED

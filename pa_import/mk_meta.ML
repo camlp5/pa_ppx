@@ -13,13 +13,13 @@ Arg.(parse [
 ;;
 
 Fmt.(pf stdout {|# Specifications for the "pa_ppx_import" preprocessor:
-requires = "camlp5.parsers,camlp5.printers,pa_ppx_base,fmt,bos,compiler-libs.common,findlib.internal"
+requires = "camlp5.parsers.full,camlp5.printers.full,pa_ppx_base,fmt,bos,compiler-libs.common,findlib.internal"
 version = "%s"
 description = "pa_ppx_import base support"
 
 # For linking
 package "link" (
-requires = "camlp5.parsers,camlp5.printers,,pa_ppx_base,fmt,bos,compiler-libs.common,findlib.internal"
+requires = "camlp5.parsers.full,camlp5.printers.full,,pa_ppx_base,fmt,bos,compiler-libs.common,findlib.internal"
 archive(byte) = "pa_ppx_import.cma"
 archive(native) = "pa_ppx_import.cmxa"
 )
@@ -28,7 +28,7 @@ archive(native) = "pa_ppx_import.cmxa"
 archive(byte,toploop) = "pa_ppx_import.cma"
 
   # For the preprocessor itself:
-  requires(syntax,preprocessor) = "camlp5.parsers,camlp5.printers,pa_ppx_base,fmt,bos,compiler-libs.common,findlib.internal"
+  requires(syntax,preprocessor) = "camlp5.parsers.full,camlp5.printers.full,pa_ppx_base,fmt,bos,compiler-libs.common,findlib.internal"
   archive(syntax,preprocessor,-native) = "pa_ppx_import.cma"
   archive(syntax,preprocessor,native) = "pa_ppx_import.cmxa"
 |} version)

@@ -182,66 +182,66 @@ package "make" (
 )
 
 package "yojson" (
-  requires(toploop) = "camlp5,camlp5.printers,pa_ppx_deriving,yojson"
+  requires(toploop) = "camlp5,camlp5.printers.full,pa_ppx_deriving,yojson"
   archive(toploop) = "pa_deriving_yojson.cmo"
 
-    requires(syntax,preprocessor) = "camlp5,camlp5.printers,pa_ppx_deriving"
+    requires(syntax,preprocessor) = "camlp5,camlp5.printers.full,pa_ppx_deriving"
     archive(syntax,preprocessor,-native) = "pa_deriving_yojson.cmo"
     archive(syntax,preprocessor,native) = "pa_deriving_yojson.cmx"
 
   package "link" (
-  requires = "camlp5,camlp5.printers,pa_ppx_deriving.link"
+  requires = "camlp5,camlp5.printers.full,pa_ppx_deriving.link"
   archive(byte) = "pa_deriving_yojson.cmo"
   archive(native) = "pa_deriving_yojson.cmx"
   )
-  requires = "camlp5.printers,pa_ppx_runtime,yojson"
+  requires = "camlp5.printers.full,pa_ppx_runtime,yojson"
 )
 
 package "sexp" (
-  requires(toploop) = "camlp5,camlp5.printers,pa_ppx_deriving,pa_ppx_deriving_plugins.eq,pa_ppx_deriving_plugins.ord"
+  requires(toploop) = "camlp5,camlp5.printers.full,pa_ppx_deriving,pa_ppx_deriving_plugins.eq,pa_ppx_deriving_plugins.ord"
   archive(toploop) = "pa_deriving_sexp.cmo"
 
-    requires(syntax,preprocessor) = "camlp5,camlp5.printers,pa_ppx_deriving,pa_ppx_deriving_plugins.eq,pa_ppx_deriving_plugins.ord"
+    requires(syntax,preprocessor) = "camlp5,camlp5.printers.full,pa_ppx_deriving,pa_ppx_deriving_plugins.eq,pa_ppx_deriving_plugins.ord"
     archive(syntax,preprocessor,-native) = "pa_deriving_sexp.cmo"
     archive(syntax,preprocessor,native) = "pa_deriving_sexp.cmx"
 
   package "link" (
-  requires = "camlp5,camlp5.printers,pa_ppx_deriving.link,pa_ppx_deriving_plugins.eq.link,pa_ppx_deriving_plugins.ord.link"
+  requires = "camlp5,camlp5.printers.full,pa_ppx_deriving.link,pa_ppx_deriving_plugins.eq.link,pa_ppx_deriving_plugins.ord.link"
   archive(byte) = "pa_deriving_sexp.cmo"
   archive(native) = "pa_deriving_sexp.cmx"
   )
-  requires = "camlp5.printers,pa_ppx_runtime,pa_ppx_deriving_plugins.eq,pa_ppx_deriving_plugins.ord"
+  requires = "camlp5.printers.full,pa_ppx_runtime,pa_ppx_deriving_plugins.eq,pa_ppx_deriving_plugins.ord"
 )
 
 package "located_sexp" (
-  requires(toploop) = "camlp5,camlp5.printers,pa_ppx_deriving,pa_ppx_deriving_plugins.eq,pa_ppx_deriving_plugins.ord"
+  requires(toploop) = "camlp5,camlp5.printers.full,pa_ppx_deriving,pa_ppx_deriving_plugins.eq,pa_ppx_deriving_plugins.ord"
   archive(toploop) = "pa_deriving_located_sexp.cmo"
 
-    requires(syntax,preprocessor) = "camlp5,camlp5.printers,pa_ppx_deriving,pa_ppx_deriving_plugins.eq,pa_ppx_deriving_plugins.ord"
+    requires(syntax,preprocessor) = "camlp5,camlp5.printers.full,pa_ppx_deriving,pa_ppx_deriving_plugins.eq,pa_ppx_deriving_plugins.ord"
     archive(syntax,preprocessor,-native) = "pa_deriving_located_sexp.cmo"
     archive(syntax,preprocessor,native) = "pa_deriving_located_sexp.cmx"
 
   package "link" (
-  requires = "camlp5,camlp5.printers,pa_ppx_deriving.link,pa_ppx_deriving_plugins.eq.link,pa_ppx_deriving_plugins.ord.link"
+  requires = "camlp5,camlp5.printers.full,pa_ppx_deriving.link,pa_ppx_deriving_plugins.eq.link,pa_ppx_deriving_plugins.ord.link"
   archive(byte) = "pa_deriving_located_sexp.cmo"
   archive(native) = "pa_deriving_located_sexp.cmx"
   )
-  requires = "camlp5.printers,pa_ppx_runtime,pa_ppx_deriving_plugins.eq,pa_ppx_deriving_plugins.ord"
+  requires = "camlp5.printers.full,pa_ppx_runtime,pa_ppx_deriving_plugins.eq,pa_ppx_deriving_plugins.ord"
 )
 
 package "params" (
-  requires(toploop) = "fmt,camlp5,camlp5.printers,camlp5.parsers,pa_ppx_deriving,pa_ppx_base,pa_ppx_params_runtime"
+  requires(toploop) = "fmt,camlp5,camlp5.printers.full,camlp5.parsers.full,pa_ppx_deriving,pa_ppx_base,pa_ppx_params_runtime"
   archive(toploop) = "pa_deriving_params.cmo"
 
-    requires(syntax,preprocessor) = "fmt,camlp5,camlp5.printers,camlp5.parsers,pa_ppx_deriving,pa_ppx_base.link"
+    requires(syntax,preprocessor) = "fmt,camlp5,camlp5.printers.full,camlp5.parsers.full,pa_ppx_deriving,pa_ppx_base.link"
     archive(syntax,preprocessor,-native) = "pa_deriving_params.cmo"
     archive(syntax,preprocessor,native) = "pa_deriving_params.cmx"
 
   package "link" (
-  requires = "fmt,camlp5,camlp5.printers,camlp5.parsers,pa_ppx_deriving.link,pa_ppx_base.link"
+  requires = "fmt,camlp5,camlp5.printers.full,camlp5.parsers.full,pa_ppx_deriving.link,pa_ppx_base.link"
   archive(byte) = "pa_deriving_params.cmo"
   archive(native) = "pa_deriving_params.cmx"
   )
-  requires = "fmt,camlp5.printers,camlp5.parsers,pa_ppx_runtime,pa_ppx_params_runtime"
+  requires = "fmt,camlp5.printers.full,camlp5.parsers.full,pa_ppx_runtime,pa_ppx_params_runtime"
 )
 |} version)

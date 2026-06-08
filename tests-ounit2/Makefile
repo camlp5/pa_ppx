@@ -119,7 +119,7 @@ test_ppx_yojson.ppx.byte: test_ppx_yojson.ML stuff.cmo test_self_import.cmo
 
 test_passthru_hashrecons.byte: hCPassthru.cmo test_passthru_hashrecons.cmo
 	$(LAUNCH) $(OCAMLFIND) ocamlc $(DEBUG) $(WARNERR) -package $(PACKAGES),$(PAPACKAGES) \
-	-package camlp5.printers,camlp5.parsers -linkpkg $^ -o $@
+	-package camlp5.printers.full,camlp5.parsers.full -linkpkg $^ -o $@
 
 test_deriving_params.byte: test_deriving_params.ml.pappx.cmo
 	$(LAUNCH) $(OCAMLFIND) ocamlc $(DEBUG) $(WARNERR) -package $(PACKAGES),$(PAPACKAGES),camlp5.pa_r.link \

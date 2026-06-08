@@ -13,7 +13,7 @@ Arg.(parse [
 ;;
 
 Fmt.(pf stdout {|# Specifications for the "pa_ppx" preprocessor:
-requires = "camlp5.printers,rresult,fmt,pa_ppx_deriving,pa_ppx_runtime,uint,pa_ppx_base.link"
+requires = "camlp5.printers.full,rresult,fmt,pa_ppx_deriving,pa_ppx_runtime,uint,pa_ppx_base.link"
 version = "%s"
 description = "pa_ppx params runtime support"
 

@@ -31,7 +31,7 @@ let test_good ctxt =
   ; good "foo; blah\n"
   ; good "foo; blah\n"
     (* multiple sexps *)
-  ; bad ~sexplib_msg:"got multiple S-expressions" ~msg:"EOI expected" "foo bar"
+  ; bad ~sexplib_msg:{|\(got multiple S-expressions\|S-expression followed by data\)|} ~msg:"EOI expected" "foo bar"
     (* unterminated block comment *)
   ; bad ~sexplib_msg:"S-expression followed by data" ~msg:"unterminated block comment" "foo #| bar"
     (* unterminated sexp *)

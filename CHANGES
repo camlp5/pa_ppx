@@ -1,3 +1,18 @@
+pa_ppx Version 8.05.02
+----------------------
+
+* [23 Jun 2026]
+
+  * switch to new camlp5 parser/printer framework
+
+  * sync config/Makefile*
+
+  * add "located_yojson" deriver and base type
+
+  * make "located_yojson.pp", "located_sexp.pp" sub-packages, which
+    load them into the preprocessor -- this allows pa_ppx_import to
+    import from those packages.
+
 pa_ppx Version 8.05.01
 ----------------------
 

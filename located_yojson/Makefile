@@ -8,14 +8,14 @@ include $(TOP)/config/Makefile.sub
 DESTDIR=
 
 PACKAGES := $(PACKAGES),pa_ppx_base,yojson
-TARGET_PACKAGE=pa_ppx_located_json
+TARGET_PACKAGE=pa_ppx_located_yojson
 TARGET=$(TARGET_PACKAGE).cma
 ML = json0.ml pa_json.ml json.ml
 MLI = json0.mli pa_json.mli json.mli
 ALLSRC = $(ML) $(MLI)
 ALLPACKAGES=$(PACKAGES)
 
-OCAMLCFLAGS := $(OCAMLCFLAGS) -for-pack Pa_ppx_located_json
+OCAMLCFLAGS := $(OCAMLCFLAGS) -for-pack Pa_ppx_located_yojson
 
 all: $(TARGET) $(TARGET:.cma=.cmxa)
 	$(MAKE) DESTDIR=$(WD)/$(TOP)/local-install/ install

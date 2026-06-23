@@ -14,7 +14,7 @@ PRESYSDIRS= util-lib runtime runtime_fat testutils base pa_unmatched_vala \
 	pa_deriving pa_deriving.plugins pa_import
 
 SYSDIRS= $(PRESYSDIRS) \
-	located_sexp located_json params_runtime
+	located_sexp located_yojson params_runtime
 
 TESTDIRS= tests-ounit2 tests-mdx
 

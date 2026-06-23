@@ -17,6 +17,6 @@ requires = "yojson,pa_ppx_base"
 version = "%s"
 description = "Json with locations"
 
-archive(byte) = "pa_ppx_located_json.cma"
-archive(native) = "pa_ppx_located_json.cmxa"
+archive(byte) = "pa_ppx_located_yojson.cma"
+archive(native) = "pa_ppx_located_yojson.cmxa"
 |} version)

@@ -22,11 +22,25 @@ let show_error_or =
   end in
   M.show_error_or
 
+let equal_error_or =
+  let module M = struct
+    type 'a error_or = ('a, string) Result.result [@@deriving eq]
+  end in
+  M.equal_error_or
+
+let cmp = Json.ErasingLoc.equal
+
 let assert_roundtrip pp_obj to_json of_json obj str =
   let json = Json.of_string str in
   let cleanup json = Json.(json |> to_string |> of_string) in
   assert_equal ~printer:Json.show json (cleanup (to_json obj));
   assert_equal ~printer:(show_error_or pp_obj) (Result.Ok obj) (of_json json)
+
+let assert_roundtrip' pp_obj (to_json, cmp_json) (of_json, cmp_obj) obj str =
+  let json = Json.of_string str in
+  let cleanup json = Json.(json |> to_string |> of_string) in
+  assert_equal ~cmp:cmp_json ~printer:Json.show json (cleanup (to_json obj));
+  assert_equal ~cmp:cmp_obj ~printer:(show_error_or pp_obj) (Result.Ok obj) (of_json json)
 
 let assert_roundtrip_sexp pp_obj to_sexp of_sexp obj str =
   let sexp = Sexplib.Sexp.of_string str in
@@ -76,7 +90,7 @@ type rv = RA | RB of int | RC of int * string | RD of { z : string }
 [@@deriving show, located_yojson, sexp]
 
 let test_unit _ctxt =
-  assert_roundtrip pp_u u_to_located_yojson u_of_located_yojson
+  assert_roundtrip' pp_u (u_to_located_yojson, cmp) (u_of_located_yojson, (=))
     () "null" ;
   assert_roundtrip_sexp show_u sexp_of_u u_of_sexp
     () "()"
@@ -173,13 +187,13 @@ let test_list _ctxt =
   assert_roundtrip pp_xl xl_to_located_yojson xl_of_located_yojson lst str
 
 let test_array _ctxt =
-  assert_roundtrip pp_xa xa_to_located_yojson xa_of_located_yojson
+  assert_roundtrip' pp_xa (xa_to_located_yojson, cmp) (xa_of_located_yojson, (=))
                    [||] "[]";
-  assert_roundtrip pp_xa xa_to_located_yojson xa_of_located_yojson
+  assert_roundtrip' pp_xa (xa_to_located_yojson, cmp) (xa_of_located_yojson, (=))
                    [|42; 43|] "[42, 43]"
 
 let test_tuple _ctxt =
-  assert_roundtrip pp_xt xt_to_located_yojson xt_of_located_yojson
+  assert_roundtrip' pp_xt (xt_to_located_yojson, cmp) (xt_of_located_yojson, (=))
                    (42, 43) "[42, 43]"
 
 let test_ptyp _ctxt =
@@ -189,28 +203,36 @@ let test_ptyp _ctxt =
                    None "null"
 
 let test_pvar _ctxt =
-  assert_roundtrip pp_pv pv_to_located_yojson pv_of_located_yojson
-                   `A "[\"A\"]";
-  assert_roundtrip pp_pv pv_to_located_yojson pv_of_located_yojson
-                   (`B 42) "[\"B\", 42]";
-  assert_roundtrip pp_pv pv_to_located_yojson pv_of_located_yojson
-                   (`C (42, "foo")) "[\"C\", 42, \"foo\"]";
-  assert_roundtrip pp_pvd pvd_to_located_yojson pvd_of_located_yojson
-                   `A "[\"A\"]";
-  assert_roundtrip pp_pvd pvd_to_located_yojson pvd_of_located_yojson
-                   `B "[\"B\"]";
-  assert_roundtrip pp_pvd pvd_to_located_yojson pvd_of_located_yojson
-                   (`C 1) "[\"C\", 1]";
+  begin
+    let pv_to_located_yojson = (pv_to_located_yojson, cmp) in
+    let pv_of_located_yojson = (pv_of_located_yojson, (=)) in
+    let pvd_to_located_yojson = (pvd_to_located_yojson, cmp) in
+    let pvd_of_located_yojson = (pvd_of_located_yojson, (=)) in
+    assert_roundtrip' pp_pv pv_to_located_yojson pv_of_located_yojson
+      `A "[\"A\"]";
+    assert_roundtrip' pp_pv pv_to_located_yojson pv_of_located_yojson
+      (`B 42) "[\"B\", 42]";
+    assert_roundtrip' pp_pv pv_to_located_yojson pv_of_located_yojson
+      (`C (42, "foo")) "[\"C\", 42, \"foo\"]";
+    assert_roundtrip' pp_pvd pvd_to_located_yojson pvd_of_located_yojson
+      `A "[\"A\"]";
+    assert_roundtrip' pp_pvd pvd_to_located_yojson pvd_of_located_yojson
+      `B "[\"B\"]";
+    assert_roundtrip' pp_pvd pvd_to_located_yojson pvd_of_located_yojson
+      (`C 1) "[\"C\", 1]"
+  end ;
   assert_equal ~printer:(show_error_or pp_pvd)
                (Result.Error (filemod^"pvd"))
                (pvd_of_located_yojson (Ploc.dummy, `List [(Ploc.dummy, `String "D")]))
 
 let test_var _ctxt =
-  assert_roundtrip pp_v v_to_located_yojson v_of_located_yojson
+  let v_to_located_yojson = (v_to_located_yojson, cmp) in
+  let v_of_located_yojson = (v_of_located_yojson, (=)) in
+  assert_roundtrip' pp_v v_to_located_yojson v_of_located_yojson
                    A "[\"A\"]";
-  assert_roundtrip pp_v v_to_located_yojson v_of_located_yojson
+  assert_roundtrip' pp_v v_to_located_yojson v_of_located_yojson
                    (B 42) "[\"B\", 42]";
-  assert_roundtrip pp_v v_to_located_yojson v_of_located_yojson
+  assert_roundtrip' pp_v v_to_located_yojson v_of_located_yojson
                    (C (42, "foo")) "[\"C\", 42, \"foo\"]"
 
 let test_rec _ctxt =
@@ -218,13 +240,15 @@ let test_rec _ctxt =
                    {x=42; y="foo"} "{\"x\":42,\"y\":\"foo\"}"
 
 let test_recvar _ctxt =
-  assert_roundtrip pp_rv rv_to_located_yojson rv_of_located_yojson
+  let rv_to_located_yojson = (rv_to_located_yojson, cmp) in
+  let rv_of_located_yojson = (rv_of_located_yojson, (=)) in
+  assert_roundtrip' pp_rv rv_to_located_yojson rv_of_located_yojson
                    RA "[\"RA\"]";
-  assert_roundtrip pp_rv rv_to_located_yojson rv_of_located_yojson
+  assert_roundtrip' pp_rv rv_to_located_yojson rv_of_located_yojson
                    (RB 42) "[\"RB\", 42]";
-  assert_roundtrip pp_rv rv_to_located_yojson rv_of_located_yojson
+  assert_roundtrip' pp_rv rv_to_located_yojson rv_of_located_yojson
                    (RC(42, "foo")) "[\"RC\", 42, \"foo\"]";
-  assert_roundtrip pp_rv rv_to_located_yojson rv_of_located_yojson
+  assert_roundtrip' pp_rv rv_to_located_yojson rv_of_located_yojson
                    (RD{z="foo"}) "[\"RD\", {\"z\": \"foo\"}]"
 
 type geo = {
@@ -253,7 +277,7 @@ let test_field_err _ctxt =
 
 type id = Pa_ppx_located_yojson.Json.t [@@deriving located_yojson]
 let test_id _ctxt =
-  assert_roundtrip pp_json id_to_located_yojson id_of_located_yojson
+  assert_roundtrip' pp_json (id_to_located_yojson, cmp) (id_of_located_yojson, equal_error_or cmp)
                    (Ploc.dummy, `Int 42) "42"
 
 type id2 = Sexplib.Sexp.t [@@deriving sexp]
@@ -267,9 +291,9 @@ type custvar =
 | Vodka [@located_yojson.name "vodka"][@sexp.name "vodka"]
 [@@deriving located_yojson, show]
 let test_custvar _ctxt =
-  assert_roundtrip pp_custvar custvar_to_located_yojson custvar_of_located_yojson
+  assert_roundtrip' pp_custvar (custvar_to_located_yojson, cmp) (custvar_of_located_yojson, (=))
                    (Tea "oolong") "[\"tea\", \"oolong\"]";
-  assert_roundtrip pp_custvar custvar_to_located_yojson custvar_of_located_yojson
+  assert_roundtrip' pp_custvar (custvar_to_located_yojson, cmp) (custvar_of_located_yojson, (=))
                    Vodka "[\"vodka\"]"
 end
 
@@ -300,11 +324,13 @@ type custpvar =
 | `Vodka [@located_yojson.name "vodka"][@sexp.name "vodka"]
 ] [@@deriving located_yojson, show]
 let test_custpvar _ctxt =
-  assert_roundtrip pp_custpvar custpvar_to_located_yojson custpvar_of_located_yojson
+  let custpvar_to_located_yojson = (custpvar_to_located_yojson, cmp) in
+  let custpvar_of_located_yojson = (custpvar_of_located_yojson, (=)) in
+  assert_roundtrip' pp_custpvar custpvar_to_located_yojson custpvar_of_located_yojson
                    (`Tea "earl_grey") "[\"tea\", \"earl_grey\"]";
-  assert_roundtrip pp_custpvar custpvar_to_located_yojson custpvar_of_located_yojson
+  assert_roundtrip' pp_custpvar custpvar_to_located_yojson custpvar_of_located_yojson
                    (`Beer ("guinness", 3.3)) "[\"beer\", \"guinness\", 3.3]";
-  assert_roundtrip pp_custpvar custpvar_to_located_yojson custpvar_of_located_yojson
+  assert_roundtrip' pp_custpvar custpvar_to_located_yojson custpvar_of_located_yojson
                    `Vodka "[\"vodka\"]"
 end
 
@@ -357,9 +383,11 @@ type default = {
   def : int option [@located_yojson.default None];
 } [@@deriving located_yojson, show]
 let test_default _ctxt =
-  assert_roundtrip pp_default default_to_located_yojson default_of_located_yojson
+  let default_to_located_yojson = (default_to_located_yojson, cmp) in
+  let default_of_located_yojson = (default_of_located_yojson, (=)) in
+  assert_roundtrip' pp_default default_to_located_yojson default_of_located_yojson
                    { def = None } "{}"
-; assert_roundtrip pp_default default_to_located_yojson default_of_located_yojson
+; assert_roundtrip' pp_default default_to_located_yojson default_of_located_yojson
                    { def = Some 42 } {foo|{"def": 42}|foo}
 end
 
@@ -497,11 +525,13 @@ let test_opentype _ctxt =
   let pp_ot = pp_opentype string_of_int in
   let to_located_yojson = Opentype.opentype_to_located_yojson i1_to_located_yojson in
   let of_located_yojson = Opentype.opentype_of_located_yojson i1_of_located_yojson in
-  assert_roundtrip pp_ot to_located_yojson of_located_yojson
+  let to_located_yojson = (to_located_yojson, cmp) in
+  let of_located_yojson = (of_located_yojson, (=)) in
+  assert_roundtrip' pp_ot to_located_yojson of_located_yojson
                    (Opentype.A 0) "[\"A\", 0]";
-  assert_roundtrip pp_ot to_located_yojson of_located_yojson
+  assert_roundtrip' pp_ot to_located_yojson of_located_yojson
                    (Opentype.B ["one"; "two"]) "[\"B\", [ \"one\", \"two\"] ]";
-  assert_roundtrip pp_ot to_located_yojson of_located_yojson
+  assert_roundtrip' pp_ot to_located_yojson of_located_yojson
                    (C (Opentype.A 42, 1.2)) "[\"C\", [\"A\", 42], 1.2]"
 #ifdef PAPPX
   ; assert_equal ~printer:(fun x -> x)

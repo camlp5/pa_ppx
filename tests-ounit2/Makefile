@@ -39,7 +39,7 @@ PAPACKAGES:=$(PAPACKAGES),$(PACKAGEPREFIX)located_yojson
 PAPACKAGES:=$(PAPACKAGES),$(PACKAGEPREFIX)hashrecons
 export PAPACKAGES:=$(PAPACKAGES),$(PACKAGEPREFIX)testutils
 
-ALLSRC=$(shell ls *.pappx.ml hCPassthru.ml test_passthru_hashrecons.ml test_import_camlp5.ml test_import0.ml test_located_sexp.ml test_self_import.ml test_self_import.mli)
+ALLSRC=$(shell ls *.pappx.ml hCPassthru.ml test_passthru_hashrecons.ml test_import_camlp5.ml test_import0.ml test_located_sexp.ml test_located_yojson.ml test_self_import.ml test_self_import.mli)
 ALLPACKAGES = $(PACKAGES),$(PAPACKAGES),$(PPXPACKAGES)
 
 ML=papr_util.ml hCPassthru.ml
@@ -47,6 +47,7 @@ ML=papr_util.ml hCPassthru.ml
 TESTS= \
 	test_utils.TEST \
 	test_located_sexp.TEST \
+	test_located_yojson.TEST \
 	test_ppx_deriving.TEST \
 	test_ppx_deriving.ppx.TEST \
 	test_deriving_show.TEST \
@@ -145,6 +146,10 @@ test_import0.byte: test_import0.cmo
 
 test_located_sexp.byte: test_located_sexp.cmo
 	$(LAUNCH) $(OCAMLFIND) ocamlc $(DEBUG) $(WARNERR) -package $(PACKAGES),$(PACKAGEPREFIX)runtime,$(PACKAGEPREFIX)runtime_fat,$(PACKAGEPREFIX)located_sexp,camlp5.pr_o,$(PACKAGEPREFIX)testutils \
+	-linkall -linkpkg -syntax camlp5o $< -o $@
+
+test_located_yojson.byte: test_located_yojson.cmo
+	$(LAUNCH) $(OCAMLFIND) ocamlc $(DEBUG) $(WARNERR) -package $(PACKAGES),$(PACKAGEPREFIX)runtime,$(PACKAGEPREFIX)runtime_fat,$(PACKAGEPREFIX)located_yojson,camlp5.pr_o,$(PACKAGEPREFIX)testutils \
 	-linkall -linkpkg -syntax camlp5o $< -o $@
 
 test_import_camlp5.cmo: stuff.cmo test_self_import.cmi

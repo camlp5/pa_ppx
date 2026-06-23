@@ -4,14 +4,40 @@ value g = Grammar.gcreate (Pcaml.Lexer.gmake ());
 
 value json_eoi = Grammar.Entry.create g "json_eoi";
 
+value make_int ~neg x =
+  try
+    let n = int_of_string x in
+    if neg then `Int (-n)
+    else `Int n
+  with [
+      Failure _ ->
+      if neg then `Intlit ("-"^x)
+      else `Intlit x
+    ]
+;
+
+value make_float ~neg x =
+  try
+    let n = float_of_string x in
+    if neg then `Float (-. n)
+    else `Float n
+  with [
+      Failure _ ->
+      if neg then `Intlit ("-"^x)
+      else `Intlit x
+    ]
+;
+
 EXTEND
   GLOBAL: json_eoi;
 
   json: [
     [ s = STRING -> (loc, `String s)
     | "null" -> (loc, `Null)
-    | s = INT -> (loc, `Int (int_of_string s))
-    | f = FLOAT -> (loc, `Float (float_of_string f))
+    | s = INT -> (loc, make_int ~{neg=False} s)
+    | f = FLOAT -> (loc, make_float ~{neg=False} f)
+    | "-" ; s = INT -> (loc, make_int ~{neg=True} s)
+    | "-" ; f = FLOAT -> (loc, make_float ~{neg=True} f)
     | b = ["true" -> True | "false" -> False] -> (loc, `Bool b)
     | "[" ; l = LIST0 json SEP "," ; "]" -> (loc, `List l)
     | "{" ; l = LIST0 [ s = STRING ; ":" ; j = json -> (s,j) ] SEP "," ; "}" -> (loc, `Assoc l)

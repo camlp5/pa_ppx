@@ -7,11 +7,11 @@ include $(TOP)/config/Makefile.sub
 
 DESTDIR=
 
-PACKAGES := $(PACKAGES),pa_ppx_base,yojson
+PACKAGES := $(PACKAGES),pa_ppx_base,yojson,result
 TARGET_PACKAGE=pa_ppx_located_yojson
 TARGET=$(TARGET_PACKAGE).cma
-ML = json0.ml pa_json.ml json.ml
-MLI = json0.mli pa_json.mli json.mli
+ML = json0.ml pa_json.ml json.ml runtime.ml
+MLI = json0.mli pa_json.mli json.mli runtime.mli
 ALLSRC = $(ML) $(MLI)
 ALLPACKAGES=$(PACKAGES)
 

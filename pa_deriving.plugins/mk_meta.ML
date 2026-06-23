@@ -197,6 +197,22 @@ package "yojson" (
   requires = "camlp5.printers.full,pa_ppx_runtime,yojson"
 )
 
+package "located_yojson" (
+  requires(toploop) = "camlp5,camlp5.printers.full,pa_ppx_deriving,yojson"
+  archive(toploop) = "pa_deriving_located_yojson.cmo"
+
+    requires(syntax,preprocessor) = "camlp5,camlp5.printers.full,pa_ppx_deriving"
+    archive(syntax,preprocessor,-native) = "pa_deriving_located_yojson.cmo"
+    archive(syntax,preprocessor,native) = "pa_deriving_located_yojson.cmx"
+
+  package "link" (
+  requires = "camlp5,camlp5.printers.full,pa_ppx_deriving.link"
+  archive(byte) = "pa_deriving_located_yojson.cmo"
+  archive(native) = "pa_deriving_located_yojson.cmx"
+  )
+  requires = "camlp5.printers.full,pa_ppx_runtime,yojson"
+)
+
 package "sexp" (
   requires(toploop) = "camlp5,camlp5.printers.full,pa_ppx_deriving,pa_ppx_deriving_plugins.eq,pa_ppx_deriving_plugins.ord"
   archive(toploop) = "pa_deriving_sexp.cmo"

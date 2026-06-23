@@ -30,10 +30,12 @@ PAPACKAGES:=$(PAPACKAGES),$(PACKAGEPREFIX)deriving_plugins.std
 PAPACKAGES:=$(PAPACKAGES),$(PACKAGEPREFIX)deriving_plugins.yojson
 PAPACKAGES:=$(PAPACKAGES),$(PACKAGEPREFIX)deriving_plugins.sexp
 PAPACKAGES:=$(PAPACKAGES),$(PACKAGEPREFIX)deriving_plugins.located_sexp
+PAPACKAGES:=$(PAPACKAGES),$(PACKAGEPREFIX)deriving_plugins.located_yojson
 PAPACKAGES:=$(PAPACKAGES),$(PACKAGEPREFIX)runtime
 PAPACKAGES:=$(PAPACKAGES),$(PACKAGEPREFIX)params_runtime
 PAPACKAGES:=$(PAPACKAGES),$(PACKAGEPREFIX)runtime_fat
 PAPACKAGES:=$(PAPACKAGES),$(PACKAGEPREFIX)located_sexp
+PAPACKAGES:=$(PAPACKAGES),$(PACKAGEPREFIX)located_yojson
 PAPACKAGES:=$(PAPACKAGES),$(PACKAGEPREFIX)hashrecons
 export PAPACKAGES:=$(PAPACKAGES),$(PACKAGEPREFIX)testutils
 
@@ -82,6 +84,7 @@ TESTS += \
 TESTS += \
 	test_hashrecons.TEST \
 	test_passthru_hashrecons.TEST \
+	test_ppx_located_yojson.TEST \
 	test_ppx_yojson.TEST \
 	test_ppx_yojson.ppx.TEST \
 	test_extensible_variants.TEST \

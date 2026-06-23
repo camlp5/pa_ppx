@@ -1,0 +1,22 @@
+json0.cmo pa_json.cmo json.cmo json0.cmi pa_json.cmi json.cmi json0.cmx pa_json.cmx json.cmx: ../local-install/lib/pa_ppx_base/META
+json0.cmo : \
+    json0.cmi
+json0.cmx : \
+    json0.cmi
+pa_json.cmo : \
+    pa_json.cmi
+pa_json.cmx : \
+    pa_json.cmi
+json.cmo : \
+    pa_json.cmi \
+    json0.cmi \
+    json.cmi
+json.cmx : \
+    pa_json.cmx \
+    json0.cmx \
+    json.cmi
+json0.cmi :
+pa_json.cmi : \
+    json0.cmi
+json.cmi : \
+    json0.cmi

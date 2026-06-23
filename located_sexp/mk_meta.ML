@@ -19,4 +19,10 @@ description = "Sexp with locations"
 
 archive(byte) = "pa_ppx_located_sexp.cma"
 archive(native) = "pa_ppx_located_sexp.cmxa"
+
+package "pp" (
+  requires(syntax,preprocessor) = "sexplib,pa_ppx_base"
+  archive(syntax,preprocessor,-native) = "pa_ppx_located_sexp.cma"
+  archive(syntax,preprocessor,native) = "pa_ppx_located_sexp.cmxa"
+)
 |} version)

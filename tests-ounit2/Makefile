@@ -42,7 +42,7 @@ export PAPACKAGES:=$(PAPACKAGES),$(PACKAGEPREFIX)testutils
 ALLSRC=$(shell ls *.pappx.ml hCPassthru.ml test_passthru_hashrecons.ml test_import_camlp5.ml test_import0.ml test_located_sexp.ml test_located_yojson.ml test_self_import.ml test_self_import.mli)
 ALLPACKAGES = $(PACKAGES),$(PAPACKAGES),$(PPXPACKAGES)
 
-ML=papr_util.ml hCPassthru.ml
+ML=papr_util.ml hCPassthru.ml test_import_package.ml
 
 TESTS= \
 	test_utils.TEST \

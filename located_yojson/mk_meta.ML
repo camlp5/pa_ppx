@@ -19,4 +19,10 @@ description = "Json with locations"
 
 archive(byte) = "pa_ppx_located_yojson.cma"
 archive(native) = "pa_ppx_located_yojson.cmxa"
+
+package "pp" (
+  requires(syntax,preprocessor) = "yojson,pa_ppx_base"
+  archive(syntax,preprocessor,-native) = "pa_ppx_located_yojson.cma"
+  archive(syntax,preprocessor,native) = "pa_ppx_located_yojson.cmxa"
+)
 |} version)

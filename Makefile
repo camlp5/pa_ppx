@@ -180,7 +180,7 @@ META: sys
 		-wrap-subdir located_sexp:located_sexp \
 		\
 		-rewrite pa_ppx_located_yojson:pa_ppx.located_yojson \
-		-wrap-subdir located_sexp:located_yojson \
+		-wrap-subdir located_yojson:located_yojson \
 		>> META
 
 install: sys META

@@ -1,11 +1,13 @@
-json0.cmo pa_json.cmo json.cmo conv.cmo runtime.cmo json0.cmi pa_json.cmi json.cmi conv.cmi runtime.cmi json0.cmx pa_json.cmx json.cmx conv.cmx runtime.cmx: ../local-install/lib/pa_ppx_base/META
+json0.cmo pa_json.cmo json.cmo runtime.cmo json0.cmi pa_json.cmi json.cmi runtime.cmi json0.cmx pa_json.cmx json.cmx runtime.cmx: ../local-install/lib/pa_ppx_base/META
 json0.cmo : \
     json0.cmi
 json0.cmx : \
     json0.cmi
 pa_json.cmo : \
+    json0.cmi \
     pa_json.cmi
 pa_json.cmx : \
+    json0.cmx \
     pa_json.cmi
 json.cmo : \
     pa_json.cmi \
@@ -15,22 +17,17 @@ json.cmx : \
     pa_json.cmx \
     json0.cmx \
     json.cmi
-conv.cmo : \
-    json.cmi \
-    conv.cmi
-conv.cmx : \
-    json.cmx \
-    conv.cmi
 runtime.cmo : \
+    json.cmi \
     runtime.cmi
 runtime.cmx : \
+    json.cmx \
     runtime.cmi
 json0.cmi :
 pa_json.cmi : \
     json0.cmi
 json.cmi : \
+    pa_json.cmi \
     json0.cmi
-conv.cmi : \
-    json.cmi
 runtime.cmi : \
     json.cmi

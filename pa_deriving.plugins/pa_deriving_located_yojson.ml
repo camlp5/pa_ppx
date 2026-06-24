@@ -406,7 +406,7 @@ end
 
 module Of = struct
 
-module PM = ParamMap(struct value arg_ctyp_f loc pty = <:ctyp< Pa_ppx_located_yojson.Json.t -> Rresult.result $pty$ string >> ; end) ;
+module PM = ParamMap(struct value arg_ctyp_f loc pty = <:ctyp< Pa_ppx_located_yojson.Json.t -> Rresult.result $pty$ Pa_ppx_located_yojson.Runtime.Yojson.msg >> ; end) ;
 
 type attrmod_t = [ Nobuiltin ] ;
 
@@ -437,23 +437,23 @@ value of_expression arg ~{msg} param_map ty0 =
   when Some id = DC.allowed_attribute (DC.get arg) "located_yojson" "encoding" ->
   <:expr< fun [
         (_, `String x) -> Result.Ok (Int64.of_string x)
-      | _ -> Result.Error $str:msg$ ] >>
+      | (loc, _) -> Result.Error (loc, $str:msg$) ] >>
 | (<:ctyp:< string >> | <:ctyp:< Stdlib.String.t >> | <:ctyp:< String.t >>) ->
   <:expr< Pa_ppx_located_yojson.Runtime.Yojson.string_of_located_yojson $str:msg$ >>
 | <:ctyp:< bytes >> -> <:expr< fun [
         (_, `String x) -> Result.Ok (Bytes.of_string x)
-      | _ -> Result.Error $str:msg$ ] >>
-| <:ctyp:< char >> -> <:expr< fun [ (_, `String x) ->
+      | (loc, _) -> Result.Error (loc, $str:msg$) ] >>
+| <:ctyp:< char >> -> <:expr< fun [ (loc, `String x) ->
           if (String.length x) = 1
           then Result.Ok (x.[0])
-          else Result.Error $str:msg$
-      | _ -> Result.Error $str:msg$ ] >>
+          else Result.Error (loc, $str:msg$)
+      | (loc, _) -> Result.Error (loc, $str:msg$) ] >>
 | <:ctyp:< nativeint >> | <:ctyp:< Nativeint.t >> -> <:expr< Pa_ppx_located_yojson.Runtime.Yojson.nativeint_of_located_yojson $str:msg$ >>
 | <:ctyp:< nativeint [@ $attrid:(_, id)$ `string ; ] >> |
   <:ctyp:< Nativeint.t [@ $attrid:(_, id)$ `string ; ] >>
   when Some id = DC.allowed_attribute (DC.get arg) "located_yojson" "encoding" -> <:expr< fun [
         (_, `String x) -> Result.Ok (Nativeint.of_string x)
-      | _ -> Result.Error $str:msg$ ] >>
+      | (loc, _) -> Result.Error (loc, $str:msg$) ] >>
 | <:ctyp:< float >> -> <:expr< Pa_ppx_located_yojson.Runtime.Yojson.float_of_located_yojson $str:msg$ >>
 
 | <:ctyp:< Hashtbl.t >> ->
@@ -531,7 +531,7 @@ value of_expression arg ~{msg} param_map ty0 =
 
   | (_, _, _, _, <:vala< Some _ >>, _) -> assert False
   ]) l in
-  let catch_branch = (<:patt< _ >>, <:vala< None >>, <:expr< Result.Error $str:msg$ >>) in
+  let catch_branch = (<:patt< (loc, _) >>, <:vala< None >>, <:expr< Result.Error (loc, $str:msg$) >>) in
   let branches = branches @ [catch_branch] in
   <:expr< fun [ $list:branches$ ] >>
 
@@ -580,8 +580,8 @@ value of_expression arg ~{msg} param_map ty0 =
   let righte = List.fold_right (fun fmtf rhs ->
     <:expr< match $fmtf$ json with [
                      Result.Ok result -> Result.Ok (result :> $ty0$)
-                   | Result.Error _ -> $rhs$ ] >>)
-    rights <:expr< Result.Error $str:msg$ >> in
+                   | Result.Error (loc, _) -> $rhs$ ] >>)
+    rights <:expr< Result.Error (fst json, $str:msg$) >> in
 
   let last_branch = (<:patt< json >>, <:vala< None >>,
                      righte) in
@@ -600,11 +600,11 @@ value of_expression arg ~{msg} param_map ty0 =
     let unmarshe = List.fold_right2 (fun fmte v rhs ->
         <:expr< Rresult.R.bind ($fmte$ $lid:v$) (fun $lid:v$ -> $rhs$) >>) fmts vars consexp in
     <:expr< fun [ (_, `List $listpat$) -> $unmarshe$
-                | _ -> Result.Error $str:msg$ ] >>
+                | (loc, _) -> Result.Error (loc, $str:msg$) ] >>
 
 | <:ctyp:< { $list:fields$ } >> ->
   let (recpat, body) = fmt_record ~{cid=None} ~{msg=msg} loc arg fields in
-  <:expr< fun [ $recpat$ -> $body$ | _ -> Result.Error $str:msg$ ] >>
+  <:expr< fun [ $recpat$ -> $body$ | (loc, _) -> Result.Error (loc, $str:msg$) ] >>
 
 | [%unmatched_vala] -> failwith "pa_deriving_located_yojson.of_expression"
 | ty ->
@@ -648,7 +648,7 @@ and fmt_record ~{cid} ~{msg} loc arg fields =
 
   let catch_branch =
     if Ctxt.is_strict arg then
-      (<:patt< [_ :: _] >>, <:vala< None >>, <:expr< Result.Error $str:msg$ >>)
+      (<:patt< [(loc, _) :: _] >>, <:vala< None >>, <:expr< Result.Error (loc, $str:msg$) >>)
   else
     let varrow = varrow_except (-1, <:expr< . >>) in
     let cons1exp = tupleexpr loc varrow in
@@ -663,13 +663,13 @@ and fmt_record ~{cid} ~{msg} loc arg fields =
         match dflt with [
           None ->
           let msg = msg^"."^f in
-          <:expr< Result.Error $str:msg$ >>
+          <:expr< Result.Error (loc, $str:msg$) >>
         | Some d -> <:expr< Result.Ok $d$ >> ]) labels_vars_fmts_defaults_jskeys in
     let tupleinit = tupleexpr loc initexps in
     <:expr< let rec loop xs $tuplevars$ = match xs with [ $list:branches$ ]
             in loop xs $tupleinit$ >> in
 
-  (<:patt< (_, `Assoc xs) >>, e)
+  (<:patt< (loc, `Assoc xs) >>, e)
 
 in fmtrec ~{msg=msg} ty0
 ;
@@ -687,9 +687,9 @@ value sig_item_fun0 arg td =
   let tyname = uv tyname in
   let of_yojsonfname = of_yojson_fname arg tyname in
   let paramtys = List.map (fun p -> <:ctyp< '$PM.type_id p$ >>) param_map in
-  let argfmttys = List.map (fun pty -> <:ctyp< Pa_ppx_located_yojson.Json.t -> Rresult.result $pty$ string >>) paramtys in  
+  let argfmttys = List.map (fun pty -> <:ctyp< Pa_ppx_located_yojson.Json.t -> Rresult.result $pty$ Pa_ppx_located_yojson.Runtime.Yojson.msg >>) paramtys in  
   let ty = <:ctyp< $lid:tyname$ >> in
-  let offtype = Ctyp.arrows_list loc argfmttys <:ctyp< Pa_ppx_located_yojson.Json.t -> Rresult.result $(Ctyp.applist ty paramtys)$ string >> in
+  let offtype = Ctyp.arrows_list loc argfmttys <:ctyp< Pa_ppx_located_yojson.Json.t -> Rresult.result $(Ctyp.applist ty paramtys)$ Pa_ppx_located_yojson.Runtime.Yojson.msg >> in
   let e = (of_yojsonfname, offtype) in
   if not (Ctxt.is_exn arg) then (e, None) else
   let exn_name = of_yojsonfname^"_exn" in
@@ -736,7 +736,10 @@ value str_item_funs arg td = do {
   if not (Ctxt.is_exn arg) then [e] else
     let exn_name = of_yojsonfname^"_exn" in
     let body = Expr.applist <:expr< $lid:of_yojsonfname$ >> paramfun_exprs in
-    let body = <:expr< match $body$ arg with [ Rresult.Ok x -> x | Result.Error s -> failwith s ] >> in
+    let body = <:expr< match $body$ arg with [
+                         Rresult.Ok x -> x
+                       | Result.Error (loc, s) ->
+                           Pa_ppx_base.Ppxutil.raise_failwith loc s ] >> in
     let of_e = <:expr< let open! $runtime_module$ in let open! Stdlib in $body$ >> in
     let (_, fty) = match ofun2 with [ None -> assert False | Some x -> x ] in
     let fty = PM.quantify_over_ctyp param_map fty in
@@ -946,7 +949,7 @@ value ctyp_yojson arg = fun [
 | <:ctyp:< [% $attrid:(_, id)$: $type:ty$ ] >> when id = "of_located_yojson" || id = "derive.of_located_yojson" ->
     let param_map = ty |> type_params |> Of.PM.make_of_ids in
     let argfmttys = List.map (Of.PM.arg_ctyp loc) param_map in  
-    Ctyp.arrows_list loc argfmttys <:ctyp< Pa_ppx_located_yojson.Json.t -> Rresult.result $ty$ string >>
+    Ctyp.arrows_list loc argfmttys <:ctyp< Pa_ppx_located_yojson.Json.t -> Rresult.result $ty$ Pa_ppx_located_yojson.Runtime.Yojson.msg >>
 
 | _ -> assert False ]
 ;

@@ -18,13 +18,13 @@ type json = Json.t
 
 let show_error_or =
   let module M = struct
-    type 'a error_or = ('a, string) Result.result [@@deriving show]
+    type 'a error_or = ('a, ((Pa_ppx_runtime.Exceptions.Ploc.t[@eq.equal fun x y -> true]) * string)) Result.result [@@deriving show]
   end in
   M.show_error_or
 
 let equal_error_or =
   let module M = struct
-    type 'a error_or = ('a, string) Result.result [@@deriving eq]
+    type 'a error_or = ('a, ((Pa_ppx_runtime.Exceptions.Ploc.t[@eq.equal fun x y -> true]) * string)) Result.result [@@deriving eq]
   end in
   M.equal_error_or
 
@@ -47,9 +47,9 @@ let assert_roundtrip_sexp pp_obj to_sexp of_sexp obj str =
   assert_equal ~printer:Sexplib0.Sexp.to_string_hum sexp (to_sexp obj);
   assert_equal ~printer:pp_obj obj (of_sexp sexp)
 
-let assert_failure pp_obj of_json err str =
+let assert_failure pp_obj equal_obj of_json err str =
   let json = Json.JsonEOI.of_string str in
-  assert_equal ~printer:(show_error_or pp_obj) (Result.Error err) (of_json json)
+  assert_equal ~cmp:(equal_error_or equal_obj) ~printer:(show_error_or pp_obj) (Result.Error err) (of_json json)
 
 type u = unit         [@@deriving show, located_yojson, sexp]
 type i1 = int         [@@deriving show, located_yojson, sexp, eq]
@@ -63,7 +63,7 @@ type i8 = int64       [@located_yojson.encoding `string] [@@deriving show, locat
 type i9 = nativeint   [@located_yojson.encoding `string] [@@deriving show, located_yojson]
 type f  = float       [@@deriving show, located_yojson, sexp]
 type b  = bool        [@@deriving show, located_yojson, sexp]
-type c  = char        [@@deriving show, located_yojson, sexp]
+type c  = char        [@@deriving show, located_yojson, sexp, eq]
 type s  = string      [@@deriving show, located_yojson, sexp]
 type y  = bytes       [@@deriving show, located_yojson, sexp]
 type xr = int ref     [@@deriving show, located_yojson, sexp]
@@ -143,8 +143,8 @@ let test_bool _ctxt =
 let test_char _ctxt =
   assert_roundtrip pp_c c_to_located_yojson c_of_located_yojson
                    'c' "\"c\"";
-  assert_failure   pp_c c_of_located_yojson
-                   (filemod^"c") "\"xxx\""
+  assert_failure   pp_c equal_c c_of_located_yojson
+                   (Ploc.dummy, filemod^"c") "\"xxx\""
 
 let test_string _ctxt =
   assert_roundtrip pp_s s_to_located_yojson s_of_located_yojson
@@ -222,7 +222,7 @@ let test_pvar _ctxt =
       (`C 1) "[\"C\", 1]"
   end ;
   assert_equal ~printer:(show_error_or pp_pvd)
-               (Result.Error (filemod^"pvd"))
+               (Result.Error (Ploc.dummy, filemod^"pvd"))
                (pvd_of_located_yojson (Ploc.dummy, `List [(Ploc.dummy, `String "D")]))
 
 let test_var _ctxt =
@@ -272,7 +272,7 @@ let test_key _ctxt =
 
 let test_field_err _ctxt =
   assert_equal ~printer:(show_error_or pp_geo)
-               (Result.Error (filemod^"geo.lat"))
+               (Result.Error (Ploc.dummy, filemod^"geo.lat"))
                (geo_of_located_yojson (Ploc.dummy, `Assoc ["Longitude", (Ploc.dummy, `Float 42.0)]))
 
 type id = Pa_ppx_located_yojson.Json.t [@@deriving located_yojson]
@@ -727,7 +727,7 @@ module Test_recursive_polyvariant = struct
       [@@deriving of_located_yojson, sexp]
   type c = [ a | b | `D of b list]
       [@@deriving of_located_yojson, sexp]
-  let c_of_located_yojson yj : (c, string) Result.t  = c_of_located_yojson yj
+  let c_of_located_yojson yj  = c_of_located_yojson yj
 end
 
 type 'a recursive1 = { lhs : string ; rhs : 'a }

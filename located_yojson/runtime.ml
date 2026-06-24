@@ -27,12 +27,13 @@ value result_to_located_yojson pa pb = fun [
 open Rresult.R ;
 module Yojson = struct
 open Yojson ;
+type msg = (Ploc.t * string) ;
 value result_of_located_yojson pa pb = fun [
   (_, `List [(_, `String "Ok"); arg0]) ->
   (pa arg0) >>= (fun arg0 -> Result.Ok (Ok arg0))
 | (_, `List [(_, `String "Error"); arg0]) ->
   (pb arg0) >>= (fun arg0 -> Result.Ok (Error arg0))
-| _ -> Result.Error "result"
+| (loc,_) -> Result.Error (loc, "result")
 ]
 ;
 
@@ -46,7 +47,7 @@ value hashtbl_of_located_yojson keydemarsh valdemarsh (json : json) = match json
   let demarsh1 = fun [
     (_, `List[k;v]) ->
     (keydemarsh k) >>= (fun k -> (valdemarsh v) >>= (fun v -> Result.Ok (k,v)))
-  | _ -> Result.Error "tuple list needed"
+  | (loc, _) -> Result.Error (loc, "tuple list needed")
   ] in
   (List.fold_left (fun acc t ->
        acc >>= (fun acc -> (demarsh1 t) >>= (fun (k,v) -> Result.Ok [(k,v)::acc])))
@@ -56,7 +57,7 @@ value hashtbl_of_located_yojson keydemarsh valdemarsh (json : json) = match json
         List.iter (fun (k,v) -> Hashtbl.add ht k v) l ;
         Result.Ok ht
       })
-| _ -> Result.Error "list needed" ]
+| (loc, _) -> Result.Error (loc, "list needed") ]
 ;
 
 value unit_to_located_yojson = fun () -> (Ploc.dummy, `Null) ;
@@ -72,38 +73,48 @@ value array_to_located_yojson f = fun x -> (Ploc.dummy, `List (Array.to_list (Ar
 value ref_to_located_yojson f = fun x -> f x.val ;
 value option_to_located_yojson f = fun [ None -> (Ploc.dummy, `Null) | Some x -> f x ] ;
 
-value unit_of_located_yojson msg = fun [ (_, `Null) -> Result.Ok () | _ -> Result.Error msg ] ;
-value int_of_located_yojson msg = fun [ (_, `Int x) -> Result.Ok x | _ -> Result.Error msg ] ;
-value bool_of_located_yojson msg = fun [ (_, `Bool x) -> Result.Ok x | _ -> Result.Error msg ] ;
+value unit_of_located_yojson msg = fun [
+  (_, `Null) -> Result.Ok ()
+| (loc, _) -> Result.Error (loc, msg)
+] ;
+
+value int_of_located_yojson msg = fun [
+  (_, `Int x) -> Result.Ok x
+| (loc, _) -> Result.Error (loc, msg)
+] ;
+value bool_of_located_yojson msg = fun [
+  (_, `Bool x) -> Result.Ok x
+| (loc, _) -> Result.Error (loc, msg)
+] ;
 value int32_of_located_yojson msg = fun [
         (_, `Int x) -> Result.Ok (Int32.of_int x)
       | (_, `Intlit x) -> Result.Ok (Int32.of_string x)
-      | _ -> Result.Error msg ] ;
+      | (loc, _) -> Result.Error (loc, msg) ] ;
 value int64_of_located_yojson msg = fun [
       (_, `Int x) -> Result.Ok (Int64.of_int x)
-      | (_, `Intlit x) -> Result.Ok (Int64.of_string x)
-      | _ -> Result.Error msg ] ;
+    | (_, `Intlit x) -> Result.Ok (Int64.of_string x)
+    | (loc, _) -> Result.Error (loc, msg) ] ;
 value string_of_located_yojson msg = fun [
         (_, `String x) -> Result.Ok x
-      | _ -> Result.Error msg ] ;
+      | (loc, _) -> Result.Error (loc, msg) ] ;
 
 value nativeint_of_located_yojson msg = fun [
         (_, `Int x) -> Result.Ok (Nativeint.of_int x)
       | (_, `Intlit x) -> Result.Ok (Nativeint.of_string x)
-      | _ -> Result.Error msg ] ;
+      | (loc, _) -> Result.Error (loc, msg) ] ;
 value float_of_located_yojson msg = fun [
         (_, `Int x) -> Result.Ok (float_of_int x)
       | (_, `Intlit x) -> Result.Ok (float_of_string x)
       | (_, `Float x) -> Result.Ok x
-      | _ -> Result.Error msg ] ;
+      | (loc, _) -> Result.Error (loc, msg) ] ;
 value list_of_located_yojson msg f = fun [
         (_, `List xs) -> map_bind f [] xs
-      | _ -> Result.Error msg ] ;
+      | (loc, _) -> Result.Error (loc, msg) ] ;
 value array_of_located_yojson msg f = fun [
         (_, `List xs) ->
           Rresult.R.bind (map_bind f [] xs)
              (fun x -> Result.Ok (Array.of_list x))
-      | _ -> Result.Error msg ] ;
+      | (loc, _) -> Result.Error (loc, msg) ] ;
 value ref_of_located_yojson f = fun x ->
   Rresult.R.bind (f x) (fun x -> Result.Ok (ref x)) ;
 value option_of_located_yojson f = fun [

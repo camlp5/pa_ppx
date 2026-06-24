@@ -38,10 +38,11 @@ let of_yojson_json loc e =
     | `String s -> (t, `String s)
   in convrec loc e
 
-let to_string se = Yojson.Safe.to_string (to_yojson_json se)
-let of_string = Pa_json.of_string
+module Json = Pa_json.Json
+module JsonEOI = Pa_json.JsonEOI
+module JsonList = Pa_json.JsonList
+module JsonListEOI = Pa_json.JsonListEOI
 
-let input_json = Pa_json.input_json
-let load_json = Pa_json.load_json
+let to_string se = Yojson.Safe.to_string (to_yojson_json se)
 let pp_hum pps se = Yojson.Safe.pretty_print pps (to_yojson_json se)
 

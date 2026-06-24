@@ -7,11 +7,13 @@
 module ErasingLoc : sig
   val equal : t -> t -> bool
 end
-val loc_of_json : t -> Ploc.t
+
+module Json : (Pa_json.PAHELPER with type t = Json0.t)
+module JsonEOI : (Pa_json.PAHELPER with type t = Json0.t)
+module JsonList : (Pa_json.PAHELPER with type t = Json0.t list)
+module JsonListEOI : (Pa_json.PAHELPER with type t = Json0.t list)
+
+val to_string : t -> string
 val to_yojson_json : t -> Yojson.Safe.t
 val of_yojson_json : Ploc.t -> Yojson.Safe.t -> t
-val to_string : t -> string
-val of_string : string -> t
-val input_json : in_channel -> Json0.t
-val load_json : string -> Json0.t
 val pp_hum : Format.formatter -> Json0.t -> unit

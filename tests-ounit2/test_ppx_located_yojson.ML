@@ -31,14 +31,14 @@ let equal_error_or =
 let cmp = Json.ErasingLoc.equal
 
 let assert_roundtrip pp_obj to_json of_json obj str =
-  let json = Json.of_string str in
-  let cleanup json = Json.(json |> to_string |> of_string) in
+  let json = Json.JsonEOI.of_string str in
+  let cleanup json = Json.(json |> to_string |> JsonEOI.of_string) in
   assert_equal ~printer:Json.show json (cleanup (to_json obj));
   assert_equal ~printer:(show_error_or pp_obj) (Result.Ok obj) (of_json json)
 
 let assert_roundtrip' pp_obj (to_json, cmp_json) (of_json, cmp_obj) obj str =
-  let json = Json.of_string str in
-  let cleanup json = Json.(json |> to_string |> of_string) in
+  let json = Json.JsonEOI.of_string str in
+  let cleanup json = Json.(json |> to_string |> JsonEOI.of_string) in
   assert_equal ~cmp:cmp_json ~printer:Json.show json (cleanup (to_json obj));
   assert_equal ~cmp:cmp_obj ~printer:(show_error_or pp_obj) (Result.Ok obj) (of_json json)
 
@@ -48,7 +48,7 @@ let assert_roundtrip_sexp pp_obj to_sexp of_sexp obj str =
   assert_equal ~printer:pp_obj obj (of_sexp sexp)
 
 let assert_failure pp_obj of_json err str =
-  let json = Json.of_string str in
+  let json = Json.JsonEOI.of_string str in
   assert_equal ~printer:(show_error_or pp_obj) (Result.Error err) (of_json json)
 
 type u = unit         [@@deriving show, located_yojson, sexp]

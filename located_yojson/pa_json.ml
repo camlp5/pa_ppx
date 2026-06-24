@@ -2,9 +2,12 @@
 (* calc.ml,v *)
 value g = Grammar.gcreate (Pcaml.Lexer.gmake ());
 
+value json = Grammar.Entry.create g "json";
 value json_eoi = Grammar.Entry.create g "json_eoi";
+value json_list = Grammar.Entry.create g "json_list";
+value json_list_eoi = Grammar.Entry.create g "json_list_eoi";
 
-value make_int ~neg x =
+value make_int ~{neg} x =
   try
     let n = int_of_string x in
     if neg then `Int (-n)
@@ -16,7 +19,7 @@ value make_int ~neg x =
     ]
 ;
 
-value make_float ~neg x =
+value make_float ~{neg} x =
   try
     let n = float_of_string x in
     if neg then `Float (-. n)
@@ -29,7 +32,7 @@ value make_float ~neg x =
 ;
 
 EXTEND
-  GLOBAL: json_eoi;
+  GLOBAL: json json_eoi json_list json_list_eoi;
 
   json: [
     [ s = STRING -> (loc, `String s)
@@ -45,22 +48,34 @@ EXTEND
   ]
   ;
   json_eoi: [ [ x = json ; EOI -> x ] ];
+  json_list: [ [ l = LIST0 json -> l ] ] ;
+  json_list_eoi: [ [ x = json_list ; EOI -> x ] ];
 
 END;
 
-value parse_json_eoi = Grammar.Entry.parse json_eoi ;
-value of_string s = s |> Stream.of_string |> parse_json_eoi ;
+module type PAHELPER = sig
+  type t = 'a ;
+  value entry : Grammar.Entry.e t ;
+  value parse : (Stream.t char) -> t ;
+  value of_string : string -> t ;
+  value input : in_channel -> t ;
+  value load : ~file:string -> t ;
+end ;
 
-value input_json ic =
-  ic |> Stream.of_channel |> Grammar.Entry.parse json_eoi
-;
-
-value load_json fname =
-  let ic = open_in fname in
+module PAHelper(M : sig type t = 'a ; value entry : Grammar.Entry.e t ; end)
+ : (PAHELPER with type t = M.t) = struct
+  type t = M.t ;
+  value entry = M.entry ;
+  value parse = Grammar.Entry.parse entry ;
+  value of_string s = s |> Stream.of_string |> parse ;
+  value input ic =
+    ic |> Stream.of_channel |> Grammar.Entry.parse entry ;
+  value load ~{file} =
+  let ic = open_in file in
   let old_input_file = Plexing.input_file.val in
   try do {
-    Plexing.input_file.val := fname ;
-    let rv = input_json ic
+    Plexing.input_file.val := file ;
+    let rv = input ic
     in do {
       close_in ic ;
       Plexing.input_file.val := old_input_file ;
@@ -73,3 +88,10 @@ value load_json fname =
     raise e
   }
 ;
+
+end ;
+
+module Json = PAHelper(struct type t = Json0.t ; value entry = json ; end) ;
+module JsonEOI = PAHelper(struct type t = Json0.t ; value entry = json_eoi ; end) ;
+module JsonList = PAHelper(struct type t = list Json0.t ; value entry = json_list ; end) ;
+module JsonListEOI = PAHelper(struct type t = list Json0.t ; value entry = json_list_eoi ; end) ;

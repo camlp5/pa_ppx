@@ -53,6 +53,26 @@ EXTEND
 
 END;
 
+value with_input_file pafun ~{file} =
+  let ic = open_in file in
+  let old_input_file = Plexing.input_file.val in
+  try do {
+    Plexing.input_file.val := file ;
+    let strm = Stream.of_channel ic in
+    let rv = pafun strm
+    in do {
+      close_in ic ;
+      Plexing.input_file.val := old_input_file ;
+      rv
+    }
+  }
+  with e -> do {
+    close_in ic ;
+    Plexing.input_file.val := old_input_file ;
+    raise e
+  }
+;
+
 module type PAHELPER = sig
   type t = 'a ;
   value entry : Grammar.Entry.e t ;

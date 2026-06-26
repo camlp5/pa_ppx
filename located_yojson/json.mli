@@ -10,6 +10,7 @@ end
 
 module Json : (Pa_json.PAHELPER with type t = Json0.t)
 module JsonEOI : (Pa_json.PAHELPER with type t = Json0.t)
+module JsonOrEOI : (Pa_json.PAHELPER with type t = Json0.t option)
 module JsonList : (Pa_json.PAHELPER with type t = Json0.t list)
 module JsonListEOI : (Pa_json.PAHELPER with type t = Json0.t list)
 

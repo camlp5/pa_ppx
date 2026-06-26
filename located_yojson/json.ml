@@ -40,6 +40,7 @@ let of_yojson_json loc e =
 
 module Json = Pa_json.Json
 module JsonEOI = Pa_json.JsonEOI
+module JsonOrEOI = Pa_json.JsonOrEOI
 module JsonList = Pa_json.JsonList
 module JsonListEOI = Pa_json.JsonListEOI
 

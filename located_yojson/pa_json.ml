@@ -4,6 +4,7 @@ value g = Grammar.gcreate (Pcaml.Lexer.gmake ());
 
 value json = Grammar.Entry.create g "json";
 value json_eoi = Grammar.Entry.create g "json_eoi";
+value json_or_eoi = Grammar.Entry.create g "json_or_eoi";
 value json_list = Grammar.Entry.create g "json_list";
 value json_list_eoi = Grammar.Entry.create g "json_list_eoi";
 
@@ -32,7 +33,7 @@ value make_float ~{neg} x =
 ;
 
 EXTEND
-  GLOBAL: json json_eoi json_list json_list_eoi;
+  GLOBAL: json json_eoi json_or_eoi json_list json_list_eoi;
 
   json: [
     [ s = STRING -> (loc, `String s)
@@ -48,6 +49,7 @@ EXTEND
   ]
   ;
   json_eoi: [ [ x = json ; EOI -> x ] ];
+  json_or_eoi: [ [ x = json -> Some x | EOI -> None ] ];
   json_list: [ [ l = LIST0 json -> l ] ] ;
   json_list_eoi: [ [ x = json_list ; EOI -> x ] ];
 
@@ -113,5 +115,6 @@ end ;
 
 module Json = PAHelper(struct type t = Json0.t ; value entry = json ; end) ;
 module JsonEOI = PAHelper(struct type t = Json0.t ; value entry = json_eoi ; end) ;
+module JsonOrEOI = PAHelper(struct type t = (option Json0.t) ; value entry = json_or_eoi ; end) ;
 module JsonList = PAHelper(struct type t = list Json0.t ; value entry = json_list ; end) ;
 module JsonListEOI = PAHelper(struct type t = list Json0.t ; value entry = json_list_eoi ; end) ;

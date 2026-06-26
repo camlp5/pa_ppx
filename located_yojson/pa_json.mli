@@ -3,6 +3,7 @@
 val g : Grammar.g
 val json : Json0.t Grammar.Entry.e
 val json_eoi : Json0.t Grammar.Entry.e
+val json_or_eoi : Json0.t option Grammar.Entry.e
 val json_list_eoi : Json0.t list Grammar.Entry.e
 
 val with_input_file : (char Stream.t -> 'a) -> file:string -> 'a
@@ -18,5 +19,6 @@ end
 
 module Json : (PAHELPER with type t = Json0.t)
 module JsonEOI : (PAHELPER with type t = Json0.t)
+module JsonOrEOI : (PAHELPER with type t = Json0.t option)
 module JsonList : (PAHELPER with type t = Json0.t list)
 module JsonListEOI : (PAHELPER with type t = Json0.t list)

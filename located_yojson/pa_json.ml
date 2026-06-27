@@ -54,7 +54,7 @@ EXTEND
   json_list_eoi: [ [ x = json_list ; EOI -> x ] ];
 
 END;
-
+(*
 value with_input_file pafun ~{file} =
   let ic = open_in file in
   let old_input_file = Plexing.input_file.val in
@@ -74,11 +74,34 @@ value with_input_file pafun ~{file} =
     raise e
   }
 ;
+ *)
+value with_input_file g pafun consumer ~{file} =
+  let ic = open_in file in
+  let old_input_file = Plexing.input_file.val in
+  try do {
+    Plexing.input_file.val := file ;
+    let cs = Stream.of_channel ic in
+    let cspa = Grammar.parsable g cs in
+    let strm = Stream.from (fun _ -> pafun cspa) in
+    let rv = consumer strm
+    in do {
+      close_in ic ;
+      Plexing.input_file.val := old_input_file ;
+      rv
+    }
+  }
+  with e -> do {
+    close_in ic ;
+    Plexing.input_file.val := old_input_file ;
+    raise e
+  }
+;
 
 module type PAHELPER = sig
   type t = 'a ;
   value entry : Grammar.Entry.e t ;
   value parse : (Stream.t char) -> t ;
+  value parse_parsable : Grammar.parsable -> t ;
   value of_string : string -> t ;
   value input : in_channel -> t ;
   value load : ~file:string -> t ;
@@ -89,6 +112,7 @@ module PAHelper(M : sig type t = 'a ; value entry : Grammar.Entry.e t ; end)
   type t = M.t ;
   value entry = M.entry ;
   value parse = Grammar.Entry.parse entry ;
+  value parse_parsable = Grammar.Entry.parse_parsable entry ;
   value of_string s = s |> Stream.of_string |> parse ;
   value input ic =
     ic |> Stream.of_channel |> Grammar.Entry.parse entry ;

@@ -14,6 +14,7 @@ module JsonOrEOI : (Pa_json.PAHELPER with type t = Json0.t option)
 module JsonList : (Pa_json.PAHELPER with type t = Json0.t list)
 module JsonListEOI : (Pa_json.PAHELPER with type t = Json0.t list)
 
+val loc_of_json : t -> Ploc.t
 val to_string : t -> string
 val to_yojson_json : t -> Yojson.Safe.t
 val of_yojson_json : Ploc.t -> Yojson.Safe.t -> t

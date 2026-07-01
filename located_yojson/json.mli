@@ -19,3 +19,4 @@ val to_string : t -> string
 val to_yojson_json : t -> Yojson.Safe.t
 val of_yojson_json : Ploc.t -> Yojson.Safe.t -> t
 val pp_hum : Format.formatter -> Json0.t -> unit
+val pp_hum_to_channel : out_channel -> Json0.t -> unit

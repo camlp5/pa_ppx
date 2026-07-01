@@ -46,4 +46,4 @@ module JsonListEOI = Pa_json.JsonListEOI
 
 let to_string se = Yojson.Safe.to_string (to_yojson_json se)
 let pp_hum pps se = Yojson.Safe.pretty_print pps (to_yojson_json se)
-
+let pp_hum_to_channel oc j = Yojson.Safe.pretty_to_channel oc (to_yojson_json j)

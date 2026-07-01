@@ -20,3 +20,4 @@ val to_yojson_json : t -> Yojson.Safe.t
 val of_yojson_json : Ploc.t -> Yojson.Safe.t -> t
 val pp_hum : ?std:bool -> Format.formatter -> Json0.t -> unit
 val pp_hum_to_channel : ?std:bool -> out_channel -> Json0.t -> unit
+val raise_failwith_error_msg : ('a, Ploc.t * string) result -> 'a

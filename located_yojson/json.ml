@@ -1,5 +1,8 @@
 (**pp -syntax camlp5o -package pa_ppx_import,pa_ppx_deriving_plugins.std *)
 
+open Pa_ppx_base
+open Ppxutil
+
 [%%import: Json0.t
  [@with Ploc.t := Pa_ppx_base.Pp_MLast.Ploc.t]
 ][@@deriving show,eq]
@@ -47,3 +50,7 @@ module JsonListEOI = Pa_json.JsonListEOI
 let to_string se = Yojson.Safe.to_string (to_yojson_json se)
 let pp_hum ?std pps se = Yojson.Safe.pretty_print ?std pps (to_yojson_json se)
 let pp_hum_to_channel ?std oc j = Yojson.Safe.pretty_to_channel ?std oc (to_yojson_json j)
+let raise_failwith_error_msg = function
+    Result.Ok x -> x
+  | Error (loc,msg) ->
+     Fmt.(raise_failwith loc msg)

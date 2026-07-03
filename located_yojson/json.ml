@@ -48,8 +48,14 @@ module JsonList = Pa_json.JsonList
 module JsonListEOI = Pa_json.JsonListEOI
 
 let to_string se = Yojson.Safe.to_string (to_yojson_json se)
-let pp_hum ?std pps se = Yojson.Safe.pretty_print ?std pps (to_yojson_json se)
-let pp_hum_to_channel ?std oc j = Yojson.Safe.pretty_to_channel ?std oc (to_yojson_json j)
+let pp_hum ?std pps se =
+  Fmt.(pf pps "%a@." (Yojson.Safe.pretty_print ?std) (to_yojson_json se))
+
+let pp_hum_to_channel ?std oc j =
+  Yojson.Safe.pretty_to_channel ?std oc (to_yojson_json j) ;
+  output_string oc "\n" ;
+  flush oc
+
 let raise_failwith_error_msg = function
     Result.Ok x -> x
   | Error (loc,msg) ->

@@ -648,7 +648,7 @@ and fmt_record ~{cid} ~{msg} loc arg fields =
 
   let catch_branch =
     if Ctxt.is_strict arg then
-      (<:patt< [(loc, _) :: _] >>, <:vala< None >>, <:expr< Result.Error (loc, $str:msg$) >>)
+      (<:patt< [_ :: _] >>, <:vala< None >>, <:expr< Result.Error (loc, $str:msg$) >>)
   else
     let varrow = varrow_except (-1, <:expr< . >>) in
     let cons1exp = tupleexpr loc varrow in
@@ -959,7 +959,7 @@ Pa_deriving.(Registry.add PI.{
 ; alternates = ["to_located_yojson"; "of_located_yojson"]
 ; options = ["optional"; "strict"; "exn"]
 ; default_options = let loc = Ploc.dummy in
-    [ ("optional", <:expr< False >>); ("strict", <:expr< False >>); ("exn", <:expr< False >>) ]
+    [ ("optional", <:expr< False >>); ("strict", <:expr< True >>); ("exn", <:expr< False >>) ]
 ; alg_attributes = ["nobuiltin"; "key"; "name"; "encoding"; "default"; "to_located_yojson"; "of_located_yojson"]
 ; expr_extensions = ["to_located_yojson"; "of_located_yojson"]
 ; ctyp_extensions = ["to_located_yojson"; "of_located_yojson"]

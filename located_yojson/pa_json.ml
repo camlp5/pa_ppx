@@ -36,7 +36,7 @@ EXTEND
   GLOBAL: json json_eoi json_or_eoi json_list json_list_eoi;
 
   json: [
-    [ s = STRING -> (loc, `String s)
+    [ s = STRING -> (loc, `String (Scanf.unescaped s))
     | "null" -> (loc, `Null)
     | s = INT -> (loc, make_int ~{neg=False} s)
     | f = FLOAT -> (loc, make_float ~{neg=False} f)

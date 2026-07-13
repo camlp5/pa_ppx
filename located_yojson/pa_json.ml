@@ -32,11 +32,19 @@ value make_float ~{neg} x =
     ]
 ;
 
+value unescape_json_string s =
+  let quoted_s = "\""^s^"\"" in
+  match Yojson.Safe.from_string quoted_s with [
+      `String s -> s
+    | _ -> failwith "Pa_json.unescape_json_string: didn't get back a string from Yojson.Safe.from_string!"
+    ]
+;
+
 EXTEND
   GLOBAL: json json_eoi json_or_eoi json_list json_list_eoi;
 
   json: [
-    [ s = STRING -> (loc, `String (Scanf.unescaped s))
+    [ s = STRING -> (loc, `String (unescape_json_string s))
     | "null" -> (loc, `Null)
     | s = INT -> (loc, make_int ~{neg=False} s)
     | f = FLOAT -> (loc, make_float ~{neg=False} f)

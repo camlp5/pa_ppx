@@ -275,7 +275,7 @@ let test_field_err _ctxt =
                (Result.Error (Ploc.dummy, filemod^"geo.lat"))
                (geo_of_located_yojson (Ploc.dummy, `Assoc ["Longitude", (Ploc.dummy, `Float 42.0)]))
 
-type id = Pa_ppx_located_yojson.Json.t [@@deriving located_yojson]
+type id = Pa_ppx_located_yojson.Json.t [@@deriving located_yojson,show,yojson]
 let test_id _ctxt =
   assert_roundtrip' pp_json (id_to_located_yojson, cmp) (id_of_located_yojson, equal_error_or cmp)
                    (Ploc.dummy, `Int 42) "42"

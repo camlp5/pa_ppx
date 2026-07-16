@@ -41,7 +41,7 @@ let of_yojson_json loc e =
     | `Null -> (t, `Null)
     | `String s -> (t, `String s)
   in convrec loc e
-let of_yojson = of_yojson_json Ploc.dummy
+let of_yojson x = Result.Ok (of_yojson_json Ploc.dummy x)
 
 module Json = Pa_json.Json
 module JsonEOI = Pa_json.JsonEOI

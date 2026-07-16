@@ -27,6 +27,7 @@ let to_yojson_json e =
     | (_, `Null) -> `Null
     | (_, `String s) -> `String s
   in convrec e
+let to_yojson = to_yojson_json
 
 let of_yojson_json loc e =
   let module Y = Yojson.Safe in
@@ -40,6 +41,7 @@ let of_yojson_json loc e =
     | `Null -> (t, `Null)
     | `String s -> (t, `String s)
   in convrec loc e
+let of_yojson = of_yojson_json Ploc.dummy
 
 module Json = Pa_json.Json
 module JsonEOI = Pa_json.JsonEOI

@@ -16,7 +16,9 @@ module JsonListEOI : (Pa_json.PAHELPER with type t = Json0.t list)
 
 val loc_of_json : t -> Ploc.t
 val to_string : t -> string
+val to_yojson : t -> Yojson.Safe.t
 val to_yojson_json : t -> Yojson.Safe.t
+val of_yojson : Yojson.Safe.t -> t
 val of_yojson_json : Ploc.t -> Yojson.Safe.t -> t
 val pp_hum : ?std:bool -> Format.formatter -> Json0.t -> unit
 val pp_hum_to_channel : ?std:bool -> out_channel -> Json0.t -> unit

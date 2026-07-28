@@ -18,6 +18,13 @@ module type PAHELPER = sig
   val load : file:string -> t
 end
 
+module PAHelper :
+  functor (M : sig
+             type t
+             val entry : t Grammar.Entry.e
+           end) ->
+    (PAHELPER with type t = M.t)
+
 module Json : (PAHELPER with type t = Json0.t)
 module JsonEOI : (PAHELPER with type t = Json0.t)
 module JsonOrEOI : (PAHELPER with type t = Json0.t option)

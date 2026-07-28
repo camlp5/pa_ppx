@@ -137,9 +137,10 @@ module PAHelper(M : sig type t = 'a ; value entry : Grammar.Entry.e t ; end)
     }
   }
   with e -> do {
+    let rbt = Printexc.get_raw_backtrace() in
     close_in ic ;
     Plexing.input_file.val := old_input_file ;
-    raise e
+    Printexc.raise_with_backtrace e rbt
   }
 ;
 

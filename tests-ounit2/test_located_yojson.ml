@@ -24,8 +24,9 @@ end
 Pa_ppx_runtime.Exceptions.Ploc.pp_loc_verbose := true ;;
 Pa_ppx_runtime_fat.Exceptions.Ploc.pp_loc_verbose := true ;;
 
-let good str =
-  let yojson_yojson = Yojson.Safe.from_string str in
+let good ?yojson str =
+  let yojson = match yojson with Some s -> s | None -> str in
+  let yojson_yojson = Yojson.Safe.from_string yojson in
   let located_yojson = Pa_ppx_located_yojson.Json.JsonEOI.of_string str in
   assert_equal ~printer:YJ.show_json ~msg:str (Pa_ppx_located_yojson.Json.to_yojson_json located_yojson) yojson_yojson
 
@@ -46,8 +47,10 @@ let test_good ctxt =
   ; good {|-9223372036854775807|}
   ; good {|1.0|}
   ; good {|-1.0|}
+  ; good ~yojson:{|"a"|} {|{foo|a|foo}|}
     (* multiple sexps *)
- 
+
+
 open Pa_ppx_located_yojson
 
 let test_equality ctxt =
@@ -57,7 +60,7 @@ let test_equality ctxt =
 ; assert_bool "changed location/generated default equality" (not (Json.equal e1 e2))
 ; assert_bool "changed location/custom equality" (Json.ErasingLoc.equal e1 e2)
 
-let suite = "Test located_sexp" >::: [
+let suite = "Test located_yojson" >::: [
     "test_good"   >:: test_good
     ; "test_equality"   >:: test_equality
   ]

@@ -45,6 +45,9 @@ EXTEND
 
   json: [
     [ s = STRING -> (loc, `String (unescape_json_string s))
+    | rs = RAWSTRING ->
+       let (_, s) = Asttools.split_rawstring rs in
+       (loc, `String (unescape_json_string s))
     | "null" -> (loc, `Null)
     | s = INT -> (loc, make_int ~{neg=False} s)
     | f = FLOAT -> (loc, make_float ~{neg=False} f)

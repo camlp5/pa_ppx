@@ -147,3 +147,4 @@ val split_option : ('a * 'b) option -> ('a option * 'b option)
 val combine : 'a list -> 'b list -> ('a * 'b) list
 val slice_string : ?spos:int -> ?epos:int -> string -> string
 val pred_or : ('a -> bool) list -> 'a -> bool
+val unescape_string : string -> string

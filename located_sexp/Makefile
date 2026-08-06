@@ -10,8 +10,8 @@ DESTDIR=
 PACKAGES := $(PACKAGES),pa_ppx_base
 TARGET_PACKAGE=pa_ppx_located_sexp
 TARGET=$(TARGET_PACKAGE).cma
-ML = wslexer.ml sexp0.ml pa_sexp.ml sexp.ml conv.ml runtime.ml
-MLI = sexp0.mli pa_sexp.mli sexp.mli conv.mli
+ML = wslexer.ml sexp0.ml pa_sexp.ml pa_sexp2.ml sexp.ml altsexp.ml conv.ml runtime.ml
+MLI = sexp0.mli pa_sexp.mli sexp.mli altsexp.mli conv.mli
 ALLSRC = $(ML) $(MLI)
 ALLPACKAGES=$(PACKAGES)
 

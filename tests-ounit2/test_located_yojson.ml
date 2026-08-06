@@ -48,6 +48,7 @@ let test_good ctxt =
   ; good {|1.0|}
   ; good {|-1.0|}
   ; good ~yojson:{|"a"|} {|{foo|a|foo}|}
+  ; good ~yojson:{|"a"|} {foo|{|a|}|foo}
     (* multiple sexps *)
 
 

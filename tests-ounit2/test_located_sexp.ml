@@ -5,9 +5,16 @@ open Pa_ppx_testutils
 Pa_ppx_runtime.Exceptions.Ploc.pp_loc_verbose := true ;;
 Pa_ppx_runtime_fat.Exceptions.Ploc.pp_loc_verbose := true ;;
 
-let good str =
-  let sexplib_sexp = Sexplib.Sexp.of_string str in
+let good ?sexpstr str =
+  let sexpstr = match sexpstr with None -> str | Some s -> s in
+  let sexplib_sexp = Sexplib.Sexp.of_string sexpstr in
   let located_sexp = Pa_ppx_located_sexp.Sexp.of_string str in
+  assert_equal ~msg:str (Pa_ppx_located_sexp.Sexp.to_sexplib_sexp located_sexp) sexplib_sexp
+
+let good2 ?sexpstr str =
+  let sexpstr = match sexpstr with None -> str | Some s -> s in
+  let sexplib_sexp = Sexplib.Sexp.of_string sexpstr in
+  let located_sexp = Pa_ppx_located_sexp.Altsexp.of_string str in
   assert_equal ~msg:str (Pa_ppx_located_sexp.Sexp.to_sexplib_sexp located_sexp) sexplib_sexp
 
 let bad ~sexplib_msg ~msg str =
@@ -38,6 +45,16 @@ let test_good ctxt =
   ; bad ~sexplib_msg:"S-expression followed by data" ~msg:"EOI expected" "foo ("
   ; good "#;() ( #;() ) #;()"
 
+let test_good2 ctxt =
+  ()
+  ; good2 {foo|()|foo}
+  ; good2 {foo|a|foo}
+  ; good2 {foo|A|foo}
+  ; good2 {foo|"a"|foo}
+  ; good2 {foo|(a)|foo}
+  ; good2 ~sexpstr:{foo|"a"|foo} {foo|{x|a|x}|foo}
+  ; good2 ~sexpstr:{foo|("a")|foo} {foo|({|a|})|foo}
+
 open Pa_ppx_located_sexp
 
 let test_equality ctxt =
@@ -48,7 +65,8 @@ let test_equality ctxt =
 ; assert_bool "changed location/custom equality" (Sexp.ErasingLoc.equal e1 e2)
 
 let suite = "Test located_sexp" >::: [
-    "test_good"   >:: test_good
+      "test_good"   >:: test_good
+    ; "test_good2"   >:: test_good2
     ; "test_equality"   >:: test_equality
   ]
 

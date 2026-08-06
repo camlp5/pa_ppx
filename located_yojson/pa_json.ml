@@ -1,6 +1,8 @@
 (**pp -syntax camlp5r -package camlp5.extend *)
 (* calc.ml,v *)
-value g = Grammar.gcreate (Pcaml.Lexer.gmake ());
+module Lexer = Plexer.Make(struct end) ;
+Lexer.simplest_raw_strings.val := True ;
+value g = Grammar.gcreate (Lexer.gmake ());
 
 value json = Grammar.Entry.create g "json";
 value json_eoi = Grammar.Entry.create g "json_eoi";

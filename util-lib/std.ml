@@ -538,3 +538,90 @@ let slice_string ?(spos=0) ?epos s =
   String.sub s spos (epos - spos)
 
 let pred_or pl x = List.exists (fun p -> p x) pl
+
+
+let string_of_uchar uc =
+  let b = Buffer.create 4 in
+  Uutf.Buffer.add_utf_8 b uc ;
+  Buffer.contents b
+
+let digit2int = function
+  '0'..'9' as c -> (Char.code c) - (Char.code '0')
+| 'a'..'f' as c -> (Char.code c) - (Char.code 'a') + 10
+| 'A'..'F' as c -> (Char.code c) - (Char.code 'A') + 10
+| _ -> failwith "unescape_string: bad digit"
+
+let hexstring2int digits = int_of_string ("0x"^digits)
+
+let unescape_string s =
+  let slen = String.length s in
+  let b = Buffer.create slen in
+  let rec unrec i =
+    if i = String.length s then Buffer.contents b
+    else match s.[i] with
+           '\\' -> backslash (i+1)
+         | c -> Buffer.add_char b c ; unrec (i+1)
+
+  and backslash i =
+    if i = slen then failwith "unescape_string: malformed trailing backslash escape"
+    else
+      match s.[i] with
+          ('\'' | '"' | ' ' | '\\') as c -> Buffer.add_char b c ; unrec (i+1)
+        | 'b' -> Buffer.add_char b '\b' ; unrec (i+1)
+        | 'r' -> Buffer.add_char b '\r' ; unrec (i+1)
+        | 'n' ->  Buffer.add_char b '\n' ; unrec (i+1)
+        | 't' ->  Buffer.add_char b '\t' ; unrec (i+1)
+        | '0'..'9' -> let i = dec i in unrec i
+        | 'x' -> let i = hex (i+1) in unrec i
+        | 'o' -> let i = oct (i+1) in unrec i
+        | 'u' -> let i = uni (i+1) in unrec i
+        | c -> failwith (Printf.sprintf "unescape_string: unrecognized backslash '%c' escape at offset %d" c i)
+
+  and dec i =
+    if i+3 > slen then
+      failwith (Printf.sprintf "unescape_string: decimal escape without enough digits at offset %d" i)
+    else
+      match (s.[i], s.[i+1], s.[i+2]) with
+          ((('0'..'9') as c1), (('0'..'9') as c2), (('0'..'9') as c3)) ->
+          let code = (digit2int c1)*100 +(digit2int c2)*10 + (digit2int c3) in
+          Buffer.add_char b (Char.chr code) ; i+3
+
+        | _ -> failwith (Printf.sprintf "unescape_string: malformed decimal escape at offset %d" i)
+
+  and oct i =
+    if i+3 > slen then
+      failwith (Printf.sprintf "unescape_string: octal escape without enough digits at offset %d" i)
+    else
+      match (s.[i], s.[i+1], s.[i+2]) with
+          ((('0'..'7') as c1), (('0'..'7') as c2), (('0'..'7') as c3)) ->
+          let code = (digit2int c1)*64 +(digit2int c2)*8 + (digit2int c3) in
+          Buffer.add_char b (Char.chr code) ; i+3
+
+        | _ -> failwith (Printf.sprintf "unescape_string: malformed octal escape at offset %d" i)
+
+  and hex i =
+    if i+2 > slen then
+      failwith (Printf.sprintf "unescape_string: hex escape without enough digits at offset %d" i)
+    else
+      match (s.[i], s.[i+1]) with
+          ((('0'..'7'|'a'..'f'|'A'..'F') as c1), (('0'..'7'|'a'..'f'|'A'..'F') as c2)) ->
+          let code = (digit2int c1)*16 +(digit2int c2) in
+          Buffer.add_char b (Char.chr code) ; i+2
+
+        | _ -> failwith (Printf.sprintf "unescape_string: malformed hex escape at offset %d" i)
+
+  and uni i =
+    if i >= slen || s.[i] <> '{' then
+      failwith (Printf.sprintf "unescape_string: malformed unicode escape at offset %d" i)
+    else ();
+    match String.index_from_opt s (i+1) '}' with
+      None ->
+        failwith (Printf.sprintf "unescape_string: malformed unicode escape (no '}') at offset %d" i)
+    | Some j ->
+       let digits = String.sub s (i+1) (j - (i+1)) in
+       let n = hexstring2int digits in
+       let uc = Uchar.of_int n in
+       Buffer.add_string b (string_of_uchar uc) ; j+1
+
+in unrec 0
+;

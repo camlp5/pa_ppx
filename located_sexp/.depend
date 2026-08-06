@@ -1,4 +1,4 @@
-wslexer.cmo sexp0.cmo pa_sexp.cmo sexp.cmo conv.cmo runtime.cmo wslexer.cmi sexp0.cmi pa_sexp.cmi sexp.cmi conv.cmi runtime.cmi wslexer.cmx sexp0.cmx pa_sexp.cmx sexp.cmx conv.cmx runtime.cmx: ../local-install/lib/pa_ppx_base/META
+wslexer.cmo sexp0.cmo pa_sexp.cmo pa_sexp2.cmo sexp.cmo altsexp.cmo conv.cmo runtime.cmo wslexer.cmi sexp0.cmi pa_sexp.cmi pa_sexp2.cmi sexp.cmi altsexp.cmi conv.cmi runtime.cmi wslexer.cmx sexp0.cmx pa_sexp.cmx pa_sexp2.cmx sexp.cmx altsexp.cmx conv.cmx runtime.cmx: ../local-install/lib/pa_ppx_base/META
 wslexer.cmo :
 wslexer.cmx :
 sexp0.cmo : \
@@ -13,14 +13,28 @@ pa_sexp.cmx : \
     wslexer.cmx \
     sexp0.cmx \
     pa_sexp.cmi
+pa_sexp2.cmo : \
+    sexp0.cmi
+pa_sexp2.cmx : \
+    sexp0.cmx
 sexp.cmo : \
     sexp0.cmi \
+    pa_sexp2.cmo \
     pa_sexp.cmi \
     sexp.cmi
 sexp.cmx : \
     sexp0.cmx \
+    pa_sexp2.cmx \
     pa_sexp.cmx \
     sexp.cmi
+altsexp.cmo : \
+    sexp0.cmi \
+    pa_sexp2.cmo \
+    altsexp.cmi
+altsexp.cmx : \
+    sexp0.cmx \
+    pa_sexp2.cmx \
+    altsexp.cmi
 conv.cmo : \
     sexp.cmi \
     conv.cmi
@@ -33,6 +47,8 @@ sexp0.cmi :
 pa_sexp.cmi : \
     sexp0.cmi
 sexp.cmi : \
+    sexp0.cmi
+altsexp.cmi : \
     sexp0.cmi
 conv.cmi : \
     sexp.cmi

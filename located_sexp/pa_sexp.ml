@@ -1,7 +1,7 @@
 (**pp -syntax camlp5r -package sexplib,,camlp5.extend *)
 (* calc.ml,v *)
 
-value input_file = ref "" ;
+value input_file = Plexing.input_file ;
 
 value raw_token lb =
   let open Sexplib in

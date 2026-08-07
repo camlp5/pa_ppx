@@ -20,6 +20,7 @@ EXTEND
     [ s = STRING -> Sexp0.Atom loc (Std.unescape_string s)
     | s = LIDENT -> Sexp0.Atom loc s
     | s = UIDENT -> Sexp0.Atom loc s
+    | s = INT -> Sexp0.Atom loc s
     | rs = RAWSTRING ->
        let (_, s) = Asttools.split_rawstring rs in
        Sexp0.Atom loc (Std.unescape_string s)

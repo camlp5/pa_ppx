@@ -54,6 +54,7 @@ let test_good2 ctxt =
   ; good2 {foo|(a)|foo}
   ; good2 ~sexpstr:{foo|"a"|foo} {foo|{x|a|x}|foo}
   ; good2 ~sexpstr:{foo|("a")|foo} {foo|({|a|})|foo}
+  ; good2 ~sexpstr:{foo| 1 |foo} {foo| 1 |foo}
 
 open Pa_ppx_located_sexp
 

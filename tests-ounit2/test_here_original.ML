@@ -28,9 +28,13 @@ let pos = {
  assert_equal ~printer:show_position pos here
 
 #ifdef PAPPX
-let wrapped_string = [%here "foo"]
-let pos = {Lexing.pos_fname = "test_here_original.ML"; pos_lnum = 31; pos_bol = 527;
-    pos_cnum = 555}
+let wrapped_string = [%here_string "foo"]
+let pos = {
+    Lexing.pos_fname = "test_here_original.ML"
+  ; pos_lnum = 31
+  ; pos_bol = 527
+  ; pos_cnum = 563
+  }
 let test_wrapped ctxt =
   assert_equal ~printer:show_position pos (fst wrapped_string)
 

@@ -15,6 +15,10 @@ value rewrite_expr arg = fun [
     let pos = start_position_of_loc (MLast.loc_of_expr e) in
     let posexp = quote_position loc pos in
     <:expr< ($posexp$, $e$) >>
+| <:expr:< [%here_string $locstr:(sloc,s)$;] >> ->
+    let pos = start_position_of_loc sloc in
+    let posexp = quote_position loc pos in
+    <:expr< ($posexp$, $locstr:(sloc,s)$) >>
 | _ -> assert False
 ]
 ;
@@ -23,7 +27,7 @@ value install () =
 let ef = EF.mk () in 
 let ef = EF.{ (ef) with
             expr = extfun ef.expr with [
-    (<:expr:< [%here] >> | <:expr:< [%here $exp:_$;] >>) as z ->
+    (<:expr:< [%here] >> | <:expr:< [%here $exp:_$;] >> | <:expr:< [%here_string $locstr:_$;] >>) as z ->
     fun arg fallback ->
       Some (rewrite_expr arg z)
   ] } in

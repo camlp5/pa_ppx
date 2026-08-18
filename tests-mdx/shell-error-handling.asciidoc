@@ -5,7 +5,6 @@ Test Shell Error Handling
 
 ```sh
 $ env TOP=.. ocamlfind camlp5-buildscripts/LAUNCH  -- ocamlfind camlp5-buildscripts/ya-wrap-ocamlfind ocamlfind ocamlc fixtures/fail2.ml
-'ocamlfind' 'ocamlc' -syntax camlp5o -package pa_ppx_fail  fixtures/fail2.ml
 File "fixtures/fail2.ml", line 3, characters 31-44:
 Failure: bar
 File "fixtures/fail2.ml", line 1:
@@ -16,7 +15,6 @@ Error: Error while running external preprocessor
 
 ```sh
 $ env TOP=.. ocamlfind camlp5-buildscripts/LAUNCH  -- ocamlfind camlp5-buildscripts/ya-wrap-ocamlfind ocamlfind ocamlc fixtures/located_sexp1.ml
-'ocamlfind' 'ocamlc' -syntax camlp5o -package pa_ppx_deriving_plugins.located_sexp  fixtures/located_sexp1.ml
 File "fixtures/located_sexp1.ml", line 3, characters 12-22:
 Failure: pa_deriving_located_sexp.to_expression: int -> int
 File "fixtures/located_sexp1.ml", line 1:

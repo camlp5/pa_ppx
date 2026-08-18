@@ -858,6 +858,13 @@ let test_labeled_tuple ctxt =
 #endif
 #endif
 
+#ifdef PAPPX
+type 'a located = (Ploc.t * 'a)
+let located_sexp_of_located subf (_,x) = subf x
+let located_of_located_sexp subf se = (Sexp.loc_of_sexp se, subf se)
+type xx = Records.t located [@@deriving located_sexp]
+#endif
+
 let suite = "Test_deriving(located_sexp)" >::: [
       "Sum_and_polymorphic_variants(1b)" >:: Sum_and_polymorphic_variants.test1b
     ; "Case_insensitive" >:: Case_insensitive.test

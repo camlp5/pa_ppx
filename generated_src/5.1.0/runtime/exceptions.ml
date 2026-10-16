@@ -73,14 +73,12 @@ module Ploc =
                                                 v6)
                                              (fun v6 →
                                                 Rresult.R.bind
-                                                  (Runtime.Yojson.
-                                                   string_of_yojson
+                                                  (Runtime.Yojson.string_of_yojson
                                                      "Exceptions.Ploc.unmade_loc_t"
                                                      v7)
                                                   (fun v7 →
                                                      Rresult.R.bind
-                                                       (Runtime.Yojson.
-                                                        string_of_yojson
+                                                       (Runtime.Yojson.string_of_yojson
                                                           "Exceptions.Ploc.unmade_loc_t"
                                                           v8)
                                                        (fun v8 →

@@ -51,7 +51,7 @@ module Location =
            pf ofmt
              "@[<2>{ @[Warnings.loc_start =@ %a@];@ @[loc_end =@ %a@];@ @[loc_ghost =@ %a@] }@]"
              Lexing.pp_position v_loc_start Lexing.pp_position v_loc_end
-             Fmt.bool v_loc_ghost)
+             (let open Pa_ppx_runtime.Runtime in Fmt.bool) v_loc_ghost)
           ofmt arg[@@"ocaml.warning" "-39";] [@@"ocaml.warning" "-33";]
     and show : t → Stdlib.String.t =
       fun arg → Format.asprintf "%a" pp arg[@@"ocaml.warning" "-39";] [@@"ocaml.warning" "-33";]
@@ -1098,7 +1098,8 @@ and pp_row_field_desc : Fmt.t row_field_desc =
        [ Rtag v0 v1 v2 →
            let open Pa_ppx_runtime.Runtime.Fmt in
            pf ofmt "(@[<2>Parsetree.Rtag@ (@,%a,@ %a,@ %a@,))@]"
-             (Asttypes.pp_loc Asttypes.pp_label) v0 Fmt.bool v1
+             (Asttypes.pp_loc Asttypes.pp_label) v0
+             (let open Pa_ppx_runtime.Runtime in Fmt.bool) v1
              (fun (ofmt : Format.formatter) arg →
                 let open Pa_ppx_runtime.Runtime.Fmt in
                 pf ofmt "@[<2>[%a@,]@]" (list ~{sep = semi} pp_core_type) arg)

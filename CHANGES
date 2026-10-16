@@ -1,3 +1,14 @@
+pa_ppx Version 8.05.03
+----------------------
+
+* [15 Oct 2026]
+
+  * update source for compat with camlp5 8.05.03
+    this required regenerating generated files, b/c 8.05.03's revised
+    syntax resuscitated support for ".<NEWLINE>" as a synonym for ";"
+
+    This does NOT affect official syntax in any way.
+
 pa_ppx Version 8.05.01
 ----------------------
 

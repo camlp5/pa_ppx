@@ -40,7 +40,7 @@ depends: [
   "ocaml"       { >= "4.10.0" & < "5.6.0" }
   "conf-perl"
   "camlp5-buildscripts" { >= "0.03" }
-  "camlp5"      { >= "8.05.01" }
+  "camlp5"      { >= "8.05.03" }
   "not-ocamlfind" { >= "0.10" }
   "pcre2"
   "result" { >= "1.5" }
